@@ -25,7 +25,7 @@ from .. import glovar
 from ..functions.channel import edit_evidence, send_debug, send_error
 from ..functions.etc import bold, get_reason, thread, user_mention
 from ..functions.filters import logging_channel, test_group
-from ..functions.group import get_message
+from ..functions.group import delete_message, get_message
 from ..functions.ids import add_except_context
 from ..functions.image import get_file_id
 from ..functions.telegram import send_message
@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 def error(client, message):
     try:
         cid = message.chat.id
+        mid = message.message_id
         if message.reply_to_message:
             r_message = message.reply_to_message
             # Get the message that be replied by /error command
@@ -113,7 +114,7 @@ def error(client, message):
                                 )
                                 thread(send_debug, (client, admin, action, file_id, record["uid"], result, reason))
 
-        delete
+        delete_message(client, cid, mid)
     except Exception as e:
         logger.warning(f"Error error: {e}", exc_info=True)
 
