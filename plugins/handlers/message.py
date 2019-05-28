@@ -79,6 +79,7 @@ def error_ask(client, message):
                                 ]
                             ]
                         )
+                        logger.warning("send")
                         thread(send_message, (client, cid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Check error error: {e}", exc_info=True)
