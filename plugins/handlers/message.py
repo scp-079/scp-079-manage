@@ -39,11 +39,10 @@ logger = logging.getLogger(__name__)
 def error_ask(client, message):
     try:
         cid = message.chat.id
-        logger.warning(cid)
         mid = message.message_id
         aid = message.from_user.id
         rid = message.forward_from_message_id
-        report_message = get_message(client, cid, rid)
+        report_message = get_message(client, glovar.logging_channel_id, rid)
         if (report_message
                 and not report_message.forward_date
                 and report_message.reply_to_message
