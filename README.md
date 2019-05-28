@@ -13,7 +13,7 @@ See [this article](https://scp-079.org/manage/).
 ## Requirements
 
 - Python 3.6 or higher.
-- `requirements.txt` ： APScheduler pyrogram[fast]
+- `requirements.txt` ： APScheduler pyAesCrypt pyrogram[fast]
 
 ## Files
 
