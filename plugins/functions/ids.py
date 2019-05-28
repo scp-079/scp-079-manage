@@ -62,6 +62,9 @@ def add_except_context(client: Client, context: str, except_type: str, project: 
                 "type": except_type
             }
         )
+        if except_type == "sticker":
+            except_type = "stickers"
+
         if not glovar.except_ids[except_type].get(context):
             glovar.except_ids[except_type][context] = set()
 
