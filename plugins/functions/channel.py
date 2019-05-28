@@ -25,8 +25,8 @@ from pyrogram.errors import FloodWait
 
 from .. import glovar
 from .etc import code, general_link, format_data, message_link, thread, user_mention
-from .file import crypt_file, save
-from .telegram import get_group_info, send_document, send_message
+from .file import crypt_file
+from .telegram import send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
