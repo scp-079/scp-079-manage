@@ -17,8 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import pickle
 from configparser import RawConfigParser
-from typing import Dict, List, Union
+from os import mkdir
+from os.path import exists
+from shutil import rmtree
+from typing import Dict, List, Set, Union
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -73,6 +77,65 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or hide_channel_id == 0
         or test_group_id == 0):
     raise SystemExit('No proper settings')
+
+# Load data from pickle
+
+# Init dir
+try:
+    rmtree("tmp")
+except Exception as e:
+    logger.info(f"Remove tmp error: {e}")
+
+for path in ["data", "tmp"]:
+    if not exists(path):
+        mkdir(path)
+
+# Init ids variables
+
+bad_ids: Dict[str, Set[int]] = {
+    "channels": set(),
+    "users": set()
+}
+# bad_ids = {
+#     "channels": {-10012345678},
+#     "users": {12345678}
+# }
+
+except_ids: Dict[str, Union[dict, Set[Union[int, str]]]] = {
+    "channels": set(),
+    "stickers": {},
+    "tmp": {},
+    "users": set()
+}
+# except_ids = {
+#     "channels": {-10012345678},
+#     "stickers": {
+#         "file_id": {"NOPORN", "RECHECK"}
+#     },
+#     "tmp": {
+#         "context": {"NOPORN", "NOSPAM", "RECHECK"}
+#     },
+#     "users": {12345678}
+# }
+
+# Load data
+file_list: List[str] = ["bad_ids", "except_ids"]
+for file in file_list:
+    try:
+        try:
+            if exists(f"data/{file}") or exists(f"data/.{file}"):
+                with open(f"data/{file}", 'rb') as f:
+                    locals()[f"{file}"] = pickle.load(f)
+            else:
+                with open(f"data/{file}", 'wb') as f:
+                    pickle.dump(eval(f"{file}"), f)
+        except Exception as e:
+            logger.error(f"Load data {file} error: {e}")
+            with open(f"data/.{file}", 'rb') as f:
+                locals()[f"{file}"] = pickle.load(f)
+    except Exception as e:
+        logger.critical(f"Load data {file} backup error: {e}")
+        raise SystemExit("[DATA CORRUPTION]")
 
 # Start program
 copyright_text = (f"SCP-079-{sender} v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"
