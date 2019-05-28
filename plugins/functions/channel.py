@@ -24,7 +24,7 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, general_link, format_data, message_link, thread, user_mention
+from .etc import code, general_link, format_data, message_link, thread
 from .file import crypt_file
 from .telegram import send_document, send_message
 
@@ -90,12 +90,16 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
-def send_error(client: Client, project: str, aid: int, action: str) -> bool:
+def send_error(client: Client, project: str, admin: str, action: str, reason: str = None) -> bool:
     # Send the error record message
     try:
+        # Attention: project admin can make a fake operator name
         text = (f"原始项目：{code(project)}\n"
-                f"项目管理员：{user_mention(aid)}\n"
+                f"项目管理员：{code(admin)}\n"
                 f"执行操作：{code(action)}\n")
+        if reason:
+            text += f"原因：{code(reason)}\n"
+
         thread(send_message, (client, glovar.error_channel_id, text))
         return True
     except Exception as e:
@@ -104,15 +108,25 @@ def send_error(client: Client, project: str, aid: int, action: str) -> bool:
     return False
 
 
-def send_debug(client: Client, aid: int, action: str, uid: int, context: Union[int, str], em: Message) -> bool:
+def send_debug(client: Client, aid: Union[int, str], action: str, context: Union[int, str],
+               uid: int = None, em: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
+        # Attention: project admin can make a fake operator name
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"项目管理员：{code(aid)}\n"
                 f"执行操作：{code(action)}\n"
-                f"原用户 ID：{code(uid)}\n"
-                f"解明内容：{code(context)}\n"
-                f"记录转存：{general_link(em.message_id, message_link(em))}\n")
+                f"操作内容：{code(context)}\n")
+
+        if uid:
+            text += f"原用户 ID：{code(uid)}\n"
+
+        if em:
+            text += f"记录转存：{general_link(em.message_id, message_link(em))}\n"
+
+        if reason:
+            text += f"原因：{code(reason)}\n"
+
         thread(send_message, (client, glovar.debug_channel_id, text))
         return True
     except Exception as e:

@@ -53,6 +53,18 @@ def is_hide_channel(_, message: Message) -> bool:
     return False
 
 
+def is_logging_channel(_, message: Message) -> bool:
+    # Check if the message is sent from the logging channel
+    try:
+        cid = message.chat.id
+        if cid == glovar.logging_channel_id:
+            return True
+    except Exception as e:
+        logger.warning(f"Is logging channel error: {e}", exc_info=True)
+
+    return False
+
+
 def is_manage_group(_, message: Message) -> bool:
     # Check if the message is sent from the manage group
     try:
@@ -85,6 +97,11 @@ exchange_channel = Filters.create(
 hide_channel = Filters.create(
     name="Hide Channel",
     func=is_hide_channel
+)
+
+logging_channel = Filters.create(
+    name="Logging Channel",
+    func=is_logging_channel
 )
 
 manage_group = Filters.create(
