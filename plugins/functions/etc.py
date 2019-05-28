@@ -25,7 +25,7 @@ from time import sleep
 from typing import Callable, List, Optional, Union
 
 from cryptography.fernet import Fernet
-from pyrogram import Message
+from pyrogram import InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait
 
 # Enable logging
@@ -161,6 +161,27 @@ def get_channel_link(message: Union[int, Message]) -> str:
         logger.warning(f"Get channel link error: {e}", exc_info=True)
 
     return text
+
+
+def get_callback_data(message: Message) -> List[dict]:
+    # Get a message's inline button's callback data
+    callback_data_list = []
+    try:
+        if message.reply_markup and isinstance(message.reply_markup, InlineKeyboardMarkup):
+            reply_markup = message.reply_markup
+            if reply_markup.inline_keyboard:
+                inline_keyboard = reply_markup.inline_keyboard
+                if inline_keyboard:
+                    for button_row in inline_keyboard:
+                        for button in button_row:
+                            if button.callback_data:
+                                callback_data = button.callback_data
+                                callback_data = loads(callback_data)
+                                callback_data_list.append(callback_data)
+    except Exception as e:
+        logger.warning(f"Get callback data error: {e}", exc_info=True)
+
+    return callback_data_list
 
 
 def get_command_context(message: Message) -> str:

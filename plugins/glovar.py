@@ -24,6 +24,8 @@ from os.path import exists
 from shutil import rmtree
 from typing import Dict, List, Set, Union
 
+from pyrogram import Message
+
 # Enable logging
 logger = logging.getLogger(__name__)
 
@@ -50,6 +52,15 @@ default_user_status: Dict[str, float] = {
     "warn": 0
 }
 
+errors: Dict[str, Dict[str, Union[bool, int, Message]]] = {}
+# errors = {
+#     "random": {
+#         "lock": False,
+#         "aid": 12345678,
+#         "message": Message
+#     }
+# }
+
 receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN",
                             "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
 
@@ -59,7 +70,7 @@ sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.2"
+version: str = "0.0.3"
 
 watch_ids: Dict[str, Dict[int, int]] = {
     "ban": {},

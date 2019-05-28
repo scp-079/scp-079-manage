@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from typing import Union
 
-from pyrogram import Filters, Message
+from pyrogram import CallbackQuery, Filters, Message
 
 from .. import glovar
 
@@ -54,20 +55,25 @@ def is_hide_channel(_, message: Message) -> bool:
 
 
 def is_logging_channel(_, message: Message) -> bool:
-    # Check if the message is sent from the logging channel
+    # Check if the message is forwarded from the logging channel
     try:
-        cid = message.chat.id
-        if cid == glovar.logging_channel_id:
-            return True
+        if message.forward_from_chat:
+            if glovar.logging_channel_id == message.forward_from_chat.id:
+                return True
     except Exception as e:
         logger.warning(f"Is logging channel error: {e}", exc_info=True)
 
     return False
 
 
-def is_manage_group(_, message: Message) -> bool:
+def is_manage_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the manage group
     try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
         cid = message.chat.id
         if cid == glovar.manage_group_id:
             return True

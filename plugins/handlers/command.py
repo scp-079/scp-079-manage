@@ -17,103 +17,59 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.channel import edit_evidence, send_debug, send_error
-from ..functions.etc import bold, get_reason, thread, user_mention
-from ..functions.filters import logging_channel, test_group
-from ..functions.group import delete_message, get_message
-from ..functions.ids import add_except_context
-from ..functions.image import get_file_id
+from ..functions.etc import bold, code, general_link, get_callback_data, get_command_context
+from ..functions.etc import message_link, thread, user_mention
+from ..functions.filters import manage_group, test_group
+from ..functions.manage import error_answer, get_admin
 from ..functions.telegram import send_message
-from ..functions.user import remove_bad_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.channel & logging_channel
+@Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["error"], glovar.prefix))
 def error(client, message):
     try:
         cid = message.chat.id
-        if message.reply_to_message:
-            r_message = message.reply_to_message
-            # Get the message that be replied by /error command
-            r_message = get_message(client, cid, r_message.message_id)
-            if (r_message
-                    and not r_message.forward_date
-                    and r_message.reply_to_message
-                    and r_message.reply_to_message.forward_date
-                    and r_message.text
-                    and re.search("^项目编号：", r_message.text)):
-                # Get admin's name by signature
-                admin = message.author_signature
-                # Get origin report message's full record
-                record = {
-                    "project": "",
-                    "uid": "",
-                    "level": "",
-                    "rule": "",
-                    "more": ""
-                }
-                record_list = r_message.text.split("\n")
-                for r in record_list:
-                    if re.search("^项目编号：", r):
-                        record_type = "project"
-                    elif re.search("^用户 ID：", r):
-                        record_type = "uid"
-                    elif re.search("^操作等级：", r):
-                        record_type = "level"
-                    elif re.search("^规则：", r):
-                        record_type = "rule"
+        mid = message.message_id
+        uid = message.from_user.id
+        text = f"管理：{user_mention(uid)}\n"
+        command_list = list(filter(None, message.command))
+        if len(command_list) == 2 and command_list[1] in {"process", "cancel"}:
+            command_type = command_list[1]
+            if message.reply_to_message:
+                r_message = message.reply_to_message
+                aid = get_admin(r_message)
+                if uid == aid:
+                    callback_data_list = get_callback_data(r_message)
+                    if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "error":
+                        r_mid = r_message.message_id
+                        error_key = callback_data_list[0]["d"]
+                        reason = get_command_context(message)
+                        thread(error_answer, (client, cid, uid, r_mid, command_type, error_key, reason))
+                        text += (f"状态：{code('已操作')}\n"
+                                 f"查看：{general_link(cid, message_link(r_message))}\n")
                     else:
-                        record_type = "more"
+                        text += (f"状态：{code('未操作')}\n"
+                                 f"原因：{code('来源有误')}\n")
+                else:
+                    text += (f"状态：{code('未操作')}\n"
+                             f"原因：{code('权限有误')}\n")
+            else:
+                text += (f"状态：{code('未操作')}\n"
+                         f"原因：{code('用法有误')}\n")
+        else:
+            text += (f"状态：{code('未操作')}\n"
+                     f"原因：{code('格式有误')}\n")
 
-                    record[record_type] = r.split("：")[-1]
-
-                if record["project"] in {"CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"}:
-                    # Remove the bad user if possible
-                    if "封禁" in record["level"]:
-                        action = "解禁"
-                        remove_bad_user(client, int(record["uid"]))
-                    else:
-                        action = "解明"
-
-                    if record["project"] in {"NOPORN", "RECHECK"}:
-                        # Get the file id as except context
-                        file_id = get_file_id(r_message.reply_to_message)
-                        if file_id:
-                            # Add the except context
-                            if r_message.reply_to_message.sticker:
-                                except_type = "sticker"
-                            else:
-                                except_type = "tmp"
-
-                            add_except_context(client, file_id, except_type, record["project"])
-                            reason = get_reason(message)
-                            # Send messages to the error channel
-                            result = send_error(
-                                client,
-                                r_message.reply_to_message,
-                                record["project"],
-                                admin,
-                                action,
-                                reason
-                            )
-                            # If send the error report successfully, edit the origin report and send debug message
-                            if result:
-                                thread(
-                                    target=edit_evidence,
-                                    args=(client, r_message, record["project"], action, record["level"],
-                                          record["rule"], result, record["more"], reason)
-                                )
-                                thread(send_debug, (client, admin, action, file_id, record["uid"], result, reason))
+        thread(send_message, (client, cid, text, mid))
     except Exception as e:
-        logger.warning(f"Error error: {e}", exc_info=True)
+        logger.warning(f"Ask word error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group

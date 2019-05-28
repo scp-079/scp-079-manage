@@ -8,7 +8,7 @@ See [this article](https://scp-079.org/manage/).
 
 ## To Do List
 
-- [x] Support /error command in LOGGING channel
+- [x] Basic functions
 
 ## Requirements
 

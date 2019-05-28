@@ -24,7 +24,7 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, general_link, format_data, message_link, thread
+from .etc import code, general_link, format_data, message_link, thread, user_mention
 from .file import crypt_file
 from .telegram import edit_message_text, send_document, send_message
 
@@ -32,17 +32,13 @@ from .telegram import edit_message_text, send_document, send_message
 logger = logging.getLogger(__name__)
 
 
-def edit_evidence(client: Client, message: Message, project: str, action: str, level: str, rule: str, em: Message,
-                  more: str = None, reason: str = None) -> Optional[Union[bool, Message]]:
+def edit_evidence(client: Client, message: Message, project: str, action: str, uid: str, level: str, rule: str,
+                  em: Message, more: str = None, reason: str = None) -> Optional[Union[bool, Message]]:
     # Edit the evidence's report message
     result = None
     try:
         cid = message.chat.id
         mid = message.message_id
-        if not message or not message.from_user:
-            return result
-
-        uid = message.from_user.id
         text = (f"项目编号：{code(glovar.sender)}\n"
                 f"原始项目：{code(project)}\n"
                 f"状态：{code(f'已{action}')}\n"
@@ -82,14 +78,14 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
-def send_error(client: Client, message: Message, project: str, admin: str, action: str,
+def send_error(client: Client, message: Message, project: str, aid: int, action: str,
                reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
     try:
         # Attention: project admin can make a fake operator name
         text = (f"原始项目：{code(project)}\n"
-                f"项目管理员：{code(admin)}\n"
+                f"项目管理员：{user_mention(aid)}\n"
                 f"执行操作：{code(action)}\n")
         if reason:
             text += f"原因：{code(reason)}\n"
@@ -114,13 +110,13 @@ def send_error(client: Client, message: Message, project: str, admin: str, actio
     return result
 
 
-def send_debug(client: Client, aid: Union[int, str], action: str, context: Union[int, str],
+def send_debug(client: Client, aid: int, action: str, context: Union[int, str],
                uid: int = None, em: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         # Attention: project admin can make a fake operator name
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"项目管理员：{code(aid)}\n"
+                f"项目管理员：{user_mention(aid)}\n"
                 f"执行操作：{code(action)}\n"
                 f"操作内容：{code(context)}\n")
 

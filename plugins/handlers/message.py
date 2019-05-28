@@ -17,18 +17,71 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
-from pyrogram import Client, Filters
+from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from ..functions.etc import receive_data
+from ..functions.etc import code, button_data, random_str, receive_data, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import exchange_channel, hide_channel
+from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
+from ..functions.group import get_message
 from ..functions.ids import init_user_id
+from ..functions.telegram import send_message
 from ..functions.user import receive_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & logging_channel
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def error_ask(client, message):
+    try:
+        cid = glovar.logging_channel_id
+        mid = message.message_id
+        aid = message.from_user.id
+        if message.forward_from_chat:
+            if cid == message.forward_from_chat.id:
+                rid = message.forward_from_message_id
+                report_message = get_message(client, cid, rid)
+                if (report_message
+                        and not report_message.forward_date
+                        and report_message.reply_to_message
+                        and report_message.reply_to_message.forward_date
+                        and report_message.text
+                        and re.search("^项目编号：", report_message.text)):
+                    project = report_message.text.split("\n")[0].split("：")[-1]
+                    if project in {"CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"}:
+                        error_key = random_str(8)
+                        glovar.errors[error_key] = {
+                            "lock": False,
+                            "aid": aid,
+                            "message": report_message
+                        }
+                        text = (f"管理员：{user_mention(aid)}\n"
+                                f"状态：{code('等待操作')}\n")
+                        data_process = button_data("error", "process", error_key)
+                        data_cancel = button_data("error", "cancel", error_key)
+                        markup = InlineKeyboardMarkup(
+                            [
+                                [
+                                    InlineKeyboardButton(
+                                        "处理",
+                                        callback_data=data_process
+                                    )
+                                ],
+                                [
+                                    InlineKeyboardButton(
+                                        "取消",
+                                        callback_data=data_cancel
+                                    )
+                                ]
+                            ]
+                        )
+                        thread(send_message, (client, cid, text, mid, markup))
+    except Exception as e:
+        logger.warning(f"Check error error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel

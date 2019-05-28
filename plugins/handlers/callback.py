@@ -16,3 +16,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+from json import loads
+
+from pyrogram import Client
+
+from ..functions.etc import thread
+from ..functions.filters import manage_group
+from ..functions.manage import error_answer
+from ..functions.telegram import answer_callback
+
+# Enable logging
+logger = logging.getLogger(__name__)
+
+
+@Client.on_callback_query(manage_group)
+def answer(client, callback_query):
+    try:
+        # Basic callback data
+        gid = callback_query.message.chat.id
+        aid = callback_query.from_user.id
+        mid = callback_query.message.message_id
+        callback_data = loads(callback_query.data)
+        action = callback_data["a"]
+        action_type = callback_data["t"]
+        data = callback_data["d"]
+        if action == "error":
+            thread(error_answer, (client, gid, aid, mid, action_type, data))
+            thread(answer_callback, (client, callback_query.id, ""))
+    except Exception as e:
+        logger.warning(f"Answer callback error: {e}", exc_info=True)
