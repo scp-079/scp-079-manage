@@ -110,7 +110,7 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
     return result
 
 
-def send_debug(client: Client, aid: int, action: str, context: Union[int, str],
+def send_debug(client: Client, aid: int, action: str, context: Union[int, str], time: str = None,
                uid: int = None, em: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
@@ -119,6 +119,9 @@ def send_debug(client: Client, aid: int, action: str, context: Union[int, str],
                 f"项目管理员：{user_mention(aid)}\n"
                 f"执行操作：{code(action)}\n"
                 f"操作内容：{code(context)}\n")
+
+        if time:
+            text += f"例外时效：{code(time)}\n"
 
         if uid:
             text += f"原用户 ID：{code(uid)}\n"

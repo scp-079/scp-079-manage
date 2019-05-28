@@ -34,7 +34,7 @@ from ..functions.user import remove_bad_user
 logger = logging.getLogger(__name__)
 
 
-def error_answer(client: Client, cid: int, uid: int, mid: int, result: str, key: str, reason: str =  None) -> bool:
+def error_answer(client: Client, cid: int, uid: int, mid: int, result: str, key: str, reason: str = None) -> bool:
     # Answer the error ask
     try:
         text = (f"管理员：{user_mention(uid)}\n"
@@ -106,8 +106,10 @@ def error_process(client: Client, key: str, reason: str = None) -> bool:
                     # Add the except context
                     if message.reply_to_message.sticker:
                         except_type = "sticker"
+                        time = "长期"
                     else:
                         except_type = "tmp"
+                        time = "临时"
 
                     add_except_context(client, file_id, except_type, record["project"])
                     # Send messages to the error channel
@@ -126,7 +128,7 @@ def error_process(client: Client, key: str, reason: str = None) -> bool:
                             args=(client, message, record["project"], action, record["uid"], record["level"],
                                   record["rule"], result, record["more"], reason)
                         )
-                        thread(send_debug, (client, aid, action, file_id, record["uid"], result, reason))
+                        thread(send_debug, (client, aid, action, file_id, time, record["uid"], result, reason))
 
             return True
         except Exception as e:
