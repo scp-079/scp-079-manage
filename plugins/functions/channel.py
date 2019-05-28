@@ -82,7 +82,8 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
-def send_error(client: Client, message: Message, project: str, admin: str, action: str, reason: str = None) -> bool:
+def send_error(client: Client, message: Message, project: str, admin: str, action: str,
+               reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
     try:
