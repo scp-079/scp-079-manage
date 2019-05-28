@@ -21,23 +21,10 @@ from typing import Optional
 
 from pyrogram import Client, Message
 
-from .etc import thread
-from .telegram import delete_messages, get_messages
+from .telegram import get_messages
 
 # Enable logging
 logger = logging.getLogger(__name__)
-
-
-def delete_message(client: Client, gid: int, mid: int) -> bool:
-    # Delete a single message
-    try:
-        mids = [mid]
-        thread(delete_messages, (client, gid, mids))
-        return True
-    except Exception as e:
-        logger.warning(f"Delete message error: {e}", exc_info=True)
-
-    return False
 
 
 def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:

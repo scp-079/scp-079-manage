@@ -40,7 +40,6 @@ logger = logging.getLogger(__name__)
 def error(client, message):
     try:
         cid = message.chat.id
-        mid = message.message_id
         if message.reply_to_message:
             r_message = message.reply_to_message
             # Get the message that be replied by /error command
@@ -113,8 +112,6 @@ def error(client, message):
                                           record["rule"], result, record["more"], reason)
                                 )
                                 thread(send_debug, (client, admin, action, file_id, record["uid"], result, reason))
-
-        delete_message(client, cid, mid)
     except Exception as e:
         logger.warning(f"Error error: {e}", exc_info=True)
 
