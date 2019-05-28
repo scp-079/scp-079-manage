@@ -30,7 +30,13 @@ logger = logging.getLogger(__name__)
 # Init
 
 all_commands: List[str] = [
-    "error"
+    "add_bad",
+    "add_except",
+    "error",
+    "join",
+    "leave",
+    "remove_bad",
+    "remove_except"
 ]
 
 sender: str = "MANAGE"
