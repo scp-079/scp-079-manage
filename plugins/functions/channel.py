@@ -58,7 +58,7 @@ def edit_evidence(client: Client, message: Message, project: str, action: str, l
 
         result = edit_message_text(client, cid, mid, text)
     except Exception as e:
-        logger.warning(f"Forward evidence error: {e}", exc_info=True)
+        logger.warning(f"Edit evidence error: {e}", exc_info=True)
 
     return result
 
