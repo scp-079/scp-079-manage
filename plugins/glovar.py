@@ -53,11 +53,13 @@ default_user_status: Dict[str, float] = {
 receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN",
                             "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
 
+receivers_except: List[str] = ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"]
+
 sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.1"
+version: str = "0.0.2"
 
 watch_ids: Dict[str, Dict[int, int]] = {
     "ban": {},
@@ -89,6 +91,7 @@ manage_group_id: int = 0
 test_group_id: int = 0
 
 # [custom]
+image_size: int = 0
 project_link: str = ""
 project_name: str = ""
 reset_day: str = ""
@@ -112,6 +115,7 @@ try:
     manage_group_id = int(config["channels"].get("manage_group_id", manage_group_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
+    image_size = int(config["custom"].get("image_size", image_size))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     reset_day = config["custom"].get("reset_day", reset_day)
@@ -132,6 +136,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or logging_channel_id == 0
         or manage_group_id == 0
         or test_group_id == 0
+        or image_size == 0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}

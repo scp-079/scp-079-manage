@@ -26,7 +26,7 @@ from pyrogram.errors import FloodWait
 from .. import glovar
 from .etc import code, general_link, format_data, message_link, thread
 from .file import crypt_file
-from .telegram import send_document, send_message
+from .telegram import edit_message_text, send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -34,9 +34,11 @@ logger = logging.getLogger(__name__)
 
 def edit_evidence(client: Client, message: Message, project: str, action: str, level: str, rule: str, em: Message,
                   more: str = None, reason: str = None) -> Optional[Union[bool, Message]]:
-    # Forward the message to the logging channel as evidence
+    # Edit the evidence's report message
     result = None
     try:
+        cid = message.chat.id
+        mid = message.message_id
         if not message or not message.from_user:
             return result
 
@@ -54,20 +56,7 @@ def edit_evidence(client: Client, message: Message, project: str, action: str, l
         if reason:
             text += f"原因：{code(reason)}\n"
 
-        flood_wait = True
-        while flood_wait:
-            flood_wait = False
-            try:
-                result = message.forward(glovar.logging_channel_id)
-            except FloodWait as e:
-                flood_wait = True
-                sleep(e.x + 1)
-            except Exception as e:
-                logger.info(f"Forward evidence message error: {e}", exc_info=True)
-                return False
-
-        result = result.message_id
-        result = send_message(client, glovar.logging_channel_id, text, result)
+        result = edit_message_text(client, cid, mid, text)
     except Exception as e:
         logger.warning(f"Forward evidence error: {e}", exc_info=True)
 
@@ -93,8 +82,9 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
-def send_error(client: Client, project: str, admin: str, action: str, reason: str = None) -> bool:
+def send_error(client: Client, message: Message, project: str, admin: str, action: str, reason: str = None) -> bool:
     # Send the error record message
+    result = None
     try:
         # Attention: project admin can make a fake operator name
         text = (f"原始项目：{code(project)}\n"
@@ -103,12 +93,24 @@ def send_error(client: Client, project: str, admin: str, action: str, reason: st
         if reason:
             text += f"原因：{code(reason)}\n"
 
-        thread(send_message, (client, glovar.error_channel_id, text))
-        return True
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = message.forward(glovar.error_channel_id)
+            except FloodWait as e:
+                flood_wait = True
+                sleep(e.x + 1)
+            except Exception as e:
+                logger.info(f"Forward error message error: {e}", exc_info=True)
+                return False
+
+        result = result.message_id
+        result = send_message(client, glovar.error_channel_id, text, result)
     except Exception as e:
         logger.warning(f"Send error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def send_debug(client: Client, aid: Union[int, str], action: str, context: Union[int, str],

@@ -17,16 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from copy import deepcopy
 
-from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import code, receive_data, thread, user_mention
+from ..functions.etc import receive_data
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel
 from ..functions.ids import init_user_id
-from ..functions.telegram import send_message
 from ..functions.user import receive_watch_user
 
 # Enable logging
