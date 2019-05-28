@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def error_ask(client, message):
     try:
-        cid = glovar.logging_channel_id
+        cid = message.chat.id
         mid = message.message_id
         aid = message.from_user.id
         if message.forward_from_chat:
