@@ -49,6 +49,30 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
     return result
 
 
+def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[bool]:
+    # Delete some messages
+    result = None
+    try:
+        mids = list(mids)
+        mids_list = [mids[i:i + 100] for i in range(0, len(mids), 100)]
+        for mids in mids_list:
+            try:
+                flood_wait = True
+                while flood_wait:
+                    flood_wait = False
+                    try:
+                        result = client.delete_messages(chat_id=cid, message_ids=mids)
+                    except FloodWait as e:
+                        flood_wait = True
+                        wait_flood(e)
+            except Exception as e:
+                logger.warning(f"Delete message in for loop error: {e}", exc_info=True)
+    except Exception as e:
+        logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
 def edit_message_reply_markup(client: Client, cid: int, mid: int,
                               markup: InlineKeyboardMarkup) -> Optional[Union[bool, Message]]:
     # Edit the message's reply markup

@@ -112,6 +112,8 @@ def error(client, message):
                                           record["rule"], result, record["more"], reason)
                                 )
                                 thread(send_debug, (client, admin, action, file_id, record["uid"], result, reason))
+
+        delete
     except Exception as e:
         logger.warning(f"Error error: {e}", exc_info=True)
 
