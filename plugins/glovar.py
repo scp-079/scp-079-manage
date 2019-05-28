@@ -39,6 +39,9 @@ all_commands: List[str] = [
     "remove_except"
 ]
 
+receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN",
+                            "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
+
 sender: str = "MANAGE"
 
 should_hide: bool = False
@@ -57,7 +60,12 @@ debug_channel_id: int = 0
 error_channel_id: int = 0
 exchange_channel_id: int = 0
 hide_channel_id: int = 0
+logging_channel_id: int = 0
 test_group_id: int = 0
+
+# [custom]
+project_link: str = ""
+project_name: str = ""
 
 try:
     config = RawConfigParser()
@@ -70,7 +78,11 @@ try:
     error_channel_id = int(config["channels"].get("error_channel_id", error_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
+    logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    # [custom]
+    project_link = config["custom"].get("project_link", project_link)
+    project_name = config["custom"].get("project_name", project_name)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
 
@@ -81,7 +93,10 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or error_channel_id == 0
         or exchange_channel_id == 0
         or hide_channel_id == 0
-        or test_group_id == 0):
+        or logging_channel_id == 0
+        or test_group_id == 0
+        or project_link in {"", "[DATA EXPUNGED]"}
+        or project_name in {"", "[DATA EXPUNGED]"}):
     raise SystemExit('No proper settings')
 
 # Load data from pickle
