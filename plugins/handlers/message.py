@@ -58,6 +58,7 @@ def error_ask(client, message):
                     "message": report_message
                 }
                 text = (f"管理员：{user_mention(aid)}\n"
+                        f"执行操作：{code('解除错误')}\n"
                         f"状态：{code('等待操作')}\n")
                 data_process = button_data("error", "process", error_key)
                 data_cancel = button_data("error", "cancel", error_key)
@@ -67,9 +68,7 @@ def error_ask(client, message):
                             InlineKeyboardButton(
                                 "处理",
                                 callback_data=data_process
-                            )
-                        ],
-                        [
+                            ),
                             InlineKeyboardButton(
                                 "取消",
                                 callback_data=data_cancel
