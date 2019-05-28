@@ -67,6 +67,9 @@ def reset_data() -> bool:
         }
         save("except_ids")
 
+        glovar.user_ids = {}
+        save("user_ids")
+
         return True
     except Exception as e:
         logger.warning(f"Reset data error: {e}", exc_info=True)

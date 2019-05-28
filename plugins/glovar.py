@@ -39,6 +39,17 @@ all_commands: List[str] = [
     "remove_except"
 ]
 
+default_user_status: Dict[str, float] = {
+    "captcha": 0,
+    "clean": 0,
+    "lang": 0,
+    "noflood": 0,
+    "noporn": 0,
+    "nospam": 0,
+    "recheck": 0,
+    "warn": 0
+}
+
 receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN",
                             "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
 
@@ -47,6 +58,19 @@ sender: str = "MANAGE"
 should_hide: bool = False
 
 version: str = "0.0.1"
+
+watch_ids: Dict[str, Dict[int, int]] = {
+    "ban": {},
+    "delete": {}
+}
+# watch_ids = {
+#     "ban": {
+#         12345678: 0
+#     },
+#     "delete": {
+#         12345678: 0
+#     }
+# }
 
 # Read data from config.ini
 
@@ -70,6 +94,7 @@ project_name: str = ""
 reset_day: str = ""
 
 # [encrypt]
+key: Union[str, bytes] = ""
 password: str = ""
 
 try:
@@ -91,6 +116,8 @@ try:
     project_name = config["custom"].get("project_name", project_name)
     reset_day = config["custom"].get("reset_day", reset_day)
     # [encrypt]
+    key = config["encrypt"].get("key", key)
+    key = key.encode("utf-8")
     password = config["encrypt"].get("password", password)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
@@ -108,6 +135,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}
+        or key in {"", b"[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
     raise SystemExit('No proper settings')
 
@@ -151,8 +179,21 @@ except_ids: Dict[str, Union[dict, Set[Union[int, str]]]] = {
 #     "users": {12345678}
 # }
 
+user_ids: Dict[int, Dict[str, float]] = {}
+# user_ids = {
+#     12345678: {
+#         "captcha": 0,
+#         "clean": 0,
+#         "lang": 0,
+#         "noflood": 0,
+#         "noporn": 0,
+#         "recheck": 0,
+#         "warn": 0
+#     }
+# }
+
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids"]
 for file in file_list:
     try:
         try:
