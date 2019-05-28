@@ -32,8 +32,8 @@ from .telegram import send_document, send_message
 logger = logging.getLogger(__name__)
 
 
-def edit_evidence(client: Client, message: Message, project: str, action: str, level: str, rule: str,
-                  more: str = None) -> Optional[Union[bool, Message]]:
+def edit_evidence(client: Client, message: Message, project: str, action: str, level: str, rule: str, em: Message,
+                  more: str = None, reason: str = None) -> Optional[Union[bool, Message]]:
     # Forward the message to the logging channel as evidence
     result = None
     try:
@@ -50,7 +50,10 @@ def edit_evidence(client: Client, message: Message, project: str, action: str, l
         if more:
             text += f"附加信息：{code(more)}\n"
 
-        text += f"记录转存："
+        text += f"记录转存：{general_link(em.message_id, message_link(em))}\n"
+        if reason:
+            text += f"原因：{code(reason)}\n"
+
         flood_wait = True
         while flood_wait:
             flood_wait = False
@@ -122,7 +125,7 @@ def send_debug(client: Client, aid: Union[int, str], action: str, context: Union
             text += f"原用户 ID：{code(uid)}\n"
 
         if em:
-            text += f"记录转存：{general_link(em.message_id, message_link(em))}\n"
+            text += f"原始记录：{general_link(em.message_id, message_link(em))}\n"
 
         if reason:
             text += f"原因：{code(reason)}\n"
