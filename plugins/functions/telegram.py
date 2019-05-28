@@ -165,8 +165,6 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                     wait_flood(e)
                 except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                     return False
-
-        logger.warning(result)
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
