@@ -53,7 +53,7 @@ def error(client, message):
                         reason = get_command_context(message)
                         thread(error_answer, (client, cid, uid, r_mid, command_type, error_key, reason))
                         text += (f"状态：{code('已操作')}\n"
-                                 f"查看：{general_link(cid, message_link(r_message))}\n")
+                                 f"查看：{general_link(r_mid, message_link(r_message))}\n")
                     else:
                         text += (f"状态：{code('未操作')}\n"
                                  f"原因：{code('来源有误')}\n")
