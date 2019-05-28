@@ -48,7 +48,7 @@ def edit_evidence(client: Client, message: Message, project: str, action: str, u
         if more:
             text += f"附加信息：{code(more)}\n"
 
-        text += f"记录转存：{general_link(em.message_id, message_link(em))}\n"
+        text += f"错误存档：{general_link(em.message_id, message_link(em))}\n"
         if reason:
             text += f"原因：{code(reason)}\n"
 
@@ -111,7 +111,7 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
 
 
 def send_debug(client: Client, aid: int, action: str, context: Union[int, str], time: str = None,
-               uid: int = None, em: Message = None, reason: str = None) -> bool:
+               uid: int = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         # Attention: project admin can make a fake operator name
@@ -128,6 +128,9 @@ def send_debug(client: Client, aid: int, action: str, context: Union[int, str], 
 
         if em:
             text += f"原始记录：{general_link(em.message_id, message_link(em))}\n"
+
+        if err_m:
+            text += f"错误存档：{general_link(err_m.message_id, message_link(err_m))}\n"
 
         if reason:
             text += f"原因：{code(reason)}\n"

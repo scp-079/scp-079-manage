@@ -128,7 +128,10 @@ def error_process(client: Client, key: str, reason: str = None) -> bool:
                             args=(client, message, record["project"], action, record["uid"], record["level"],
                                   record["rule"], result, record["more"], reason)
                         )
-                        thread(send_debug, (client, aid, action, file_id, time, record["uid"], result, reason))
+                        thread(
+                            target=send_debug,
+                            args=(client, aid, action, file_id, time, record["uid"], message, result, reason)
+                        )
 
             return True
         except Exception as e:
