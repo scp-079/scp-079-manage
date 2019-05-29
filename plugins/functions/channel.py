@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 def edit_evidence(client: Client, message: Message, project: str, action: str, uid: str, level: str, rule: str,
-                  em: Message, more: str = None, reason: str = None) -> Optional[Union[bool, Message]]:
+                  em: Message, name: str = None, more: str = None,
+                  reason: str = None) -> Optional[Union[bool, Message]]:
     # Edit the evidence's report message
     result = None
     try:
@@ -45,6 +46,10 @@ def edit_evidence(client: Client, message: Message, project: str, action: str, u
                 f"用户 ID：{code(uid)}\n"
                 f"操作等级：{code(level)}\n"
                 f"规则：{code(rule)}\n")
+
+        if name:
+            text += f"用户昵称：{code(name)}\n"
+
         if more:
             text += f"附加信息：{code(more)}\n"
 

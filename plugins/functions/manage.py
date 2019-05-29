@@ -75,6 +75,7 @@ def error_process(client: Client, key: str, reason: str = None) -> bool:
                 "uid": "",
                 "level": "",
                 "rule": "",
+                "name": "",
                 "more": ""
             }
             record_list = message.text.split("\n")
@@ -87,6 +88,8 @@ def error_process(client: Client, key: str, reason: str = None) -> bool:
                     record_type = "level"
                 elif re.search("^规则：", r):
                     record_type = "rule"
+                elif re.search("^用户昵称", r):
+                    record_type = "name"
                 else:
                     record_type = "more"
 
