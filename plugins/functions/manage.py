@@ -129,7 +129,7 @@ def error_process(client: Client, key: str, reason: str = None) -> bool:
                         thread(
                             target=edit_evidence,
                             args=(client, message, record["project"], action, record["uid"], record["level"],
-                                  record["rule"], result, record["more"], reason)
+                                  record["rule"], record["name"], record["more"], reason)
                         )
                         thread(
                             target=send_debug,
