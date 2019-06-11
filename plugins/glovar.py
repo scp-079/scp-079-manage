@@ -45,6 +45,7 @@ default_user_status: Dict[str, float] = {
     "captcha": 0,
     "clean": 0,
     "lang": 0,
+    "long": 0,
     "noflood": 0,
     "noporn": 0,
     "nospam": 0,
@@ -61,16 +62,16 @@ errors: Dict[str, Dict[str, Union[bool, int, Message]]] = {}
 #     }
 # }
 
-receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "NOFLOOD", "NOPORN",
+receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
                             "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
 
-receivers_except: List[str] = ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"]
+receivers_except: List[str] = ["CLEAN", "LANG", "LONG", "NOPORN", "NOSPAM", "RECHECK"]
 
 sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.3"
+version: str = "0.0.4"
 
 watch_ids: Dict[str, Dict[int, int]] = {
     "ban": {},

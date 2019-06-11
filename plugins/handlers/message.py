@@ -19,10 +19,11 @@
 import logging
 import re
 
-from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from ..functions.etc import code, button_data, random_str, receive_data, thread, user_mention
+from ..functions.channel import receive_text_data
+from ..functions.etc import code, button_data, random_str, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
 from ..functions.group import get_message
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & logging_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def error_ask(client, message):
+def error_ask(client: Client, message: Message):
     try:
         cid = message.chat.id
         mid = message.message_id
@@ -83,10 +84,10 @@ def error_ask(client, message):
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def exchange_emergency(_, message):
+def exchange_emergency(_, message: Message):
     try:
         # Read basic information
-        data = receive_data(message)
+        data = receive_text_data(message)
         sender = data["from"]
         receivers = data["to"]
         action = data["action"]
@@ -103,9 +104,9 @@ def exchange_emergency(_, message):
 
 @Client.on_message(Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def process_data(client, message):
+def process_data(_, message: Message):
     try:
-        data = receive_data(message)
+        data = receive_text_data(message)
         if data:
             sender = data["from"]
             receivers = data["to"]
@@ -164,6 +165,26 @@ def process_data(client, message):
                             init_user_id(uid)
                             score = data
                             glovar.user_ids[uid]["lang"] = score
+                            save("user_ids")
+
+                elif sender == "LONG":
+
+                    if action == "add":
+                        the_id = data["id"]
+                        the_type = data["type"]
+                        if action_type == "bad":
+                            if the_type == "user":
+                                glovar.bad_ids["users"].add(the_id)
+                                save("bad_ids")
+                        elif action_type == "watch":
+                            receive_watch_user(the_type, the_id, data["until"])
+
+                    elif action == "update":
+                        if action_type == "score":
+                            uid = data["id"]
+                            init_user_id(uid)
+                            score = data
+                            glovar.user_ids[uid]["long"] = score
                             save("user_ids")
 
                 elif sender == "NOFLOOD":
