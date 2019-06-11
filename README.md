@@ -9,6 +9,7 @@ See [this article](https://scp-079.org/manage/).
 ## To Do List
 
 - [x] Basic functions
+- [x] Support NOPORN、RECHECK
 
 ## Requirements
 
