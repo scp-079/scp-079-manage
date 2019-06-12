@@ -39,9 +39,8 @@ def error(client: Client, message: Message):
         mid = message.message_id
         uid = message.from_user.id
         text = f"管理：{user_mention(uid)}\n"
-        command_list = list(filter(None, message.command))
-        if len(command_list) == 2 and command_list[1] in {"process", "cancel"}:
-            command_type = command_list[1]
+        command_type, reason = get_command_context(message)
+        if command_type and command_type in {"process", "cancel"}:
             if message.reply_to_message:
                 r_message = message.reply_to_message
                 aid = get_admin(r_message)
@@ -50,7 +49,6 @@ def error(client: Client, message: Message):
                     if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "error":
                         r_mid = r_message.message_id
                         error_key = callback_data_list[0]["d"]
-                        reason = get_command_context(message)
                         thread(error_answer, (client, cid, uid, r_mid, command_type, error_key, reason))
                         text += (f"状态：{code('已操作')}\n"
                                  f"查看：{general_link(r_mid, message_link(r_message))}\n")
