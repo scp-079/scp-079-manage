@@ -166,9 +166,10 @@ def get_callback_data(message: Message) -> List[dict]:
     return callback_data_list
 
 
-def get_command_context(message: Message) -> str:
-    # Get the context "b" in "/command a b"
-    result = ""
+def get_command_context(message: Message) -> (str, str):
+    # Get the type "a" and the context "b" in "/command a b"
+    command_type = ""
+    command_context = ""
     try:
         text = get_text(message)
         command_list = text.split(" ")
@@ -179,11 +180,11 @@ def get_command_context(message: Message) -> str:
                 i += 1
                 command_type = command_list[i]
 
-            result = text[1 + len(command_list[0]) + i + len(command_type):].strip()
+            command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
     except Exception as e:
         logger.warning(f"Get command context error: {e}", exc_info=True)
 
-    return result
+    return command_type, command_context
 
 
 def get_command_type(message: Message) -> str:
