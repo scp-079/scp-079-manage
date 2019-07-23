@@ -100,26 +100,26 @@ def is_test_group(_, message: Message) -> bool:
 
 
 exchange_channel = Filters.create(
-    name="Exchange Channel",
-    func=is_exchange_channel
+    func=is_exchange_channel,
+    name="Exchange Channel"
 )
 
 hide_channel = Filters.create(
-    name="Hide Channel",
-    func=is_hide_channel
+    func=is_hide_channel,
+    name="Hide Channel"
 )
 
 logging_channel = Filters.create(
-    name="Logging Channel",
-    func=is_logging_channel
+    func=is_logging_channel,
+    name="Logging Channel"
 )
 
 manage_group = Filters.create(
-    name="Manage Group",
-    func=is_manage_group
+    func=is_manage_group,
+    name="Manage Group"
 )
 
 test_group = Filters.create(
-    name="Test Group",
-    func=is_test_group
+    func=is_test_group,
+    name="Test Group"
 )

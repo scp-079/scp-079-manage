@@ -17,9 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Iterable, Optional, Union
+from typing import Iterable, List, Optional, Union
 
-from pyrogram import Client, InlineKeyboardMarkup, Message, Messages
+from pyrogram import Client, InlineKeyboardMarkup, Message
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
 from .etc import wait_flood
@@ -98,7 +98,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     return result
 
 
-def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[Messages]:
+def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List[Message]]:
     # Get some messages
     result = None
     try:
