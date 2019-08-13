@@ -86,6 +86,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
                         chat_id=cid,
                         message_id=mid,
                         text=text,
+                        parse_mode="html",
                         disable_web_page_preview=True,
                         reply_markup=markup
                     )
@@ -98,9 +99,9 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     return result
 
 
-def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List[Message]]:
+def get_messages(client: Client, cid: int, mids: Iterable[int]) -> List[Message]:
     # Get some messages
-    result = None
+    result = []
     try:
         flood_wait = True
         while flood_wait:
@@ -129,6 +130,7 @@ def send_document(client: Client, cid: int, file: str, text: str = None, mid: in
                     chat_id=cid,
                     document=file,
                     caption=text,
+                    parse_mode="html",
                     reply_to_message_id=mid,
                     reply_markup=markup
                 )
@@ -156,6 +158,7 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                     result = client.send_message(
                         chat_id=cid,
                         text=text,
+                        parse_mode="html",
                         disable_web_page_preview=True,
                         reply_to_message_id=mid,
                         reply_markup=markup

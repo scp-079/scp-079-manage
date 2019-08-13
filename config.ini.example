@@ -19,6 +19,7 @@ bot_token = [DATA EXPUNGED]
 prefix = /!
 
 [channels]
+critical_channel_id = [DATA EXPUNGED]
 debug_channel_id = [DATA EXPUNGED]
 error_channel_id = [DATA EXPUNGED]
 exchange_channel_id = [DATA EXPUNGED]
@@ -28,7 +29,6 @@ manage_group_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
 
 [custom]
-image_size = [DATA EXPUNGED]
 project_link = [DATA EXPUNGED]
 project_name = [DATA EXPUNGED]
 reset_day = [DATA EXPUNGED]

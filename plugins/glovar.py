@@ -65,13 +65,13 @@ errors: Dict[str, Dict[str, Union[bool, int, Message]]] = {}
 receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
                             "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
 
-receivers_except: List[str] = ["CLEAN", "LANG", "LONG", "NOPORN", "NOSPAM", "RECHECK"]
+receivers_except: List[str] = ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"]
 
 sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.4"
+version: str = "0.0.5"
 
 watch_ids: Dict[str, Dict[int, int]] = {
     "ban": {},
@@ -94,6 +94,7 @@ prefix: List[str] = []
 prefix_str: str = "/!"
 
 # [channels]
+critical_channel_id: int = 0
 debug_channel_id: int = 0
 error_channel_id: int = 0
 exchange_channel_id: int = 0
@@ -103,7 +104,6 @@ manage_group_id: int = 0
 test_group_id: int = 0
 
 # [custom]
-image_size: int = 0
 project_link: str = ""
 project_name: str = ""
 reset_day: str = ""
@@ -119,6 +119,7 @@ try:
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
     # [channels]
+    critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     error_channel_id = int(config["channels"].get("error_channel_id", error_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
@@ -127,7 +128,6 @@ try:
     manage_group_id = int(config["channels"].get("manage_group_id", manage_group_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
-    image_size = int(config["custom"].get("image_size", image_size))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     reset_day = config["custom"].get("reset_day", reset_day)
@@ -141,6 +141,7 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
+        or critical_channel_id == 0
         or debug_channel_id == 0
         or error_channel_id == 0
         or exchange_channel_id == 0
@@ -148,7 +149,6 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or logging_channel_id == 0
         or manage_group_id == 0
         or test_group_id == 0
-        or image_size == 0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}

@@ -83,8 +83,8 @@ def error_ask(client: Client, message: Message):
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
-def exchange_emergency(_, message: Message):
+                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
+def exchange_emergency(_: Client, message: Message):
     try:
         # Read basic information
         data = receive_text_data(message)
@@ -95,9 +95,9 @@ def exchange_emergency(_, message: Message):
             action_type = data["type"]
             data = data["data"]
             if "EMERGENCY" in receivers:
-                if sender == "EMERGENCY":
-                    if action == "backup":
-                        if action_type == "hide":
+                if action == "backup":
+                    if action_type == "hide":
+                        if data is True:
                             glovar.should_hide = data
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
