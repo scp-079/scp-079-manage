@@ -55,7 +55,7 @@ def remove_bad_user(client: Client, uid: int) -> bool:
         save("bad_ids")
         share_data(
             client=client,
-            receivers=glovar.receivers_bad,
+            receivers=glovar.receivers["bad"],
             action="remove",
             action_type="bad",
             data={

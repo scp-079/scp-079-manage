@@ -187,7 +187,7 @@ def share_bad_channel(client: Client, cid: int) -> bool:
     try:
         share_data(
             client=client,
-            receivers=glovar.receivers_bad,
+            receivers=glovar.receivers["bad"],
             action="add",
             action_type="bad",
             data={

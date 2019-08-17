@@ -62,10 +62,11 @@ errors: Dict[str, Dict[str, Union[bool, int, Message]]] = {}
 #     }
 # }
 
-receivers_bad: List[str] = ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
-                            "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"]
-
-receivers_except: List[str] = ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"]
+receivers: Dict[str, List[str]] = {
+    "bad": ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
+            "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"],
+    "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"]
+}
 
 sender: str = "MANAGE"
 

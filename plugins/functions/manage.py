@@ -26,7 +26,6 @@ from .. import glovar
 from .channel import edit_evidence, send_debug, send_error
 from .etc import code, thread, user_mention
 from ..functions.ids import add_except_context
-from ..functions.image import get_file_id
 from ..functions.telegram import edit_message_text
 from ..functions.user import remove_bad_user
 

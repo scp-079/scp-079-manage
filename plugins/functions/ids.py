@@ -50,7 +50,7 @@ def add_except_context(client: Client, context: str, except_type: str, project: 
         if project:
             project_list = [project]
         else:
-            project_list = glovar.receivers_except
+            project_list = glovar.receivers["except"]
 
         share_data(
             client=client,
