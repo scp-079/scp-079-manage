@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 from html import escape
 from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread, Timer
 from time import sleep
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from cryptography.fernet import Fernet
 from pyrogram import InlineKeyboardMarkup, Message
@@ -199,6 +200,42 @@ def get_command_type(message: Message) -> str:
         logging.warning(f"Get command type error: {e}", exc_info=True)
 
     return result
+
+
+def get_report_record(message: Message) -> Dict[str, str]:
+    # Get report message's full record
+    record = {
+        "project": "",
+        "origin": "",
+        "uid": "",
+        "level": "",
+        "rule": "",
+        "name": "",
+        "more": ""
+    }
+    try:
+        record_list = message.text.split("\n")
+        for r in record_list:
+            if re.search("^项目编号：", r):
+                record_type = "project"
+            elif re.search("^原始项目：", r):
+                record_type = "origin"
+            elif re.search("^用户 ID：", r):
+                record_type = "uid"
+            elif re.search("^操作等级：", r):
+                record_type = "level"
+            elif re.search("^规则：", r):
+                record_type = "rule"
+            elif re.search("^用户昵称", r):
+                record_type = "name"
+            else:
+                record_type = "more"
+
+            record[record_type] = r.split("：")[-1]
+    except Exception as e:
+        logger.warning(f"Get report record error: {e}", exc_info=True)
+
+    return record
 
 
 def get_text(message: Message) -> str:

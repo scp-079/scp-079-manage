@@ -32,13 +32,9 @@ logger = logging.getLogger(__name__)
 # Init
 
 all_commands: List[str] = [
-    "add_bad",
-    "add_except",
-    "error",
+    "action",
     "join",
-    "leave",
-    "remove_bad",
-    "remove_except"
+    "leave"
 ]
 
 default_user_status: Dict[str, float] = {
@@ -53,19 +49,29 @@ default_user_status: Dict[str, float] = {
     "warn": 0
 }
 
-errors: Dict[str, Dict[str, Union[bool, int, Message]]] = {}
-# errors = {
+actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
+# actions = {
 #     "random": {
 #         "lock": False,
 #         "aid": 12345678,
-#         "message": Message
+#         "action": "error",
+#         "message": Message,
+#         "record" = {
+#             "project": "",
+#             "origin": "",
+#             "uid": "",
+#             "level": "",
+#             "rule": "",
+#             "name": "",
+#             "more": ""
+#         }
 #     }
 # }
 
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
             "NOSPAM", "MANAGE", "RECHECK", "USER", "WATCH"],
-    "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"]
+    "except": ["CLEAN", "LANG", "LONG", "NOPORN", "NOSPAM", "RECHECK"]
 }
 
 sender: str = "MANAGE"
@@ -180,21 +186,15 @@ bad_ids: Dict[str, Set[int]] = {
 #     "users": {12345678}
 # }
 
-except_ids: Dict[str, Union[dict, Set[Union[int, str]]]] = {
+except_ids: Dict[str, Set[int]] = {
     "channels": set(),
-    "stickers": {},
-    "tmp": {},
-    "users": set()
+    "long": set(),
+    "tmp": set()
 }
 # except_ids = {
 #     "channels": {-10012345678},
-#     "stickers": {
-#         "file_id": {"NOPORN", "RECHECK"}
-#     },
-#     "tmp": {
-#         "context": {"NOPORN", "NOSPAM", "RECHECK"}
-#     },
-#     "users": {12345678}
+#     "long": {123),
+#     "tmp": {123}
 # }
 
 user_ids: Dict[int, Dict[str, float]] = {}
@@ -203,6 +203,7 @@ user_ids: Dict[int, Dict[str, float]] = {}
 #         "captcha": 0,
 #         "clean": 0,
 #         "lang": 0,
+#         "long": 0,
 #         "noflood": 0,
 #         "noporn": 0,
 #         "recheck": 0,

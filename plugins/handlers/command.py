@@ -24,7 +24,7 @@ from .. import glovar
 from ..functions.etc import bold, code, general_link, get_callback_data, get_command_context
 from ..functions.etc import message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
-from ..functions.manage import error_answer, get_admin
+from ..functions.manage import action_answer, get_admin
 from ..functions.telegram import send_message
 
 # Enable logging
@@ -32,24 +32,24 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
-                   & Filters.command(["error"], glovar.prefix))
-def error(client: Client, message: Message):
+                   & Filters.command(["action"], glovar.prefix))
+def action(client: Client, message: Message):
     try:
         cid = message.chat.id
         mid = message.message_id
         uid = message.from_user.id
         text = f"管理：{user_mention(uid)}\n"
         command_type, reason = get_command_context(message)
-        if command_type and command_type in {"process", "cancel"}:
+        if command_type and command_type in {"proceed", "cancel"}:
             if message.reply_to_message:
                 r_message = message.reply_to_message
                 aid = get_admin(r_message)
                 if uid == aid:
                     callback_data_list = get_callback_data(r_message)
-                    if r_message.from_user.is_self and callback_data_list and callback_data_list[0]["a"] == "error":
+                    if r_message.from_user.is_self and callback_data_list:
                         r_mid = r_message.message_id
                         error_key = callback_data_list[0]["d"]
-                        thread(error_answer, (client, cid, uid, r_mid, command_type, error_key, reason))
+                        thread(action_answer, (client, uid, r_mid, error_key, command_type, reason))
                         text += (f"状态：{code('已操作')}\n"
                                  f"查看：{general_link(r_mid, message_link(r_message))}\n")
                     else:
@@ -67,7 +67,7 @@ def error(client: Client, message: Message):
 
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
-        logger.warning(f"Ask word error: {e}", exc_info=True)
+        logger.warning(f"Action error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group

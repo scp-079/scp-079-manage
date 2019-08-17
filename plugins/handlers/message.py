@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.channel import receive_text_data
-from ..functions.etc import code, button_data, random_str, thread, user_mention
+from ..functions.etc import code, button_data, get_report_record, random_str, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
 from ..functions.group import get_message
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & logging_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def error_ask(client: Client, message: Message):
+def action_ask(client: Client, message: Message):
     try:
         cid = message.chat.id
         mid = message.message_id
@@ -50,25 +50,27 @@ def error_ask(client: Client, message: Message):
                 and report_message.reply_to_message.forward_date
                 and report_message.text
                 and re.search("^项目编号：", report_message.text)):
-            project = report_message.text.split("\n")[0].split("：")[-1]
-            if project in {"CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"}:
-                error_key = random_str(8)
-                glovar.errors[error_key] = {
+            record = get_report_record(report_message)
+            if record["project"] in glovar.receivers["except"]:
+                action_key = random_str(8)
+                glovar.actions[action_key] = {
                     "lock": False,
                     "aid": aid,
-                    "message": report_message
+                    "action": "error",
+                    "message": report_message,
+                    "record": record
                 }
                 text = (f"管理员：{user_mention(aid)}\n"
                         f"执行操作：{code('解除错误')}\n"
                         f"状态：{code('等待操作')}\n")
-                data_process = button_data("error", "process", error_key)
-                data_cancel = button_data("error", "cancel", error_key)
+                data_proceed = button_data("error", "proceed", action_key)
+                data_cancel = button_data("error", "cancel", action_key)
                 markup = InlineKeyboardMarkup(
                     [
                         [
                             InlineKeyboardButton(
                                 "处理",
-                                callback_data=data_process
+                                callback_data=data_proceed
                             ),
                             InlineKeyboardButton(
                                 "取消",
@@ -89,7 +91,6 @@ def exchange_emergency(_: Client, message: Message):
         # Read basic information
         data = receive_text_data(message)
         if data:
-            sender = data["from"]
             receivers = data["to"]
             action = data["action"]
             action_type = data["type"]

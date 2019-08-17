@@ -44,7 +44,7 @@ def init_user_id(uid: int) -> bool:
     return False
 
 
-def add_except_context(client: Client, context: str, except_type: str, project: str = None) -> bool:
+def add_except_id(client: Client, the_id: int, except_type: str, project: str = None) -> bool:
     # Add except context
     try:
         if project:
@@ -58,25 +58,17 @@ def add_except_context(client: Client, context: str, except_type: str, project: 
             action="add",
             action_type="except",
             data={
-                "id": context,
+                "id": the_id,
                 "type": except_type
             }
         )
-        # Change it to dict key
-        if except_type == "sticker":
-            except_type = "stickers"
 
-        # Init key
-        if not glovar.except_ids[except_type].get(context):
-            glovar.except_ids[except_type][context] = set()
-
-        # Add projects to the value set
-        for project in project_list:
-            glovar.except_ids[except_type][context].add(project)
-
+        # Save id
+        glovar.except_ids[except_type].add(the_id)
         save("except_ids")
+
         return True
     except Exception as e:
-        logger.warning(f"Add except context error: {e}", exc_info=True)
+        logger.warning(f"Add except id error: {e}", exc_info=True)
 
     return False

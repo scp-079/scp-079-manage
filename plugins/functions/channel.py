@@ -149,15 +149,14 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
     return result
 
 
-def send_debug(client: Client, aid: int, action: str, context: Union[int, str], time: str = None,
+def send_debug(client: Client, aid: int, action: str, time: str = None,
                uid: int = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         # Attention: project admin can make a fake operator name
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"项目管理员：{user_mention(aid)}\n"
-                f"执行操作：{code(action)}\n"
-                f"操作内容：{code(context)}\n")
+                f"执行操作：{code(action)}\n")
 
         if time:
             text += f"例外时效：{code(time)}\n"
