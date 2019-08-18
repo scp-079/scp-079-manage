@@ -48,8 +48,8 @@ def action(client: Client, message: Message):
                     callback_data_list = get_callback_data(r_message)
                     if r_message.from_user.is_self and callback_data_list:
                         r_mid = r_message.message_id
-                        error_key = callback_data_list[0]["d"]
-                        thread(action_answer, (client, uid, r_mid, error_key, command_type, reason))
+                        action_key = callback_data_list[0]["d"]
+                        thread(action_answer, (client, uid, r_mid, action_key, command_type, reason))
                         text += (f"状态：{code('已操作')}\n"
                                  f"查看：{general_link(r_mid, message_link(r_message))}\n")
                     else:

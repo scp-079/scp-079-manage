@@ -39,7 +39,7 @@ def answer(client: Client, callback_query: CallbackQuery):
         callback_data = loads(callback_query.data)
         action_type = callback_data["t"]
         key = callback_data["d"]
-        thread(action_answer, (client, aid, mid, action_type, key))
+        thread(action_answer, (client, aid, mid, key, action_type))
         thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
