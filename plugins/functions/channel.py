@@ -47,10 +47,10 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
                 f"操作等级：{code(record['level'])}\n"
                 f"规则：{code(record['rule'])}\n")
 
-        if record['name']:
+        if record["name"]:
             text += f"用户昵称：{code(record['name'])}\n"
 
-        if record['more']:
+        if record["more"]:
             text += f"附加信息：{code(record['more'])}\n"
 
         if reason:
@@ -174,6 +174,7 @@ def send_debug(client: Client, aid: int, action: str, time_text: str = None,
             text += f"原因：{code(reason)}\n"
 
         thread(send_message, (client, glovar.debug_channel_id, text))
+
         return True
     except Exception as e:
         logger.warning(f"Send debug error: {e}", exc_info=True)
@@ -194,6 +195,7 @@ def share_bad_channel(client: Client, cid: int) -> bool:
                 "type": "channel"
             }
         )
+
         return True
     except Exception as e:
         logger.warning(f"Share bad channel error: {e}", exc_info=True)
