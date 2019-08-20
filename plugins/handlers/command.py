@@ -87,10 +87,10 @@ def remove_bad(client: Client, message: Message):
                 the_id = int(id_text)
                 if the_id > 0:
                     action_text = "解禁用户"
-                    id_type = "user"
+                    id_type = "users"
                 else:
                     action_text = "解禁频道"
-                    id_type = "channel"
+                    id_type = "channels"
 
                 text += f"操作：{code(action_text)}\n"
                 if the_id in glovar.bad_ids[id_type]:

@@ -126,7 +126,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 # Remove the bad user if possible
                 if "封禁" in record["level"]:
                     action_text = "解禁"
-                    remove_bad_subject(client, "user", int(record["uid"]))
+                    remove_bad_subject(client, "users", int(record["uid"]))
                 else:
                     action_text = "解明"
 

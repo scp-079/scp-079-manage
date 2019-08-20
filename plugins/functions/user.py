@@ -59,6 +59,7 @@ def remove_bad_subject(client: Client, id_type: str, the_id: int) -> bool:
         save("bad_ids")
 
         # Share
+        id_type = id_type[:-1]
         share_data(
             client=client,
             receivers=glovar.receivers["bad"],
