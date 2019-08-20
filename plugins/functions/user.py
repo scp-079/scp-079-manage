@@ -68,6 +68,9 @@ def remove_bad_subject(client: Client, the_id: int, debug: bool = False, aid: in
             glovar.bad_ids[id_type].discard(the_id)
             save("bad_ids")
 
+            glovar.watch_ids["ban"].pop(the_id, 0)
+            glovar.watch_ids["delete"].pop(the_id, 0)
+
             # Share
             id_type = id_type[:-1]
             share_data(
@@ -87,5 +90,37 @@ def remove_bad_subject(client: Client, the_id: int, debug: bool = False, aid: in
             result += f"结果：{code('对象不在列表中')}\n"
     except Exception as e:
         logger.warning(f"Remove bad subject error: {e}", exc_info=True)
+
+    return result
+
+
+def remove_watch_user(client: Client, the_id: int, aid: int = None, reason: str = None) -> str:
+    # Remove watched user
+    result = ""
+    try:
+        action_text = "移除追踪"
+        result += f"操作：{code(action_text)}\n"
+        if glovar.watch_ids["ban"].get(the_id, 0) and glovar.watch_ids["delete"].get(the_id, 0):
+            # Local
+            glovar.watch_ids["ban"].pop(the_id, 0)
+            glovar.watch_ids["delete"].pop(the_id, 0)
+
+            # Share
+            share_data(
+                client=client,
+                receivers=glovar.receivers["watch"],
+                action="remove",
+                action_type="watch",
+                data={
+                    "id": the_id,
+                    "type": "all"
+                }
+            )
+            result += f"结果：{code('操作成功')}\n"
+            send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+        else:
+            result += f"结果：{code('对象不在列表中')}\n"
+    except Exception as e:
+        logger.warning(f"Remove watch user error: {e}", exc_info=True)
 
     return result

@@ -26,7 +26,7 @@ from ..functions.etc import message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
 from ..functions.manage import action_answer, get_admin, get_subject
 from ..functions.telegram import edit_message_text, send_message
-from ..functions.user import remove_bad_subject
+from ..functions.user import remove_bad_subject, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -72,8 +72,8 @@ def action(client: Client, message: Message):
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
-                   & Filters.command(["remove_bad"], glovar.prefix))
-def remove_bad(client: Client, message: Message):
+                   & Filters.command(["remove_bad", "remove_watch"], glovar.prefix))
+def remove_subject(client: Client, message: Message):
     try:
         cid = message.chat.id
         aid = message.from_user.id
@@ -83,7 +83,11 @@ def remove_bad(client: Client, message: Message):
         if id_text:
             try:
                 the_id = int(id_text)
-                result = remove_bad_subject(client, the_id, True, aid, reason)
+                if "remove_bad" in message.command:
+                    result = remove_bad_subject(client, the_id, True, aid, reason)
+                else:
+                    result = remove_watch_user(client, the_id, aid, reason)
+
                 text += result
                 if reason and result and "成功" in result:
                     text += f"原因：{code(reason)}\n"
