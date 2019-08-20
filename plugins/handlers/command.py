@@ -21,12 +21,11 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.channel import send_debug
 from ..functions.etc import bold, code, code_block, general_link, get_callback_data, get_command_context
 from ..functions.etc import message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
-from ..functions.manage import action_answer, get_admin
-from ..functions.telegram import send_message
+from ..functions.manage import action_answer, get_admin, get_subject
+from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import remove_bad_subject
 
 # Enable logging
@@ -80,35 +79,31 @@ def remove_bad(client: Client, message: Message):
         aid = message.from_user.id
         mid = message.message_id
         text = f"管理：{user_mention(aid)}\n"
-        command_type, reason = get_command_context(message)
-        if command_type:
-            id_text = command_type
+        id_text, reason, from_check = get_subject(message)
+        if id_text:
             try:
                 the_id = int(id_text)
-                if the_id > 0:
-                    action_text = "解禁用户"
-                    id_type = "users"
-                else:
-                    action_text = "解禁频道"
-                    id_type = "channels"
-
-                text += f"操作：{code(action_text)}\n"
-                if the_id in glovar.bad_ids[id_type]:
-                    remove_bad_subject(client, id_type, the_id)
-                    text += f"结果：{code('操作成功')}\n"
-                    send_debug(client, aid, action_text, None, command_type, None, None, reason)
-                else:
-                    text += f"结果：{code('对象不在列表中')}\n"
-
-                if reason:
+                result = remove_bad_subject(client, the_id, True, aid, reason)
+                text += result
+                if reason and result and "成功" in result:
                     text += f"原因：{code(reason)}\n"
             except Exception as e:
                 text += (f"错误：" + "-" * 24 + "\n\n"
                          f"{code_block(e)}\n")
                 thread(send_message, (client, cid, text, mid))
                 return
+        else:
+            text += f"结果：{code('缺少参数')}\n"
 
-        thread(send_message, (client, cid, text, mid))
+        if from_check:
+            r_message = message.reply_to_message
+            thread(edit_message_text, (client, cid, r_message.message_id, text))
+            text = (f"管理：{user_mention(aid)}\n"
+                    f"状态：{code('已操作')}\n"
+                    f"查看：{general_link(r_message.message_id, message_link(r_message))}\n")
+            thread(send_message, (client, cid, text, mid))
+        else:
+            thread(send_message, (client, cid, text, mid))
     except Exception as e:
         logger.warning(f"Remove bad error: {e}", exc_info=True)
 

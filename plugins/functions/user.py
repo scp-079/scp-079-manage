@@ -21,8 +21,8 @@ import logging
 from pyrogram import Client
 
 from .. import glovar
-from .channel import share_data
-from .etc import crypt_str
+from .channel import send_debug, share_data
+from .etc import code, crypt_str
 from .file import save
 
 # Enable logging
@@ -51,28 +51,41 @@ def receive_watch_user(watch_type: str, uid: int, until: str) -> bool:
     return False
 
 
-def remove_bad_subject(client: Client, id_type: str, the_id: int) -> bool:
+def remove_bad_subject(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:
     # Remove bad user or bad channel from list, and share it
+    result = ""
     try:
-        # Local
-        glovar.bad_ids[id_type].discard(the_id)
-        save("bad_ids")
+        if the_id > 0:
+            action_text = "解禁用户"
+            id_type = "users"
+        else:
+            action_text = "解禁频道"
+            id_type = "channels"
 
-        # Share
-        id_type = id_type[:-1]
-        share_data(
-            client=client,
-            receivers=glovar.receivers["bad"],
-            action="remove",
-            action_type="bad",
-            data={
-                "id": the_id,
-                "type": id_type
-            }
-        )
+        result += f"操作：{code(action_text)}\n"
+        if the_id in glovar.bad_ids[id_type]:
+            # Local
+            glovar.bad_ids[id_type].discard(the_id)
+            save("bad_ids")
 
-        return True
+            # Share
+            id_type = id_type[:-1]
+            share_data(
+                client=client,
+                receivers=glovar.receivers["bad"],
+                action="remove",
+                action_type="bad",
+                data={
+                    "id": the_id,
+                    "type": id_type
+                }
+            )
+            result += f"结果：{code('操作成功')}\n"
+            if debug:
+                send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+        else:
+            result += f"结果：{code('对象不在列表中')}\n"
     except Exception as e:
         logger.warning(f"Remove bad subject error: {e}", exc_info=True)
 
-    return False
+    return result
