@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import bold, code, code_block, general_link, get_callback_data, get_command_context
+from ..functions.etc import bold, code, code_block, general_link, get_text, get_callback_data, get_command_context
 from ..functions.etc import message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
 from ..functions.manage import action_answer, get_admin, get_subject
@@ -92,7 +92,8 @@ def remove_subject(client: Client, message: Message):
                 if reason and result and "成功" in result:
                     text += f"原因：{code(reason)}\n"
             except Exception as e:
-                text += (f"错误：" + "-" * 24 + "\n\n"
+                text += (f"命令：{code(get_text(message))}\n"
+                         f"错误：" + "-" * 24 + "\n\n"
                          f"{code_block(e)}\n")
                 thread(send_message, (client, cid, text, mid))
                 return
