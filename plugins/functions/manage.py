@@ -79,7 +79,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
 
             delete_message(client, glovar.logging_channel_id, message.reply_to_message.message_id)
             thread(edit_evidence, (client, message, record, action_text, reason))
-            thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
+            send_debug(client, aid, action_text, time_text, record["uid"], message, result, reason)
 
             return True
         except Exception as e:

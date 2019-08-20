@@ -54,7 +54,8 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 all_commands: List[str] = [
     "action",
     "join",
-    "leave"
+    "leave",
+    "remove_bad"
 ]
 
 default_user_status: Dict[str, float] = {

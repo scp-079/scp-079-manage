@@ -51,11 +51,11 @@ def receive_watch_user(watch_type: str, uid: int, until: str) -> bool:
     return False
 
 
-def remove_bad_user(client: Client, uid: int) -> bool:
-    # Remove bad user and share it
+def remove_bad_subject(client: Client, id_type: str, the_id: int) -> bool:
+    # Remove bad user or bad channel from list, and share it
     try:
         # Local
-        glovar.bad_ids["user"].discard(uid)
+        glovar.bad_ids[id_type].discard(the_id)
         save("bad_ids")
 
         # Share
@@ -65,13 +65,13 @@ def remove_bad_user(client: Client, uid: int) -> bool:
             action="remove",
             action_type="bad",
             data={
-                "id": uid,
-                "type": "user"
+                "id": the_id,
+                "type": id_type
             }
         )
 
         return True
     except Exception as e:
-        logger.warning(f"Remove bad user error: {e}", exc_info=True)
+        logger.warning(f"Remove bad subject error: {e}", exc_info=True)
 
     return False

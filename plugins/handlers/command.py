@@ -21,11 +21,13 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import bold, code, general_link, get_callback_data, get_command_context
+from ..functions.channel import send_debug
+from ..functions.etc import bold, code, code_block, general_link, get_callback_data, get_command_context
 from ..functions.etc import message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
 from ..functions.manage import action_answer, get_admin
 from ..functions.telegram import send_message
+from ..functions.user import remove_bad_subject
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -68,6 +70,47 @@ def action(client: Client, message: Message):
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
         logger.warning(f"Action error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group
+                   & Filters.command(["remove_bad"], glovar.prefix))
+def remove_bad(client: Client, message: Message):
+    try:
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        text = f"管理：{user_mention(aid)}\n"
+        command_type, reason = get_command_context(message)
+        if command_type:
+            id_text = command_type
+            try:
+                the_id = int(id_text)
+                if the_id > 0:
+                    action_text = "解禁用户"
+                    id_type = "user"
+                else:
+                    action_text = "解禁频道"
+                    id_type = "channel"
+
+                text += f"操作：{code(action_text)}\n"
+                if the_id in glovar.bad_ids[id_type]:
+                    remove_bad_subject(client, id_type, the_id)
+                    text += f"结果：{code('操作成功')}\n"
+                    send_debug(client, aid, action_text, None, command_type, None, None, reason)
+                else:
+                    text += f"结果：{code('对象不在列表中')}\n"
+
+                if reason:
+                    text += f"原因：{code(reason)}\n"
+            except Exception as e:
+                text += (f"格式有误：" + "-" * 24 + "\n\n"
+                         f"{code_block(e)}\n")
+                thread(send_message, (client, cid, text, mid))
+                return
+
+        thread(send_message, (client, cid, text, mid))
+    except Exception as e:
+        logger.warning(f"Remove bad error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group
