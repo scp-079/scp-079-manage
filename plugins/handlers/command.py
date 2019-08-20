@@ -103,7 +103,7 @@ def remove_bad(client: Client, message: Message):
                 if reason:
                     text += f"原因：{code(reason)}\n"
             except Exception as e:
-                text += (f"格式有误：" + "-" * 24 + "\n\n"
+                text += (f"错误：" + "-" * 24 + "\n\n"
                          f"{code_block(e)}\n")
                 thread(send_message, (client, cid, text, mid))
                 return
