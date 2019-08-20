@@ -62,7 +62,8 @@ def remove_bad_subject(client: Client, the_id: int, debug: bool = False, aid: in
             action_text = "解禁频道"
             id_type = "channels"
 
-        result += f"操作：{code(action_text)}\n"
+        result += (f"操作：{code(action_text)}\n"
+                   f"针对：{code(the_id)}\n")
         if the_id in glovar.bad_ids[id_type]:
             # Local
             glovar.bad_ids[id_type].discard(the_id)
