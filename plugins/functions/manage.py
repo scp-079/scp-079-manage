@@ -26,7 +26,7 @@ from .channel import edit_evidence, send_debug, send_error, share_id
 from .etc import code, thread, user_mention
 from .group import delete_message
 from .telegram import edit_message_text
-from .user import remove_bad_user
+from .user import remove_bad_subject
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 # Remove the bad user if possible
                 if "封禁" in record["level"]:
                     action_text = "解禁"
-                    remove_bad_user(client, int(record["uid"]))
+                    remove_bad_subject(client, "user", int(record["uid"]))
                 else:
                     action_text = "解明"
 
