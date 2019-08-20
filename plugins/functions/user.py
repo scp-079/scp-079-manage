@@ -99,7 +99,8 @@ def remove_watch_user(client: Client, the_id: int, aid: int = None, reason: str 
     result = ""
     try:
         action_text = "移除追踪"
-        result += f"操作：{code(action_text)}\n"
+        result += (f"操作：{code(action_text)}\n"
+                   f"针对：{code(the_id)}\n")
         if glovar.watch_ids["ban"].get(the_id, 0) and glovar.watch_ids["delete"].get(the_id, 0):
             # Local
             glovar.watch_ids["ban"].pop(the_id, 0)
