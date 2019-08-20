@@ -24,6 +24,7 @@ from pyrogram import Client, Message
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_id
 from .etc import code, thread, user_mention
+from .group import delete_message
 from .telegram import edit_message_text
 from .user import remove_bad_user
 
@@ -76,6 +77,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
             time_text = ""
             result = None
 
+            delete_message(client, glovar.logging_channel_id, message.reply_to_message.message_id)
             thread(edit_evidence, (client, message, record, action_text, reason))
             thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
 
