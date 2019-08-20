@@ -81,16 +81,23 @@ def action_ask(client: Client, message: Message):
                         f"执行操作：{code(action_text)}\n"
                         f"状态：{code('等待操作')}\n")
                 data_proceed = button_data(action, "proceed", action_key)
+                data_delete = button_data(action, "delete", action_key)
                 data_cancel = button_data(action, "cancel", action_key)
                 markup = InlineKeyboardMarkup(
                     [
                         [
                             InlineKeyboardButton(
-                                "处理",
+                                text="处理",
                                 callback_data=data_proceed
                             ),
                             InlineKeyboardButton(
-                                "取消",
+                                text="删除",
+                                callback_data=data_delete
+                            )
+                        ],
+                        [
+                            InlineKeyboardButton(
+                                text="取消",
                                 callback_data=data_cancel
                             )
                         ]

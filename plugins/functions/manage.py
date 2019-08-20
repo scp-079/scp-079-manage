@@ -43,6 +43,9 @@ def action_answer(client: Client, uid: int, mid: int, key: str, action_type: str
                 if action_type == "proceed":
                     thread(action_proceed, (client, key, reason))
                     status = "已处理"
+                elif action_type == "delete":
+                    thread(action_delete, (client, key, reason))
+                    status = "已删除"
                 else:
                     glovar.actions.pop(key, {})
                     status = "已取消"
@@ -61,8 +64,32 @@ def action_answer(client: Client, uid: int, mid: int, key: str, action_type: str
     return False
 
 
+def action_delete(client: Client, key: str, reason: str = None) -> bool:
+    # Delete the evidence message
+    if glovar.actions.get(key, {}) and not glovar.actions[key]["lock"]:
+        try:
+            glovar.actions[key]["lock"] = True
+            aid = glovar.actions[key]["aid"]
+            message = glovar.actions[key]["message"]
+            record = glovar.actions[key]["record"]
+            action_text = "删除"
+            time_text = ""
+            result = None
+
+            thread(edit_evidence, (client, message, record, action_text, reason))
+            thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
+
+            return True
+        except Exception as e:
+            logger.warning(f"Action delete error: {e}", exc_info=True)
+        finally:
+            glovar.actions.pop(key, {})
+
+    return False
+
+
 def action_proceed(client: Client, key: str, reason: str = None) -> bool:
-    # Process the error
+    # Proceed the action
     if glovar.actions.get(key, {}) and not glovar.actions[key]["lock"]:
         try:
             glovar.actions[key]["lock"] = True

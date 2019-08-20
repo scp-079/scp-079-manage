@@ -40,7 +40,7 @@ def action(client: Client, message: Message):
         uid = message.from_user.id
         text = f"管理：{user_mention(uid)}\n"
         command_type, reason = get_command_context(message)
-        if command_type and command_type in {"proceed", "cancel"}:
+        if command_type and command_type in {"proceed", "delete", "cancel"}:
             if message.reply_to_message:
                 r_message = message.reply_to_message
                 aid = get_admin(r_message)
