@@ -51,20 +51,37 @@ def action_ask(client: Client, message: Message):
                 and report_message.text
                 and re.search("^项目编号：", report_message.text)):
             record = get_report_record(report_message)
+            action = ""
+            action_key = random_str(8)
             if record["project"] in glovar.receivers["except"]:
-                action_key = random_str(8)
+                action = "error"
+            elif record["project"] == "WARN":
+                action = "bad"
+            elif record["project"] == "MANAGE":
+                if record["status"] == "已重置":
+                    if record["origin"] in glovar.receivers["except"]:
+                        action = "error"
+                    elif record["origin"] == "WARN":
+                        action = "bad"
+                elif record["status"] == "已解禁" or record["status"] == "已解明":
+                    action = "mole"
+                elif record["status"] == "已收录":
+                    action = "innocent"
+
+            if action:
+                action_text = glovar.names[action]
                 glovar.actions[action_key] = {
                     "lock": False,
                     "aid": aid,
-                    "action": "error",
+                    "action": action,
                     "message": report_message,
                     "record": record
                 }
                 text = (f"管理员：{user_mention(aid)}\n"
-                        f"执行操作：{code('解除错误')}\n"
+                        f"执行操作：{code(action_text)}\n"
                         f"状态：{code('等待操作')}\n")
-                data_proceed = button_data("error", "proceed", action_key)
-                data_cancel = button_data("error", "cancel", action_key)
+                data_proceed = button_data(action, "proceed", action_key)
+                data_cancel = button_data(action, "cancel", action_key)
                 markup = InlineKeyboardMarkup(
                     [
                         [

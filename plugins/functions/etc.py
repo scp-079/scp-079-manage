@@ -207,6 +207,7 @@ def get_report_record(message: Message) -> Dict[str, str]:
     record = {
         "project": "",
         "origin": "",
+        "status": "",
         "uid": "",
         "level": "",
         "rule": "",
@@ -220,6 +221,8 @@ def get_report_record(message: Message) -> Dict[str, str]:
                 record_type = "project"
             elif re.search("^原始项目：", r):
                 record_type = "origin"
+            elif re.search("^状态：", r):
+                record_type = "status"
             elif re.search("^用户 ID：", r):
                 record_type = "uid"
             elif re.search("^操作等级：", r):

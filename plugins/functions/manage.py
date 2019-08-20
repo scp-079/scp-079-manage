@@ -22,9 +22,8 @@ from typing import Optional
 from pyrogram import Client, Message
 
 from .. import glovar
-from .channel import edit_evidence, send_debug, send_error
+from .channel import edit_evidence, send_debug, send_error, share_id
 from .etc import code, thread, user_mention
-from .ids import add_except_id
 from .telegram import edit_message_text
 from .user import remove_bad_user
 
@@ -40,9 +39,7 @@ def action_answer(client: Client, uid: int, mid: int, key: str, action_type: str
             aid = glovar.actions[key]["aid"]
             if uid == aid or not aid:
                 action = glovar.actions[key]["action"]
-                if action == "error":
-                    text += f"执行操作：{code('解除错误')}\n"
-
+                text += f"执行操作：{code(glovar.names[action])}\n"
                 if action_type == "proceed":
                     thread(action_proceed, (client, key, reason))
                     status = "已处理"
@@ -64,63 +61,68 @@ def action_answer(client: Client, uid: int, mid: int, key: str, action_type: str
     return False
 
 
-def add_except(client: Client, message: Message, record: dict, aid: int, action: str, reason: str) -> bool:
-    try:
-        # Add the except context
-        if message.sticker:
-            except_type = "long"
-            time = "长期"
-        else:
-            except_type = "tmp"
-            time = "临时"
-
-        rid = message.message_id
-        add_except_id(client, rid, except_type, record["project"])
-        # Send messages to the error channel
-        result = send_error(
-            client,
-            message.reply_to_message,
-            record["project"],
-            aid,
-            action,
-            reason
-        )
-        # If send the error report successfully, edit the origin report and send debug message
-        if result:
-            thread(
-                target=edit_evidence,
-                args=(client, message, record["project"], action, record["uid"], record["level"],
-                      record["rule"], record["name"], record["more"], reason)
-            )
-            thread(
-                target=send_debug,
-                args=(client, aid, action, time, record["uid"], message, result, reason)
-            )
-
-        return True
-    except Exception as e:
-        logger.warning(f"Add except error: {e}", exc_info=True)
-
-    return False
-
-
 def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     # Process the error
-    if not glovar.actions[key]["lock"]:
+    if glovar.actions.get(key, {}) and not glovar.actions[key]["lock"]:
         try:
             glovar.actions[key]["lock"] = True
             aid = glovar.actions[key]["aid"]
+            action = glovar.actions[key]["action"]
             message = glovar.actions[key]["message"]
             record = glovar.actions[key]["record"]
-            # Remove the bad user if possible
-            if "封禁" in record["level"]:
-                action = "解禁"
-                remove_bad_user(client, int(record["uid"]))
-            else:
-                action = "解明"
+            action_type = ""
+            action_text = ""
+            id_type = ""
+            the_id = message.message_id
+            result = None
 
-            if record["project"] in glovar.receivers["except"]:
-                add_except(client, message.reply_to_message, record, aid, action, reason)
+            # Define the receiver
+            if record["project"] == "MANAGE":
+                receiver = record["origin"]
+            else:
+                receiver = record["project"]
+
+            # Choose proper time type
+            if message.reply_to_message.sticker:
+                time_type = "long"
+                time_text = "长期"
+            else:
+                time_type = "tmp"
+                time_text = "临时"
+
+            if action == "error":
+                action_type = "add"
+                id_type = "except"
+
+                # Remove the bad user if possible
+                if "封禁" in record["level"]:
+                    action_text = "解禁"
+                    remove_bad_user(client, int(record["uid"]))
+                else:
+                    action_text = "解明"
+
+                # Send messages to the error channel
+                result = send_error(client, message.reply_to_message, receiver, aid, action, reason)
+            elif action == "bad":
+                action_type = "add"
+                id_type = "bad"
+                action_text = "收录"
+                receiver = "NOSPAM"
+            elif action == "mole":
+                action_type = "remove"
+                id_type = "except"
+                action_text = "重置"
+            elif action == "innocent":
+                action_type = "remove"
+                id_type = "bad"
+                action_text = "重置"
+
+            # Share report message's id
+            if action_type:
+                share_id(client, action_type, id_type, the_id, time_type, receiver)
+
+            thread(edit_evidence, (client, message, record, action_text, reason))
+            thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
 
             return True
         except Exception as e:

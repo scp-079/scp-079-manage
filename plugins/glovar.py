@@ -31,6 +31,26 @@ logger = logging.getLogger(__name__)
 
 # Init
 
+actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
+# actions = {
+#     "random": {
+#         "lock": False,
+#         "aid": 12345678,
+#         "action": "error",
+#         "message": Message,
+#         "record" = {
+#             "project": "",
+#             "origin": "",
+#             "status": "",
+#             "uid": "",
+#             "level": "",
+#             "rule": "",
+#             "name": "",
+#             "more": ""
+#         }
+#     }
+# }
+
 all_commands: List[str] = [
     "action",
     "join",
@@ -49,24 +69,12 @@ default_user_status: Dict[str, float] = {
     "warn": 0
 }
 
-actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
-# actions = {
-#     "random": {
-#         "lock": False,
-#         "aid": 12345678,
-#         "action": "error",
-#         "message": Message,
-#         "record" = {
-#             "project": "",
-#             "origin": "",
-#             "uid": "",
-#             "level": "",
-#             "rule": "",
-#             "name": "",
-#             "more": ""
-#         }
-#     }
-# }
+names: Dict[str, str] = {
+    "bad": "收录消息",
+    "error": "解除错误",
+    "innocent": "取消收录",
+    "mole": "移除例外"
+}
 
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
@@ -183,18 +191,16 @@ bad_ids: Dict[str, Set[int]] = {
 }
 # bad_ids = {
 #     "channels": {-10012345678},
-#     "users": {12345678}
+#     "users": {12345678},
+#     "long": {123},
+#     "tmp": {123}
 # }
 
 except_ids: Dict[str, Set[int]] = {
-    "channels": set(),
-    "long": set(),
-    "tmp": set()
+    "channels": set()
 }
 # except_ids = {
-#     "channels": {-10012345678},
-#     "long": {123),
-#     "tmp": {123}
+#     "channels": {-10012345678}
 # }
 
 user_ids: Dict[int, Dict[str, float]] = {}
@@ -206,6 +212,7 @@ user_ids: Dict[int, Dict[str, float]] = {}
 #         "long": 0,
 #         "noflood": 0,
 #         "noporn": 0,
+#         "nospam": 0,
 #         "recheck": 0,
 #         "warn": 0
 #     }

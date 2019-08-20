@@ -32,8 +32,11 @@ logger = logging.getLogger(__name__)
 def receive_watch_user(watch_type: str, uid: int, until: str) -> bool:
     # Receive watch users that other bots shared
     try:
+        # Decrypt the data
         until = crypt_str("decrypt", until, glovar.key)
         until = int(until)
+
+        # Add to list
         if watch_type == "ban":
             glovar.watch_ids["ban"][uid] = until
         elif watch_type == "delete":
@@ -51,8 +54,11 @@ def receive_watch_user(watch_type: str, uid: int, until: str) -> bool:
 def remove_bad_user(client: Client, uid: int) -> bool:
     # Remove bad user and share it
     try:
+        # Local
         glovar.bad_ids["user"].discard(uid)
         save("bad_ids")
+
+        # Share
         share_data(
             client=client,
             receivers=glovar.receivers["bad"],
@@ -63,6 +69,7 @@ def remove_bad_user(client: Client, uid: int) -> bool:
                 "type": "user"
             }
         )
+
         return True
     except Exception as e:
         logger.warning(f"Remove bad user error: {e}", exc_info=True)

@@ -33,25 +33,25 @@ from .telegram import edit_message_text, send_document, send_message
 logger = logging.getLogger(__name__)
 
 
-def edit_evidence(client: Client, message: Message, project: str, action: str, uid: str, level: str, rule: str,
-                  name: str = None, more: str = None, reason: str = None) -> Optional[Union[bool, Message]]:
+def edit_evidence(client: Client, message: Message, record: dict, action_text: str,
+                  reason: str = None) -> Optional[Union[bool, Message]]:
     # Edit the evidence's report message
     result = None
     try:
         cid = message.chat.id
         mid = message.message_id
         text = (f"项目编号：{code(glovar.sender)}\n"
-                f"原始项目：{code(project)}\n"
-                f"状态：{code(f'已{action}')}\n"
-                f"用户 ID：{code(uid)}\n"
-                f"操作等级：{code(level)}\n"
-                f"规则：{code(rule)}\n")
+                f"原始项目：{code(record['origin'] or record['project'])}\n"
+                f"状态：{code(f'已{action_text}')}\n"
+                f"用户 ID：{code(record['uid'])}\n"
+                f"操作等级：{code(record['level'])}\n"
+                f"规则：{code(record['rule'])}\n")
 
-        if name:
-            text += f"用户昵称：{code(name)}\n"
+        if record['name']:
+            text += f"用户昵称：{code(record['name'])}\n"
 
-        if more:
-            text += f"附加信息：{code(more)}\n"
+        if record['more']:
+            text += f"附加信息：{code(record['more'])}\n"
 
         if reason:
             text += f"原因：{code(reason)}\n"
@@ -117,7 +117,7 @@ def receive_text_data(message: Message) -> dict:
     return data
 
 
-def send_error(client: Client, message: Message, project: str, aid: int, action: str,
+def send_error(client: Client, message: Message, project: str, aid: int, action_text: str,
                reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
@@ -125,7 +125,7 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
         # Attention: project admin can make a fake operator name
         text = (f"原始项目：{code(project)}\n"
                 f"项目管理员：{user_mention(aid)}\n"
-                f"执行操作：{code(action)}\n")
+                f"执行操作：{code(action_text)}\n")
         if reason:
             text += f"原因：{code(reason)}\n"
 
@@ -149,8 +149,8 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
     return result
 
 
-def send_debug(client: Client, aid: int, action: str, time: str = None,
-               uid: int = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
+def send_debug(client: Client, aid: int, action: str, time_text: str = None,
+               uid: str = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         # Attention: project admin can make a fake operator name
@@ -158,11 +158,11 @@ def send_debug(client: Client, aid: int, action: str, time: str = None,
                 f"项目管理员：{user_mention(aid)}\n"
                 f"执行操作：{code(action)}\n")
 
-        if time:
-            text += f"例外时效：{code(time)}\n"
+        if time_text:
+            text += f"例外时效：{code(time_text)}\n"
 
         if uid:
-            text += f"原用户 ID：{code(uid)}\n"
+            text += f"用户 ID：{code(uid)}\n"
 
         if em:
             text += f"原始记录：{general_link(em.message_id, message_link(em))}\n"
@@ -255,5 +255,26 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
             return True
     except Exception as e:
         logger.warning(f"Share data error: {e}", exc_info=True)
+
+    return False
+
+
+def share_id(client: Client, action_type: str, id_type: str, the_id: int, time_type: str, receiver: str) -> bool:
+    # Add bad or except id
+    try:
+        share_data(
+            client=client,
+            receivers=[receiver],
+            action=action_type,
+            action_type=id_type,
+            data={
+                "id": the_id,
+                "type": time_type
+            }
+        )
+
+        return True
+    except Exception as e:
+        logger.warning(f"Share id error: {e}", exc_info=True)
 
     return False

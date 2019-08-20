@@ -20,10 +20,7 @@
 import logging
 from copy import deepcopy
 
-from pyrogram import Client
-
 from .. import glovar
-from .channel import share_data
 from .file import save
 
 # Enable logging
@@ -40,35 +37,5 @@ def init_user_id(uid: int) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Init user id {uid} error: {e}", exc_info=True)
-
-    return False
-
-
-def add_except_id(client: Client, the_id: int, except_type: str, project: str = None) -> bool:
-    # Add except context
-    try:
-        if project:
-            project_list = [project]
-        else:
-            project_list = glovar.receivers["except"]
-
-        share_data(
-            client=client,
-            receivers=project_list,
-            action="add",
-            action_type="except",
-            data={
-                "id": the_id,
-                "type": except_type
-            }
-        )
-
-        # Save id
-        glovar.except_ids[except_type].add(the_id)
-        save("except_ids")
-
-        return True
-    except Exception as e:
-        logger.warning(f"Add except id error: {e}", exc_info=True)
 
     return False
