@@ -59,15 +59,15 @@ all_commands: List[str] = [
 ]
 
 default_user_status: Dict[str, float] = {
-    "captcha": 0,
-    "clean": 0,
-    "lang": 0,
-    "long": 0,
-    "noflood": 0,
-    "noporn": 0,
-    "nospam": 0,
-    "recheck": 0,
-    "warn": 0
+    "captcha": 0.0,
+    "clean": 0.0,
+    "lang": 0.0,
+    "long": 0.0,
+    "noflood": 0.0,
+    "noporn": 0.0,
+    "nospam": 0.0,
+    "recheck": 0.0,
+    "warn": 0.0
 }
 
 names: Dict[str, str] = {

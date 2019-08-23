@@ -164,7 +164,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["captcha"] = score
                             save("user_ids")
 
@@ -183,7 +183,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["clean"] = score
                             save("user_ids")
 
@@ -203,7 +203,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["lang"] = score
                             save("user_ids")
 
@@ -223,7 +223,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["long"] = score
                             save("user_ids")
 
@@ -243,7 +243,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["noflood"] = score
                             save("user_ids")
 
@@ -263,7 +263,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["noporn"] = score
                             save("user_ids")
 
@@ -283,7 +283,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["nospam"] = score
                             save("user_ids")
 
@@ -303,7 +303,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["recheck"] = score
                             save("user_ids")
 
@@ -313,7 +313,7 @@ def process_data(_, message: Message):
                         if action_type == "score":
                             uid = data["id"]
                             init_user_id(uid)
-                            score = data
+                            score = data["score"]
                             glovar.user_ids[uid]["warn"] = score
                             save("user_ids")
 
