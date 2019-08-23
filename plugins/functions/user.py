@@ -23,7 +23,7 @@ from pyrogram.api.types import InputPeerUser, InputPeerChannel
 
 from .. import glovar
 from .channel import send_debug, share_data
-from .etc import button_data, code, crypt_str, get_int, get_now, get_object, user_mention
+from .etc import button_data, code, crypt_str, get_int, get_now, get_object, italic, user_mention
 from .file import save
 from .telegram import resolve_peer
 
@@ -60,7 +60,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                         f"删除追踪：{code(is_watch_delete)}\n"
                         f"封禁追踪：{code(is_watch_ban)}\n")
                 for project in glovar.default_user_status:
-                    text += (f"{project.upper()} 得分："
+                    text += (f"{italic(project.upper())} 得分："
                              f"{code(glovar.user_ids.get(the_id, glovar.default_user_status)[project])}\n")
 
                 bad_data = button_data("check", "bad", the_id)
