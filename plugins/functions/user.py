@@ -131,7 +131,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                     ]
                 ]
                 markup = InlineKeyboardMarkup(markup_list)
-        elif not (message.forward_from or message.forward_from_chat):
+        elif not (message.forward_from or message.forward_from_chat or message.forward_sender_name):
             text = (f"管理员：{user_mention(aid)}\n"
                     f"结果：{code('无法显示')}\n"
                     f"原因：{code('格式有误')}\n")
