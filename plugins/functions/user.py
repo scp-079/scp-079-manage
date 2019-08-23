@@ -64,7 +64,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                 text += f"总分：{code(total_score)}\n\n"
                 for project in glovar.default_user_status:
                     text += "\t" * 4
-                    text += (f"{italic(project.upper())} - "
+                    text += (f"{italic(project.upper())}    "
                              f"{code(glovar.user_ids.get(the_id, glovar.default_user_status)[project])}\n")
 
                 bad_data = button_data("check", "bad", the_id)
