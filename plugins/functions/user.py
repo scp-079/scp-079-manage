@@ -59,8 +59,12 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                         f"黑名单：{code(is_bad)}\n"
                         f"删除追踪：{code(is_watch_delete)}\n"
                         f"封禁追踪：{code(is_watch_ban)}\n")
+                total_score = sum([glovar.user_ids.get(the_id, glovar.default_user_status)[project]
+                                   for project in glovar.default_user_status])
+                text += f"总分：{code(total_score)}\n\n"
                 for project in glovar.default_user_status:
-                    text += (f"{italic(project.upper())} 得分："
+                    text += "\t" * 4
+                    text += (f"{italic(project.upper())} - "
                              f"{code(glovar.user_ids.get(the_id, glovar.default_user_status)[project])}\n")
 
                 bad_data = button_data("check", "bad", the_id)
