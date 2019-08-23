@@ -23,7 +23,7 @@ from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread, Timer
-from time import sleep
+from time import sleep, time
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from cryptography.fernet import Fernet
@@ -198,6 +198,28 @@ def get_command_type(message: Message) -> str:
         result = text[len(command_list[0]):].strip()
     except Exception as e:
         logging.warning(f"Get command type error: {e}", exc_info=True)
+
+    return result
+
+
+def get_int(text: str) -> int:
+    # Get a int from a string
+    result = None
+    try:
+        result = int(text)
+    except Exception as e:
+        logger.info(f"Get int error: {e}", exc_info=True)
+
+    return result
+
+
+def get_now() -> int:
+    # Get time for now
+    result = 0
+    try:
+        result = int(time())
+    except Exception as e:
+        logger.warning(f"Get now error: {e}", exc_info=True)
 
     return result
 

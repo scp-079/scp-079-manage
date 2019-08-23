@@ -26,7 +26,7 @@ from .channel import edit_evidence, send_debug, send_error, share_id
 from .etc import code, get_command_context, get_text, thread, user_mention
 from .group import delete_message
 from .telegram import edit_message_text
-from .user import remove_bad_subject
+from .user import remove_bad_object
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 # Remove the bad user if possible
                 if "封禁" in record["level"]:
                     action_text = "解禁"
-                    remove_bad_subject(client, int(record["uid"]))
+                    remove_bad_object(client, int(record["uid"]))
                 else:
                     action_text = "解明"
 
@@ -175,7 +175,7 @@ def get_admin(message: Message) -> int:
     return result
 
 
-def get_subject(message: Message) -> (str, str, bool):
+def get_object(message: Message) -> (str, str, bool):
     # Get message's target
     id_text = ""
     reason = ""
@@ -185,13 +185,13 @@ def get_subject(message: Message) -> (str, str, bool):
         if message.reply_to_message and message.reply_markup:
             text = get_text(message.reply_to_message)
             if text:
-                if re.search("^查询：", text):
+                if re.search("^(用户|频道) ID：", text):
                     if not reason:
                         reason = id_text
 
                     id_text = text.split("\n")[1].split("：")[1]
                     from_check = True
     except Exception as e:
-        logger.warning(f"Get subject error: {e}", exc_info=True)
+        logger.warning(f"Get object error: {e}", exc_info=True)
 
     return id_text, reason, from_check

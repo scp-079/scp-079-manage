@@ -29,7 +29,7 @@ from ..functions.filters import exchange_channel, hide_channel, logging_channel,
 from ..functions.group import get_message
 from ..functions.ids import init_user_id
 from ..functions.telegram import send_message
-from ..functions.user import receive_watch_user
+from ..functions.user import check_object, receive_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -106,6 +106,20 @@ def action_ask(client: Client, message: Message):
                 thread(send_message, (client, cid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Check error error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & ~logging_channel
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def check_forwarded(client: Client, message: Message):
+    try:
+        # Read basic information
+        cid = message.chat.id
+        mid = message.message_id
+        text, markup = check_object(client, message)
+        if text:
+            thread(send_message, (client, cid, text, mid, markup))
+    except Exception as e:
+        logger.warning(f"Check object error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel

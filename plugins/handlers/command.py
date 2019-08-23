@@ -21,12 +21,12 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import bold, code, code_block, general_link, get_text, get_callback_data, get_command_context
-from ..functions.etc import message_link, thread, user_mention
+from ..functions.etc import bold, code, general_link, get_callback_data, get_command_context
+from ..functions.etc import get_int, message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
-from ..functions.manage import action_answer, get_admin, get_subject
+from ..functions.manage import action_answer, get_admin, get_object
 from ..functions.telegram import edit_message_text, send_message
-from ..functions.user import remove_bad_subject, remove_watch_user
+from ..functions.user import remove_bad_object, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -73,30 +73,27 @@ def action(client: Client, message: Message):
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["remove_bad", "remove_watch"], glovar.prefix))
-def remove_subject(client: Client, message: Message):
+def remove_object(client: Client, message: Message):
     try:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
         text = f"管理：{user_mention(aid)}\n"
-        id_text, reason, from_check = get_subject(message)
+        id_text, reason, from_check = get_object(message)
         if id_text:
-            try:
-                the_id = int(id_text)
+            the_id = get_int(id_text)
+            if the_id:
                 if "remove_bad" in message.command:
-                    result = remove_bad_subject(client, the_id, True, aid, reason)
+                    result = remove_bad_object(client, the_id, True, aid, reason)
                 else:
                     result = remove_watch_user(client, the_id, aid, reason)
 
                 text += result
                 if reason and result and "成功" in result:
                     text += f"原因：{code(reason)}\n"
-            except Exception as e:
-                text += (f"命令：{code(get_text(message))}\n"
-                         f"错误：" + "-" * 24 + "\n\n"
-                         f"{code_block(e)}\n")
-                thread(send_message, (client, cid, text, mid))
-                return
+            else:
+                text += (f"针对：{code(id_text)}\n"
+                         f"结果：{code('输入有误')}\n")
         else:
             text += f"结果：{code('缺少参数')}\n"
 
