@@ -23,9 +23,8 @@ from pyrogram.api.types import InputPeerUser, InputPeerChannel
 
 from .. import glovar
 from .channel import send_debug, share_data
-from .etc import button_data, code, crypt_str, get_int, get_now, user_mention
+from .etc import button_data, code, crypt_str, get_int, get_now, get_object, user_mention
 from .file import save
-from .manage import get_object
 from .telegram import resolve_peer
 
 # Enable logging

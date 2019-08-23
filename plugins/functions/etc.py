@@ -128,6 +128,19 @@ def general_link(text: Union[int, str], link: str) -> str:
     return result
 
 
+def get_admin(message: Message) -> int:
+    # Get message's origin commander
+    result = 0
+    try:
+        text = get_text(message)
+        if text:
+            result = int(text.split("\n")[0].split("：")[-1])
+    except Exception as e:
+        logger.warning(f"Get admin error: {e}", exc_info=True)
+
+    return result
+
+
 def get_channel_link(message: Union[int, Message]) -> str:
     # Get a channel reference link
     text = ""
@@ -222,6 +235,28 @@ def get_now() -> int:
         logger.warning(f"Get now error: {e}", exc_info=True)
 
     return result
+
+
+def get_object(message: Message) -> (str, str, bool):
+    # Get message's target
+    id_text = ""
+    reason = ""
+    from_check = False
+    try:
+        id_text, reason = get_command_context(message)
+        if message.reply_to_message and message.reply_markup:
+            text = get_text(message.reply_to_message)
+            if text:
+                if re.search("^(用户|频道) ID：", text):
+                    if not reason:
+                        reason = id_text
+
+                    id_text = text.split("\n")[1].split("：")[1]
+                    from_check = True
+    except Exception as e:
+        logger.warning(f"Get object error: {e}", exc_info=True)
+
+    return id_text, reason, from_check
 
 
 def get_report_record(message: Message) -> Dict[str, str]:

@@ -17,13 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
 
-from pyrogram import Client, Message
+from pyrogram import Client
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_id
-from .etc import code, get_command_context, get_text, thread, user_mention
+from .etc import code, thread, user_mention
 from .group import delete_message
 from .telegram import edit_message_text
 from .user import remove_bad_object
@@ -160,38 +159,3 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             glovar.actions.pop(key, {})
 
     return False
-
-
-def get_admin(message: Message) -> int:
-    # Get message's origin commander
-    result = 0
-    try:
-        text = get_text(message)
-        if text:
-            result = int(text.split("\n")[0].split("：")[-1])
-    except Exception as e:
-        logger.warning(f"Get admin error: {e}", exc_info=True)
-
-    return result
-
-
-def get_object(message: Message) -> (str, str, bool):
-    # Get message's target
-    id_text = ""
-    reason = ""
-    from_check = False
-    try:
-        id_text, reason = get_command_context(message)
-        if message.reply_to_message and message.reply_markup:
-            text = get_text(message.reply_to_message)
-            if text:
-                if re.search("^(用户|频道) ID：", text):
-                    if not reason:
-                        reason = id_text
-
-                    id_text = text.split("\n")[1].split("：")[1]
-                    from_check = True
-    except Exception as e:
-        logger.warning(f"Get object error: {e}", exc_info=True)
-
-    return id_text, reason, from_check

@@ -21,10 +21,10 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import bold, code, general_link, get_callback_data, get_command_context
-from ..functions.etc import get_int, message_link, thread, user_mention
+from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
+from ..functions.etc import get_int, get_object, message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
-from ..functions.manage import action_answer, get_admin, get_object
+from ..functions.manage import action_answer
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import remove_bad_object, remove_watch_user
 
