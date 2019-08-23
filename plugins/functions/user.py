@@ -95,15 +95,23 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                     markup = InlineKeyboardMarkup(markup_list)
             else:
                 is_bad = the_id in glovar.bad_ids["channels"]
+                is_except = the_id in glovar.except_ids["channels"]
                 text = (f"管理员：{user_mention(aid)}\n"
                         f"频道 ID：{code(the_id)}\n"
-                        f"黑名单：{code(is_bad)}\n")
-                cancel_data = button_data("check", "cancel", the_id)
+                        f"黑名单：{code(is_bad)}\n"
+                        f"白名单：{code(is_except)}\n")
                 bad_data = button_data("check", "bad", the_id)
+                except_data = button_data("check", "except", the_id)
+                cancel_data = button_data("check", "cancel", the_id)
                 if is_bad:
-                    bad_text = "解禁"
+                    bad_text = "移除黑名单"
                 else:
-                    bad_text = "拉黑"
+                    bad_text = "添加黑名单"
+
+                if is_except:
+                    except_text = "移除白名单"
+                else:
+                    except_text = "添加白名单"
 
                 markup_list = [
                     [
@@ -111,6 +119,12 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                             text=bad_text,
                             callback_data=bad_data
                         ),
+                        InlineKeyboardButton(
+                            text=except_text,
+                            callback_data=except_data
+                        )
+                    ],
+                    [
                         InlineKeyboardButton(
                             text="取消",
                             callback_data=cancel_data
