@@ -60,7 +60,8 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                         f"删除追踪：{code(is_watch_delete)}\n"
                         f"封禁追踪：{code(is_watch_ban)}\n")
                 for project in glovar.default_user_status:
-                    text += f"{project.upper()} 得分：{code(glovar.user_ids[the_id].get(project, 0.0))}\n"
+                    text += (f"{project.upper()} 得分："
+                             f"{code(glovar.user_ids.get(the_id, glovar.default_user_status)[project])}\n")
 
                 bad_data = button_data("check", "bad", the_id)
                 watch_data = button_data("check", "watch", the_id)
