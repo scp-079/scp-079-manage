@@ -245,6 +245,10 @@ def get_object(message: Message) -> (str, str, bool):
     try:
         id_text, reason = get_command_context(message)
         if message.reply_to_message:
+            # /command reason
+            if not reason:
+                reason = id_text
+
             if message.reply_to_message.from_user.is_self:
                 from_check = True
 
