@@ -25,8 +25,8 @@ from .. import glovar
 from ..functions.etc import get_admin, thread
 from ..functions.filters import manage_group
 from ..functions.manage import action_answer
-from ..functions.telegram import answer_callback, edit_message_reply_markup
-from ..functions.user import add_channel, remove_bad_user, remove_channel
+from ..functions.telegram import answer_callback, edit_message_text, edit_message_reply_markup
+from ..functions.user import add_channel, remove_bad_user, remove_channel, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -52,17 +52,25 @@ def answer(client: Client, callback_query: CallbackQuery):
                 thread(action_answer, (client, aid, mid, action_key, action_type))
             elif action == "check":
                 the_id = data
+                text = ""
                 if action_type == "cancel":
                     thread(edit_message_reply_markup, (client, cid, mid, None))
+                elif action_type == "watch":
+                    text = remove_watch_user(client, the_id, aid)
                 else:
-                    if the_id > 0:
+                    # Modify channel lists
+                    if the_id < 0:
                         if the_id not in eval(f"glovar.{action_type}_ids")["channels"]:
-                            add_channel(client, action_type, the_id, aid)
+                            text = add_channel(client, action_type, the_id, aid)
                         else:
-                            remove_channel(client, action_type, the_id, aid)
+                            text = remove_channel(client, action_type, the_id, aid)
+                    # Remove bad user
                     elif action_type == "bad":
                         if the_id in glovar.bad_ids["users"]:
-                            remove_bad_user(client, the_id, True, aid)
+                            text = remove_bad_user(client, the_id, True, aid)
+
+                if text:
+                    thread(edit_message_text, (client, cid, mid, text))
 
             thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
