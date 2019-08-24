@@ -247,7 +247,7 @@ def get_object(message: Message) -> (str, str, bool):
         if message.reply_to_message:
             text = get_text(message.reply_to_message)
             if text:
-                if re.search("^(用户|频道) ID：", text):
+                if re.search("^(用户|频道) ID：", text, re.M):
                     if not reason:
                         reason = id_text
 
