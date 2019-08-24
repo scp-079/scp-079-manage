@@ -244,7 +244,7 @@ def get_object(message: Message) -> (str, str, bool):
     from_check = False
     try:
         id_text, reason = get_command_context(message)
-        if message.reply_to_message and message.reply_markup:
+        if message.reply_to_message:
             text = get_text(message.reply_to_message)
             if text:
                 if re.search("^(用户|频道) ID：", text):
