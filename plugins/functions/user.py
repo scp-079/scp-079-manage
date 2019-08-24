@@ -225,8 +225,8 @@ def remove_bad_user(client: Client, the_id: int, debug: bool = False, aid: int =
     result = ""
     try:
         action_text = "解禁用户"
-        result += (f"操作：{code(action_text)}\n"
-                   f"针对：{code(the_id)}\n")
+        result += (f"执行操作：{code(action_text)}\n"
+                   f"用户 ID：{code(the_id)}\n")
         if the_id in glovar.bad_ids["users"]:
             # Local
             glovar.bad_ids["users"].discard(the_id)
@@ -267,8 +267,8 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
         else:
             action_text = "移除频道白名单"
 
-        result += (f"操作：{code(action_text)}\n"
-                   f"针对：{code(the_id)}\n")
+        result += (f"执行操作：{code(action_text)}\n"
+                   f"频道 ID：{code(the_id)}\n")
         if the_id in eval(f"glovar.{the_type}_ids")["channels"]:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].discard(the_id)
@@ -306,8 +306,8 @@ def remove_watch_user(client: Client, the_id: int, aid: int, reason: str = None)
     result = ""
     try:
         action_text = "移除用户追踪状态"
-        result += (f"操作：{code(action_text)}\n"
-                   f"针对：{code(the_id)}\n")
+        result += (f"执行操作：{code(action_text)}\n"
+                   f"用户 ID：{code(the_id)}\n")
         if glovar.watch_ids["ban"].get(the_id, 0) and glovar.watch_ids["delete"].get(the_id, 0):
             # Local
             glovar.watch_ids["ban"].pop(the_id, 0)
