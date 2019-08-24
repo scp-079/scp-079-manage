@@ -22,7 +22,7 @@ from json import loads
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.etc import get_admin, thread
+from ..functions.etc import get_admin, thread, user_mention
 from ..functions.filters import manage_group
 from ..functions.manage import action_answer
 from ..functions.telegram import answer_callback, edit_message_text, edit_message_reply_markup
@@ -70,6 +70,7 @@ def answer(client: Client, callback_query: CallbackQuery):
                             text = remove_bad_user(client, the_id, True, aid)
 
                 if text:
+                    text = f"管理：{user_mention(aid)}\n" + text
                     thread(edit_message_text, (client, cid, mid, text))
 
             thread(answer_callback, (client, callback_query.id, ""))

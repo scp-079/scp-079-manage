@@ -36,9 +36,9 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
     result = ""
     try:
         if the_type == "bad":
-            action_text = "添加黑名单"
+            action_text = "添加频道黑名单"
         else:
-            action_text = "添加白名单"
+            action_text = "添加频道白名单"
 
         result += (f"操作：{code(action_text)}\n"
                    f"针对：{code(the_id)}\n")
@@ -263,9 +263,9 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
     result = ""
     try:
         if the_type == "bad":
-            action_text = "移除黑名单"
+            action_text = "移除频道黑名单"
         else:
-            action_text = "移除白名单"
+            action_text = "移除频道白名单"
 
         result += (f"操作：{code(action_text)}\n"
                    f"针对：{code(the_id)}\n")
@@ -305,7 +305,7 @@ def remove_watch_user(client: Client, the_id: int, aid: int, reason: str = None)
     # Remove watched user
     result = ""
     try:
-        action_text = "移除追踪"
+        action_text = "移除用户追踪状态"
         result += (f"操作：{code(action_text)}\n"
                    f"针对：{code(the_id)}\n")
         if glovar.watch_ids["ban"].get(the_id, 0) and glovar.watch_ids["delete"].get(the_id, 0):
