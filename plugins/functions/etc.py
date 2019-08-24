@@ -248,9 +248,6 @@ def get_object(message: Message) -> (str, str, bool):
             text = get_text(message.reply_to_message)
             if text:
                 if re.search("^(用户|频道) ID：", text, re.M):
-                    if not reason:
-                        reason = id_text
-
                     text_list = text.split("\n")
                     for text_unit in text_list:
                         if re.search("^(用户|频道) ID：", text_unit):
