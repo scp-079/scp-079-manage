@@ -89,40 +89,47 @@ def check(client: Client, message: Message):
 def modify_object(client: Client, message: Message):
     try:
         cid = message.chat.id
-        aid = message.from_user.id
+        uid = message.from_user.id
         mid = message.message_id
-        text = f"管理：{user_mention(aid)}\n"
+        text = f"管理：{user_mention(uid)}\n"
         id_text, reason, from_check = get_object(message)
         if id_text:
-            the_id = get_int(id_text)
-            if the_id:
-                if "add_bad" in message.command:
-                    result = add_channel(client, "bad", the_id, aid, reason)
-                elif "add_except" in message.command:
-                    result = add_channel(client, "except", the_id, aid, reason)
-                elif "remove_bad" in message.command:
-                    if the_id < 0:
-                        result = remove_channel(client, "bad", the_id, aid, reason)
-                    else:
-                        result = remove_bad_user(client, the_id, True, aid, reason)
-                elif "remove_except" in message.command:
-                    result = remove_channel(client, "except", the_id, aid, reason)
-                else:
-                    result = remove_watch_user(client, the_id, aid, reason)
+            aid = uid
+            if from_check:
+                aid = get_admin(message.reply_to_message)
 
-                text += result
-                if reason and result and "成功" in result:
-                    text += f"原因：{code(reason)}\n"
+            if aid == uid:
+                the_id = get_int(id_text)
+                if the_id:
+                    if "add_bad" in message.command:
+                        result = add_channel(client, "bad", the_id, aid, reason)
+                    elif "add_except" in message.command:
+                        result = add_channel(client, "except", the_id, aid, reason)
+                    elif "remove_bad" in message.command:
+                        if the_id < 0:
+                            result = remove_channel(client, "bad", the_id, aid, reason)
+                        else:
+                            result = remove_bad_user(client, the_id, True, aid, reason)
+                    elif "remove_except" in message.command:
+                        result = remove_channel(client, "except", the_id, aid, reason)
+                    else:
+                        result = remove_watch_user(client, the_id, aid, reason)
+
+                    text += result
+                    if reason and result and "成功" in result:
+                        text += f"原因：{code(reason)}\n"
+                else:
+                    text += (f"针对：{code(id_text)}\n"
+                             f"结果：{code('输入有误')}\n")
             else:
-                text += (f"针对：{code(id_text)}\n"
-                         f"结果：{code('输入有误')}\n")
+                text += f"结果：{code('权限错误')}\n"
         else:
             text += f"结果：{code('缺少参数')}\n"
 
         if from_check:
             r_message = message.reply_to_message
             thread(edit_message_text, (client, cid, r_message.message_id, text))
-            text = (f"管理：{user_mention(aid)}\n"
+            text = (f"管理：{user_mention(uid)}\n"
                     f"状态：{code('已操作')}\n"
                     f"查看：{general_link(r_message.message_id, message_link(r_message))}\n")
             thread(send_message, (client, cid, text, mid))
