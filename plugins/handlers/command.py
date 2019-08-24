@@ -101,7 +101,7 @@ def modify_object(client: Client, message: Message):
                 elif "add_except" in message.command:
                     result = add_channel(client, "except", the_id, aid, reason)
                 elif "remove_bad" in message.command:
-                    if the_id > 0:
+                    if the_id < 0:
                         result = remove_channel(client, "bad", the_id, aid, reason)
                     else:
                         result = remove_bad_user(client, the_id, True, aid, reason)
