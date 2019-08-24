@@ -245,14 +245,16 @@ def get_object(message: Message) -> (str, str, bool):
     try:
         id_text, reason = get_command_context(message)
         if message.reply_to_message:
+            if message.reply_to_message.from_user.is_self:
+                from_check = True
+
             text = get_text(message.reply_to_message)
             if text:
                 if re.search("^(用户|频道) ID：", text, re.M):
                     text_list = text.split("\n")
                     for text_unit in text_list:
                         if re.search("^(用户|频道) ID：", text_unit):
-                            id_text = text.split("：")[1]
-                            from_check = True
+                            id_text = text_unit.split("：")[1]
                             return id_text, reason, from_check
     except Exception as e:
         logger.warning(f"Get object error: {e}", exc_info=True)

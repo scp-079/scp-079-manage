@@ -161,6 +161,7 @@ def send_debug(client: Client, aid: int, action_text: str, time_text: str = None
         if time_text:
             text += f"例外时效：{code(time_text)}\n"
 
+        id_text = str(id_text)
         if id_text:
             if "-100" not in id_text:
                 text += f"用户 ID：{code(id_text)}\n"
