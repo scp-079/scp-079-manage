@@ -90,8 +90,8 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
     try:
         aid = message.from_user.id
         the_id = 0
-        id_text, _, from_check = get_object(message)
-        if id_text and from_check:
+        id_text, _, _ = get_object(message)
+        if id_text:
             the_id = get_int(id_text)
             if not the_id:
                 _, the_id = resolve_peer(client, id_text)
