@@ -94,7 +94,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
         if id_text:
             the_id = get_int(id_text)
             if not the_id:
-                _, the_id = resolve_peer(client, id_text)
+                _, the_id = resolve_username(client, id_text)
         elif message.forward_from:
             the_id = message.forward_from.id
         elif message.forward_from_chat:
