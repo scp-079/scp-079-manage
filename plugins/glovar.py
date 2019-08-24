@@ -53,9 +53,13 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 
 all_commands: List[str] = [
     "action",
+    "add_bad",
+    "add_except",
+    "check",
     "join",
     "leave",
-    "remove_bad"
+    "remove_bad",
+    "remove_except"
 ]
 
 default_user_status: Dict[str, float] = {
@@ -89,7 +93,7 @@ sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.5"
+version: str = "0.0.6"
 
 watch_ids: Dict[str, Dict[int, int]] = {
     "ban": {},

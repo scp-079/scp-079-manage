@@ -21,10 +21,12 @@ from json import loads
 
 from pyrogram import Client, CallbackQuery
 
-from ..functions.etc import thread
+from .. import glovar
+from ..functions.etc import get_admin, thread
 from ..functions.filters import manage_group
 from ..functions.manage import action_answer
-from ..functions.telegram import answer_callback
+from ..functions.telegram import answer_callback, edit_message_reply_markup
+from ..functions.user import add_channel, remove_bad_user, remove_channel
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -34,14 +36,34 @@ logger = logging.getLogger(__name__)
 def answer(client: Client, callback_query: CallbackQuery):
     try:
         # Basic callback data
-        aid = callback_query.from_user.id
+        cid = callback_query.message.chat.id
+        uid = callback_query.from_user.id
+        aid = get_admin(callback_query.message)
         mid = callback_query.message.message_id
         callback_data = loads(callback_query.data)
+        action = callback_data["a"]
         action_type = callback_data["t"]
-        key = callback_data["d"]
+        data = callback_data["d"]
+        # Check permission
+        if uid == aid:
+            # Answer
+            if action == "action":
+                action_key = data
+                thread(action_answer, (client, aid, mid, action_key, action_type))
+            elif action == "check":
+                the_id = data
+                if action_type == "cancel":
+                    thread(edit_message_reply_markup, (client, cid, mid, None))
+                else:
+                    if the_id > 0:
+                        if the_id not in eval(f"glovar.{action_type}_ids")["channels"]:
+                            add_channel(client, action_type, the_id, aid)
+                        else:
+                            remove_channel(client, action_type, the_id, aid)
+                    elif action_type == "bad":
+                        if the_id in glovar.bad_ids["users"]:
+                            remove_bad_user(client, the_id, True, aid)
 
-        # Answer
-        thread(action_answer, (client, aid, mid, key, action_type))
-        thread(answer_callback, (client, callback_query.id, ""))
+            thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)

@@ -26,7 +26,7 @@ from ..functions.etc import get_int, get_object, message_link, thread, user_ment
 from ..functions.filters import manage_group, test_group
 from ..functions.manage import action_answer
 from ..functions.telegram import edit_message_text, send_message
-from ..functions.user import remove_bad_object, remove_watch_user
+from ..functions.user import add_channel, check_object, remove_bad_user, remove_channel, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -72,8 +72,21 @@ def action(client: Client, message: Message):
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
-                   & Filters.command(["remove_bad", "remove_watch"], glovar.prefix))
-def remove_object(client: Client, message: Message):
+                   & Filters.command(["check"], glovar.prefix))
+def check(client: Client, message: Message):
+    try:
+        cid = message.chat.id
+        mid = message.message_id
+        text, markup = check_object(client, message)
+        thread(send_message, (client, cid, text, mid, markup))
+    except Exception as e:
+        logger.warning(f"Check error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group
+                   & Filters.command(["add_bad", "add_except", "remove_bad", "remove_except", "remove_watch"],
+                                     glovar.prefix))
+def modify_object(client: Client, message: Message):
     try:
         cid = message.chat.id
         aid = message.from_user.id
@@ -83,8 +96,17 @@ def remove_object(client: Client, message: Message):
         if id_text:
             the_id = get_int(id_text)
             if the_id:
-                if "remove_bad" in message.command:
-                    result = remove_bad_object(client, the_id, True, aid, reason)
+                if "add_bad" in message.command:
+                    result = add_channel(client, "bad", the_id, aid, reason)
+                elif "add_except" in message.command:
+                    result = add_channel(client, "except", the_id, aid, reason)
+                elif "remove_bad" in message.command:
+                    if the_id > 0:
+                        result = remove_channel(client, "bad", the_id, aid, reason)
+                    else:
+                        result = remove_bad_user(client, the_id, True, aid, reason)
+                elif "remove_except" in message.command:
+                    result = remove_channel(client, "except", the_id, aid, reason)
                 else:
                     result = remove_watch_user(client, the_id, aid, reason)
 
@@ -107,7 +129,7 @@ def remove_object(client: Client, message: Message):
         else:
             thread(send_message, (client, cid, text, mid))
     except Exception as e:
-        logger.warning(f"Remove bad error: {e}", exc_info=True)
+        logger.warning(f"Modify object error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group

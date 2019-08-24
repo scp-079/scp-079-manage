@@ -31,6 +31,58 @@ from .telegram import resolve_peer
 logger = logging.getLogger(__name__)
 
 
+def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: str = None) -> str:
+    # Add channel
+    result = ""
+    try:
+        if the_type == "bad":
+            action_text = "添加黑名单"
+        else:
+            action_text = "添加白名单"
+
+        result += (f"操作：{code(action_text)}\n"
+                   f"针对：{code(the_id)}\n")
+        if the_id not in eval(f"glovar.{the_type}_ids")["channels"]:
+            # Local
+            eval(f"glovar.{the_type}_ids")["channels"].add(the_id)
+            save(f"{the_type}_ids")
+
+            if the_type == "bad":
+                if the_id in glovar.except_ids["channels"]:
+                    glovar.except_ids["channels"].discard(the_id)
+                    save("except_ids")
+            else:
+                if the_id in glovar.except_ids["channels"]:
+                    glovar.bad_ids["channels"].discard(the_id)
+                    save("bad_ids")
+
+            # Share
+            share_data(
+                client=client,
+                receivers=glovar.receivers[the_type],
+                action="add",
+                action_type=the_type,
+                data={
+                    "id": the_id,
+                    "type": "channel"
+                }
+            )
+            result += f"结果：{code('操作成功')}\n"
+            send_debug(client, aid, action_text, None, the_id, None, None, reason)
+        else:
+            if the_type == "bad":
+                reason = "频道已在黑名单中"
+            else:
+                reason = "频道已在白名单中"
+
+            result += (f"结果：{code('未操作')}\n"
+                       f"原因：{code(reason)}\n")
+    except Exception as e:
+        logger.warning(f"Add channel error: {e}", exc_info=True)
+
+    return result
+
+
 def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup):
     # Check object's status
     text = ""
@@ -168,29 +220,22 @@ def receive_watch_user(watch_type: str, uid: int, until: str) -> bool:
     return False
 
 
-def remove_bad_object(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:
-    # Remove bad user or bad channel from list, and share it
+def remove_bad_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:
+    # Remove bad user
     result = ""
     try:
-        if the_id > 0:
-            action_text = "解禁用户"
-            id_type = "users"
-        else:
-            action_text = "解禁频道"
-            id_type = "channels"
-
+        action_text = "解禁用户"
         result += (f"操作：{code(action_text)}\n"
                    f"针对：{code(the_id)}\n")
-        if the_id in glovar.bad_ids[id_type]:
+        if the_id in glovar.bad_ids["users"]:
             # Local
-            glovar.bad_ids[id_type].discard(the_id)
+            glovar.bad_ids["users"].discard(the_id)
             save("bad_ids")
 
             glovar.watch_ids["ban"].pop(the_id, 0)
             glovar.watch_ids["delete"].pop(the_id, 0)
 
             # Share
-            id_type = id_type[:-1]
             share_data(
                 client=client,
                 receivers=glovar.receivers["bad"],
@@ -198,21 +243,65 @@ def remove_bad_object(client: Client, the_id: int, debug: bool = False, aid: int
                 action_type="bad",
                 data={
                     "id": the_id,
-                    "type": id_type
+                    "type": "user"
                 }
             )
             result += f"结果：{code('操作成功')}\n"
             if debug:
                 send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
         else:
-            result += f"结果：{code('对象不在列表中')}\n"
+            result += (f"结果：{code('未操作')}\n"
+                       f"原因：{code('用户不在黑名单中')}\n")
     except Exception as e:
         logger.warning(f"Remove bad object error: {e}", exc_info=True)
 
     return result
 
 
-def remove_watch_user(client: Client, the_id: int, aid: int = None, reason: str = None) -> str:
+def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason: str = None) -> str:
+    # Remove channel
+    result = ""
+    try:
+        if the_type == "bad":
+            action_text = "移除黑名单"
+        else:
+            action_text = "移除白名单"
+
+        result += (f"操作：{code(action_text)}\n"
+                   f"针对：{code(the_id)}\n")
+        if the_id in eval(f"glovar.{the_type}_ids")["channels"]:
+            # Local
+            eval(f"glovar.{the_type}_ids")["channels"].discard(the_id)
+            save(f"{the_type}_ids")
+
+            # Share
+            share_data(
+                client=client,
+                receivers=glovar.receivers[the_type],
+                action="remove",
+                action_type=the_type,
+                data={
+                    "id": the_id,
+                    "type": "channel"
+                }
+            )
+            result += f"结果：{code('操作成功')}\n"
+            send_debug(client, aid, action_text, None, the_id, None, None, reason)
+        else:
+            if the_type == "bad":
+                reason = "频道不在黑名单中"
+            else:
+                reason = "频道不在白名单中"
+
+            result += (f"结果：{code('未操作')}\n"
+                       f"原因：{code(reason)}\n")
+    except Exception as e:
+        logger.warning(f"Remove channel error: {e}", exc_info=True)
+
+    return result
+
+
+def remove_watch_user(client: Client, the_id: int, aid: int, reason: str = None) -> str:
     # Remove watched user
     result = ""
     try:
@@ -238,7 +327,8 @@ def remove_watch_user(client: Client, the_id: int, aid: int = None, reason: str 
             result += f"结果：{code('操作成功')}\n"
             send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
         else:
-            result += f"结果：{code('对象不在列表中')}\n"
+            result += (f"结果：{code('未操作')}\n"
+                       f"原因：{code('用户不在追踪名单中')}\n")
     except Exception as e:
         logger.warning(f"Remove watch user error: {e}", exc_info=True)
 

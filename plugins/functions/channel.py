@@ -150,7 +150,7 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
 
 
 def send_debug(client: Client, aid: int, action_text: str, time_text: str = None,
-               id_text: str = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
+               id_text: Union[int, str] = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         # Attention: project admin can make a fake operator name
