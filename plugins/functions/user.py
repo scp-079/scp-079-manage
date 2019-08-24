@@ -40,8 +40,8 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
         else:
             action_text = "添加频道白名单"
 
-        result += (f"操作：{code(action_text)}\n"
-                   f"针对：{code(the_id)}\n")
+        result += (f"执行操作：{code(action_text)}\n"
+                   f"频道 ID：{code(the_id)}\n")
         if the_id not in eval(f"glovar.{the_type}_ids")["channels"]:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].add(the_id)
