@@ -74,6 +74,7 @@ def action(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["check"], glovar.prefix))
 def check(client: Client, message: Message):
+    # Check a user's status
     try:
         cid = message.chat.id
         mid = message.message_id

@@ -21,7 +21,7 @@ from typing import Iterable, List, Optional, Union
 
 from pyrogram import Client, InlineKeyboardMarkup, Message
 from pyrogram.api.types import InputPeerUser, InputPeerChannel
-from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
+from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, UsernameInvalid
 
 from .etc import wait_flood
 
@@ -142,7 +142,7 @@ def get_messages(client: Client, cid: int, mids: Iterable[int]) -> List[Message]
     return result
 
 
-def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[InputPeerChannel, InputPeerUser]]:
+def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, InputPeerChannel, InputPeerUser]]:
     # Get an input peer by id
     result = None
     try:
@@ -154,6 +154,8 @@ def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[InputPe
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except UsernameInvalid:
+                return False
     except Exception as e:
         logger.warning(f"Resolve peer error: {e}", exc_info=True)
 

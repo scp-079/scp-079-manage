@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.channel import receive_text_data
-from ..functions.etc import code, button_data, get_report_record, random_str, thread, user_mention
+from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
 from ..functions.group import get_message
@@ -44,12 +44,11 @@ def action_ask(client: Client, message: Message):
         aid = message.from_user.id
         rid = message.forward_from_message_id
         report_message = get_message(client, glovar.logging_channel_id, rid)
-        if (report_message
+        report_text = get_text(report_message)
+        if (report_message and report_text
                 and not report_message.forward_date
-                and report_message.reply_to_message
-                and report_message.reply_to_message.forward_date
-                and report_message.text
-                and re.search("^项目编号：", report_message.text)):
+                and re.search("^项目编号：", report_text)
+                and not re.search("^状态：已删除$", report_text, re.M)):
             record = get_report_record(report_message)
             action = ""
             action_key = random_str(8)
@@ -81,28 +80,31 @@ def action_ask(client: Client, message: Message):
                         f"执行操作：{code(action_text)}\n"
                         f"状态：{code('等待操作')}\n")
                 data_proceed = button_data(action, "proceed", action_key)
-                data_delete = button_data(action, "delete", action_key)
                 data_cancel = button_data(action, "cancel", action_key)
-                markup = InlineKeyboardMarkup(
+                markup_list = [
                     [
-                        [
-                            InlineKeyboardButton(
-                                text="处理",
-                                callback_data=data_proceed
-                            ),
-                            InlineKeyboardButton(
-                                text="删除",
-                                callback_data=data_delete
-                            )
-                        ],
-                        [
-                            InlineKeyboardButton(
-                                text="取消",
-                                callback_data=data_cancel
-                            )
-                        ]
+                        InlineKeyboardButton(
+                            text="处理",
+                            callback_data=data_proceed
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="取消",
+                            callback_data=data_cancel
+                        )
                     ]
-                )
+                ]
+                if report_message.reply_to_message:
+                    data_delete = button_data(action, "delete", action_key)
+                    markup_list[0].append(
+                        InlineKeyboardButton(
+                            text="删除",
+                            callback_data=data_delete
+                        )
+                    )
+
+                markup = InlineKeyboardMarkup(markup_list)
                 thread(send_message, (client, cid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Check error error: {e}", exc_info=True)
