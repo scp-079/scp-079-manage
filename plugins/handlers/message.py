@@ -142,7 +142,7 @@ def exchange_emergency(_: Client, message: Message):
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.channel & exchange_channel
+@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def process_data(_, message: Message):
     try:
