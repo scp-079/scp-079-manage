@@ -66,7 +66,8 @@ all_commands: List[str] = [
     "leave",
     "remove_bad",
     "remove_except",
-    "remove_watch"
+    "remove_watch",
+    "version"
 ]
 
 default_user_status: Dict[str, float] = {
