@@ -115,7 +115,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 time_type = "long"
                 time_text = "长期"
             else:
-                time_type = "tmp"
+                time_type = "temp"
                 time_text = "临时"
 
             if action == "error":

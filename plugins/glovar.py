@@ -59,7 +59,8 @@ all_commands: List[str] = [
     "join",
     "leave",
     "remove_bad",
-    "remove_except"
+    "remove_except",
+    "remove_watch"
 ]
 
 default_user_status: Dict[str, float] = {
@@ -198,9 +199,7 @@ bad_ids: Dict[str, Set[int]] = {
 }
 # bad_ids = {
 #     "channels": {-10012345678},
-#     "users": {12345678},
-#     "long": {123},
-#     "tmp": {123}
+#     "users": {12345678}
 # }
 
 except_ids: Dict[str, Set[int]] = {
