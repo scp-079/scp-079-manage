@@ -22,7 +22,7 @@ from html import escape
 from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
-from threading import Thread, Timer
+from threading import Thread
 from time import sleep, time
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -102,19 +102,6 @@ def crypt_str(operation: str, text: str, key: str) -> str:
         logger.warning(f"Crypt str error: {e}", exc_info=True)
 
     return result
-
-
-def delay(secs: int, target: Callable, args: list) -> bool:
-    # Call a function with delay
-    try:
-        t = Timer(secs, target, args)
-        t.daemon = True
-        t.start()
-        return True
-    except Exception as e:
-        logger.warning(f"Delay error: {e}", exc_info=True)
-
-    return False
 
 
 def general_link(text: Union[int, str], link: str) -> str:
@@ -361,6 +348,7 @@ def thread(target: Callable, args: tuple) -> bool:
         t = Thread(target=target, args=args)
         t.daemon = True
         t.start()
+
         return True
     except Exception as e:
         logger.warning(f"Thread error: {e}", exc_info=True)
@@ -383,6 +371,7 @@ def wait_flood(e: FloodWait) -> bool:
     # Wait flood secs
     try:
         sleep(e.x + uniform(0.5, 1.0))
+
         return True
     except Exception as e:
         logger.warning(f"Wait flood error: {e}", exc_info=True)
