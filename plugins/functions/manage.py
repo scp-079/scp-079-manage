@@ -144,6 +144,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 action_type = "remove"
                 id_type = "bad"
                 action_text = "重置"
+                receiver = "NOSPAM"
 
             # Share report message's id
             if action_type:
