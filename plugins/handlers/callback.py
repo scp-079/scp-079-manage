@@ -48,7 +48,7 @@ def answer(client: Client, callback_query: CallbackQuery):
         # Check permission
         if uid == aid:
             # Answer
-            if action == "action":
+            if action in {"error", "bad", "mole", "innocent"}:
                 action_key = data
                 thread(action_answer, (client, aid, mid, action_key, action_type))
             elif action == "check":

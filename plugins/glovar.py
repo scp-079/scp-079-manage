@@ -27,6 +27,12 @@ from typing import Dict, List, Set, Union
 from pyrogram import Message
 
 # Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.WARNING,
+    filename='log',
+    filemode='w'
+)
 logger = logging.getLogger(__name__)
 
 # Init
@@ -177,7 +183,8 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}
         or key in {"", b"[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
-    raise SystemExit('No proper settings')
+    logger.critical("No proper settings")
+    raise SystemExit("No proper settings")
 
 # Load data from pickle
 
