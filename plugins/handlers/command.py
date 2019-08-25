@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["action"], glovar.prefix))
 def action(client: Client, message: Message):
+    # Deal with report messages
     try:
         cid = message.chat.id
         mid = message.message_id
@@ -88,6 +89,7 @@ def check(client: Client, message: Message):
                    & Filters.command(["add_bad", "add_except", "remove_bad", "remove_except", "remove_watch"],
                                      glovar.prefix))
 def modify_object(client: Client, message: Message):
+    # Add or remove user and channel
     try:
         cid = message.chat.id
         uid = message.from_user.id
@@ -143,6 +145,7 @@ def modify_object(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
 def version(client: Client, message: Message):
+    # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id

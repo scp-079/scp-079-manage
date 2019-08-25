@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 @Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & logging_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def action_ask(client: Client, message: Message):
+    # Ask how to deal with the report message
     try:
         cid = message.chat.id
         mid = message.message_id
@@ -113,6 +114,7 @@ def action_ask(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & ~logging_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def check_forwarded(client: Client, message: Message):
+    # Check forwarded messages
     try:
         # Read basic information
         cid = message.chat.id
@@ -127,6 +129,7 @@ def check_forwarded(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
 def exchange_emergency(_: Client, message: Message):
+    # Sent emergency channel transfer request
     try:
         # Read basic information
         data = receive_text_data(message)
@@ -147,6 +150,7 @@ def exchange_emergency(_: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def process_data(_, message: Message):
+    # Process the data in exchange channel
     try:
         data = receive_text_data(message)
         if data:
