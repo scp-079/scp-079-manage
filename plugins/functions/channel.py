@@ -125,7 +125,7 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
         # Attention: project admin can make a fake operator name
         text = (f"原始项目：{code(project)}\n"
                 f"项目管理员：{user_mention(aid)}\n"
-                f"执行操作：{code(action_text)}\n")
+                f"执行操作：{code(glovar.names[action_text])}\n")
         if reason:
             text += f"原因：{code(reason)}\n"
 
