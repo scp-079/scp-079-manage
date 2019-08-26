@@ -31,17 +31,21 @@ from .telegram import send_message
 logger = logging.getLogger(__name__)
 
 
-def receive_bad_user(data: dict) -> bool:
-    # Receive bad users that other bots shared
+def receive_add_bad(sender: str, data: dict) -> bool:
+    # Receive bad users or channels that other bots shared
     try:
         uid = data["id"]
         bad_type = data["type"]
         if bad_type == "user":
             glovar.bad_ids["users"].add(uid)
             save("bad_ids")
-            return True
+        elif sender == "MANAGE" and bad_type == "channel":
+            glovar.bad_ids["channels"].add(uid)
+            save("bad_ids")
+
+        return True
     except Exception as e:
-        logger.warning(f"Receive bad user error: {e}", exc_info=True)
+        logger.warning(f"Receive add bad error: {e}", exc_info=True)
 
     return False
 
