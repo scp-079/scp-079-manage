@@ -236,7 +236,7 @@ def receive_user_score(project: str, data: dict) -> bool:
         uid = data["id"]
         init_user_id(uid)
         score = data["score"]
-        glovar.user_ids[uid]["captcha"] = score
+        glovar.user_ids[uid][project] = score
         save("user_ids")
 
         return True
