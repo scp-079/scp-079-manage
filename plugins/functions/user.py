@@ -23,9 +23,8 @@ from pyrogram.api.types import InputPeerUser, InputPeerChannel
 
 from .. import glovar
 from .channel import send_debug, share_data
-from .etc import button_data, code, crypt_str, get_int, get_now, get_object, italic, user_mention
+from .etc import button_data, code, get_int, get_now, get_object, italic, user_mention
 from .file import save
-from .ids import init_user_id
 from .telegram import resolve_peer
 
 # Enable logging
@@ -197,79 +196,6 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
         logger.warning(f"Check object error: {e}", exc_info=True)
 
     return text, markup
-
-
-def receive_bad_user(data: dict) -> bool:
-    # Receive bad users that other bots shared
-    try:
-        uid = data["id"]
-        bad_type = data["type"]
-        if bad_type == "user":
-            glovar.bad_ids["users"].add(uid)
-            save("bad_ids")
-            return True
-    except Exception as e:
-        logger.warning(f"Receive bad user error: {e}", exc_info=True)
-
-    return False
-
-
-def receive_remove_user(data: dict) -> bool:
-    # Receive bad users that shall be removed
-    try:
-        uid = data["id"]
-        the_type = data["type"]
-        if the_type == "user":
-            glovar.bad_ids["users"].discard(uid)
-            save("bad_ids")
-            return True
-    except Exception as e:
-        logger.warning(f"Receive remove user error: {e}", exc_info=True)
-
-    return False
-
-
-def receive_user_score(project: str, data: dict) -> bool:
-    # Receive and update user's score
-    try:
-        project = project.lower()
-        uid = data["id"]
-        init_user_id(uid)
-        score = data["score"]
-        glovar.user_ids[uid][project] = score
-        save("user_ids")
-
-        return True
-    except Exception as e:
-        logger.warning(f"Receive user score error: {e}", exc_info=True)
-
-    return False
-
-
-def receive_watch_user(data: dict) -> bool:
-    # Receive watch users that other bots shared
-    try:
-        watch_type = data["type"]
-        uid = data["id"]
-        until = data["until"]
-
-        # Decrypt the data
-        until = crypt_str("decrypt", until, glovar.key)
-        until = int(until)
-
-        # Add to list
-        if watch_type == "ban":
-            glovar.watch_ids["ban"][uid] = until
-        elif watch_type == "delete":
-            glovar.watch_ids["delete"][uid] = until
-        else:
-            return False
-
-        return True
-    except Exception as e:
-        logger.warning(f"Receive watch user error: {e}", exc_info=True)
-
-    return False
 
 
 def remove_bad_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:

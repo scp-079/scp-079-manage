@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from json import dumps, loads
+from json import dumps
 from time import sleep
 from typing import List, Optional, Union
 
@@ -25,7 +25,7 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, general_link, get_text, message_link, thread, user_mention
+from .etc import code, code_block, general_link, message_link, thread, user_mention
 from .file import crypt_file, delete_file, get_new_path
 from .telegram import edit_message_text, send_document, send_message
 
@@ -102,19 +102,6 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
         logger.warning(f"Format data error: {e}", exc_info=True)
 
     return text
-
-
-def receive_text_data(message: Message) -> dict:
-    # Receive text's data from exchange channel
-    data = {}
-    try:
-        text = get_text(message)
-        if text:
-            data = loads(text)
-    except Exception as e:
-        logger.warning(f"Receive data error: {e}")
-
-    return data
 
 
 def send_error(client: Client, message: Message, project: str, aid: int, action_text: str,

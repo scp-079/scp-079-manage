@@ -29,6 +29,7 @@ See [this article](https://scp-079.org/manage/).
         - `group.py` : Functions about group
         - `ids.py` : Modify id lists
         - `manage.py` : MANAGE's core functions
+        - `receive.py` : Receive data from exchange channel
         - `telegram.py` : Some telegram functions
         - `timers.py` : Timer functions
         - `user.py` : Functions about user and channel object

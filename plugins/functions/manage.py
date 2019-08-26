@@ -153,25 +153,6 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     return False
 
 
-def info_left_group(client: Client, project: str, data: dict) -> bool:
-    # Info left group
-    try:
-        gid = data["group_id"]
-        name = data["group_name"]
-        link = data["group_link"]
-        text = (f"项目编号：{code(project)}\n"
-                f"群组名称：{general_link(name, link)}\n"
-                f"群组 ID：{code(gid)}\n"
-                f"状态：{code('已自动退出该群组')}\n")
-        thread(send_message, (client, glovar.manage_group_id, text))
-
-        return True
-    except Exception as e:
-        logger.warning(f"Info left group error: {e}", exc_info=True)
-
-    return False
-
-
 def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None):
     # Answer leaving request
     try:
@@ -222,51 +203,3 @@ def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str,
         return True
     except Exception as e:
         logger.warning(f"Leave answer error: {e}", exc_info=True)
-
-
-def request_leave_group(client: Client, project: str, data: dict) -> bool:
-    # Request leave group
-    try:
-        gid = data["group_id"]
-        name = data["group_name"]
-        link = data["group_link"]
-        reason = data["reason"]
-        key = random_str(8)
-        glovar.leaves[key] = {
-            "lock": False,
-            "project": project,
-            "group_id": gid,
-            "group_name": name,
-            "group_link": link,
-            "reason": reason
-        }
-        text = (f"项目编号：{code(project)}\n"
-                f"群组名称：{general_link(name, link)}\n"
-                f"群组 ID：{code(gid)}\n"
-                f"状态：{code('请求退出该群组')}\n"
-                f"原因：{code(reason)}\n")
-        data_approve = button_data("leave", "approve", gid)
-        data_cancel = button_data("leave", "cancel", gid)
-        markup = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        text="批准",
-                        callback_data=data_approve
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        text="取消",
-                        callback_data=data_cancel
-                    )
-                ]
-            ]
-        )
-        thread(send_message, (client, glovar.manage_group_id, text, None, markup))
-
-        return True
-    except Exception as e:
-        logger.warning(f"Request leave group error: {e}", exc_info=True)
-
-    return False
