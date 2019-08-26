@@ -76,6 +76,11 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
         name = data["group_name"]
         link = data["group_link"]
         reason = data["reason"]
+        if reason == "permissions":
+            reason = "权限缺失"
+        elif reason == "user":
+            reason = "缺失 USER"
+
         key = random_str(8)
         glovar.leaves[key] = {
             "lock": False,
