@@ -21,10 +21,11 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
+from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
 from ..functions.etc import get_int, get_object, message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
-from ..functions.manage import action_answer
+from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import add_channel, check_object, remove_bad_user, remove_channel, remove_watch_user
 
@@ -52,6 +53,7 @@ def action(client: Client, message: Message):
                         r_mid = r_message.message_id
                         action_key = callback_data_list[0]["d"]
                         thread(action_answer, (client, command_type, uid, r_mid, action_key, reason))
+                        thread(leave_answer, (client, command_type, uid, mid, action_key, reason))
                         text += (f"状态：{code('已操作')}\n"
                                  f"查看：{general_link(r_mid, message_link(r_message))}\n")
                     else:
@@ -83,6 +85,60 @@ def check(client: Client, message: Message):
         thread(send_message, (client, cid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Check error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group
+                   & Filters.command(["leave"], glovar.prefix))
+def leave(client: Client, message: Message):
+    # Let other bots leave a group
+    try:
+        cid = message.chat.id
+        uid = message.from_user.id
+        mid = message.message_id
+        text = f"管理：{user_mention(uid)}\n"
+        if message.reply_to_message:
+            text += f"操作：{code('处理退群请求')}\n"
+            command_type, reason = get_command_context(message)
+            if command_type and command_type in {"approve", "cancel"}:
+                r_message = message.reply_to_message
+                callback_data_list = get_callback_data(r_message)
+                if r_message.from_user.is_self and callback_data_list:
+                    r_mid = r_message.message_id
+                    action_key = callback_data_list[0]["d"]
+                    thread(leave_answer, (client, command_type, uid, mid, action_key, reason))
+                    text += (f"状态：{code('已操作')}\n"
+                             f"查看：{general_link(r_mid, message_link(r_message))}\n")
+                else:
+                    text += (f"状态：{code('未操作')}\n"
+                             f"原因：{code('来源有误')}\n")
+            else:
+                text += (f"状态：{code('未操作')}\n"
+                         f"原因：{code('格式有误')}\n")
+        else:
+            text += f"操作：{code('主动退群')}\n"
+            id_text, reason, _ = get_object(message)
+            if id_text:
+                text += f"群组 ID：{code(id_text)}\n"
+                the_id = get_int(id_text)
+                if the_id:
+                    share_data(
+                        client=client,
+                        receivers=glovar.receivers["leave"],
+                        action="leave",
+                        action_type="approve",
+                        data={
+                            "admin_id": uid,
+                            "group_id": the_id,
+                            "reason": reason
+                        }
+                    )
+                    text += f"状态：{code('已通知所有机器人退出该群组')}\n"
+                else:
+                    text += f"结果：{code('输入有误')}\n"
+
+        thread(send_message, (client, cid, text, mid))
+    except Exception as e:
+        logger.warning(f"Leave error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
