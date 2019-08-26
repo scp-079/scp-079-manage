@@ -135,6 +135,8 @@ def leave(client: Client, message: Message):
                     text += f"状态：{code('已通知所有机器人退出该群组')}\n"
                 else:
                     text += f"结果：{code('输入有误')}\n"
+            else:
+                text += f"结果：{code('缺少参数')}\n"
 
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
