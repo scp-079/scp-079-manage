@@ -24,12 +24,11 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 from .. import glovar
 from ..functions.channel import receive_text_data
 from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
-from ..functions.file import save
 from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
 from ..functions.group import get_message
-from ..functions.ids import init_user_id
+from ..functions.manage import info_left_group
 from ..functions.telegram import send_message
-from ..functions.user import check_object, receive_watch_user
+from ..functions.user import check_object, receive_bad_user, receive_remove_user, receive_user_score, receive_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -149,7 +148,7 @@ def exchange_emergency(_: Client, message: Message):
 
 @Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def process_data(_, message: Message):
+def process_data(client: Client, message: Message):
     # Process the data in exchange channel
     try:
         data = receive_text_data(message)
@@ -168,167 +167,111 @@ def process_data(_, message: Message):
 
                     if action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["captcha"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "CLEAN":
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["clean"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "LANG":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["lang"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "LONG":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["long"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "NOFLOOD":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["noflood"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "NOPORN":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["noporn"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "NOSPAM":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["nospam"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "RECHECK":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "bad":
-                            if the_type == "user":
-                                glovar.bad_ids["users"].add(the_id)
-                                save("bad_ids")
+                            receive_bad_user(data)
                         elif action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
 
                     elif action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["recheck"] = score
-                            save("user_ids")
+                            receive_user_score(data)
+
+                elif sender == "USER":
+                    if action == "leave":
+                        if action_type == "info":
+                            info_left_group(client, sender, data)
+                        elif action_type == "request":
+                            pass
+                    elif action == "remove":
+                        if action_type == "bad":
+                            receive_remove_user(data)
 
                 elif sender == "WARN":
 
                     if action == "update":
                         if action_type == "score":
-                            uid = data["id"]
-                            init_user_id(uid)
-                            score = data["score"]
-                            glovar.user_ids[uid]["warn"] = score
-                            save("user_ids")
+                            receive_user_score(data)
 
                 elif sender == "WATCH":
 
                     if action == "add":
-                        the_id = data["id"]
-                        the_type = data["type"]
                         if action_type == "watch":
-                            receive_watch_user(the_type, the_id, data["until"])
+                            receive_watch_user(data)
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)

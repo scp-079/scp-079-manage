@@ -121,7 +121,7 @@ def get_admin(message: Message) -> int:
     try:
         text = get_text(message)
         if text:
-            result = int(text.split("\n")[0].split("：")[-1])
+            result = get_int(text.split("\n")[0].split("：")[-1])
     except Exception as e:
         logger.warning(f"Get admin error: {e}", exc_info=True)
 

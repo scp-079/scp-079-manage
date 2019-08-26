@@ -46,33 +46,37 @@ def answer(client: Client, callback_query: CallbackQuery):
         action_type = callback_data["t"]
         data = callback_data["d"]
         # Check permission
-        if uid == aid:
+        if uid == aid or not aid:
             # Answer
             if action in {"error", "bad", "mole", "innocent"}:
                 action_key = data
-                thread(action_answer, (client, aid, mid, action_key, action_type))
+                thread(action_answer, (client, uid, mid, action_key, action_type))
             elif action == "check":
                 the_id = data
                 text = ""
                 if action_type == "cancel":
                     thread(edit_message_reply_markup, (client, cid, mid, None))
                 elif action_type == "watch":
-                    text = remove_watch_user(client, the_id, aid)
+                    text = remove_watch_user(client, the_id, uid)
                 else:
                     # Modify channel lists
                     if the_id < 0:
                         if the_id not in eval(f"glovar.{action_type}_ids")["channels"]:
-                            text = add_channel(client, action_type, the_id, aid)
+                            text = add_channel(client, action_type, the_id, uid)
                         else:
-                            text = remove_channel(client, action_type, the_id, aid)
+                            text = remove_channel(client, action_type, the_id, uid)
                     # Remove bad user
                     elif action_type == "bad":
                         if the_id in glovar.bad_ids["users"]:
-                            text = remove_bad_user(client, the_id, True, aid)
+                            text = remove_bad_user(client, the_id, True, uid)
 
                 if text:
-                    text = f"管理：{user_mention(aid)}\n" + text
+                    text = f"管理：{user_mention(uid)}\n" + text
                     thread(edit_message_text, (client, cid, mid, text))
+            elif action == "join":
+                pass
+            elif action == "leave":
+                pass
 
             thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:

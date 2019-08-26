@@ -22,9 +22,9 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_id
-from .etc import code, thread, user_mention
+from .etc import code, general_link, thread, user_mention
 from .group import delete_message
-from .telegram import edit_message_text
+from .telegram import edit_message_text, send_message
 from .user import remove_bad_user
 
 # Enable logging
@@ -158,5 +158,24 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             logger.warning(f"Action proceed error: {e}", exc_info=True)
         finally:
             glovar.actions.pop(key, {})
+
+    return False
+
+
+def info_left_group(client: Client, project: str, data: dict) -> bool:
+    # Info left group
+    try:
+        gid = data["group_id"]
+        name = data["group_name"]
+        link = data["group_link"]
+        text = (f"项目编号：{code(project)}\n"
+                f"群组名称：{general_link(name, link)}\n"
+                f"群组 ID：{code(gid)}\n"
+                f"状态：{code('已自动退出该群组')}\n")
+        thread(send_message, (client, glovar.manage_group_id, text))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Info left group error: {e}", exc_info=True)
 
     return False
