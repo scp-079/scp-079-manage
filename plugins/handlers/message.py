@@ -54,7 +54,7 @@ def action_ask(client: Client, message: Message):
             action_key = random_str(8)
             if record["project"] in glovar.receivers["except"]:
                 action = "error"
-            elif record["project"] == "WARN":
+            elif record["project"] == "WARN" and record["more"] != "群管直接回复汇报消息":
                 action = "bad"
             elif record["project"] == "MANAGE":
                 if record["status"] == "已重置":

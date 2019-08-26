@@ -103,7 +103,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             receiver = record["project"]
 
         # Choose proper time type
-        if message.reply_to_message.sticker:
+        if message.reply_to_message and message.reply_to_message.sticker:
             time_type = "long"
             time_text = "长期"
         else:
