@@ -35,7 +35,8 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
     # Answer the error ask
     try:
         text = f"管理员：{user_mention(uid)}\n"
-        if glovar.actions.get(key):
+        if glovar.actions.get(key) and not glovar.actions[key]["lock"]:
+            glovar.actions[key]["lock"] = True
             action = glovar.actions[key]["action"]
             text += f"执行操作：{code(glovar.names[action])}\n"
             if action_type == "proceed":
@@ -45,8 +46,9 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
                 thread(action_delete, (client, key, reason))
                 status = "已删除"
             else:
-                glovar.actions.pop(key, {})
                 status = "已取消"
+
+            glovar.actions.pop(key, {})
         else:
             status = "已失效"
 
@@ -62,98 +64,91 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
 
 def action_delete(client: Client, key: str, reason: str = None) -> bool:
     # Delete the evidence message
-    if glovar.actions.get(key, {}) and not glovar.actions[key]["lock"]:
-        try:
-            glovar.actions[key]["lock"] = True
-            aid = glovar.actions[key]["aid"]
-            message = glovar.actions[key]["message"]
-            record = glovar.actions[key]["record"]
-            action_text = "删除"
-            time_text = ""
-            result = None
+    try:
+        aid = glovar.actions[key]["aid"]
+        message = glovar.actions[key]["message"]
+        record = glovar.actions[key]["record"]
+        action_text = "删除"
+        time_text = ""
+        result = None
 
-            delete_message(client, glovar.logging_channel_id, message.reply_to_message.message_id)
-            thread(edit_evidence, (client, message, record, action_text, reason))
-            send_debug(client, aid, action_text, time_text, record["uid"], message, result, reason)
+        delete_message(client, glovar.logging_channel_id, message.reply_to_message.message_id)
+        thread(edit_evidence, (client, message, record, action_text, reason))
+        send_debug(client, aid, action_text, time_text, record["uid"], message, result, reason)
 
-            return True
-        except Exception as e:
-            logger.warning(f"Action delete error: {e}", exc_info=True)
-        finally:
-            glovar.actions.pop(key, {})
+        return True
+    except Exception as e:
+        logger.warning(f"Action delete error: {e}", exc_info=True)
 
     return False
 
 
 def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     # Proceed the action
-    if glovar.actions.get(key, {}) and not glovar.actions[key]["lock"]:
-        try:
-            glovar.actions[key]["lock"] = True
-            aid = glovar.actions[key]["aid"]
-            action = glovar.actions[key]["action"]
-            message = glovar.actions[key]["message"]
-            record = glovar.actions[key]["record"]
-            action_type = ""
-            action_text = ""
-            id_type = ""
-            the_id = message.message_id
-            result = None
+    try:
+        aid = glovar.actions[key]["aid"]
+        action = glovar.actions[key]["action"]
+        message = glovar.actions[key]["message"]
+        record = glovar.actions[key]["record"]
+        action_type = ""
+        action_text = ""
+        id_type = ""
+        the_id = message.message_id
+        result = None
 
-            # Define the receiver
-            if record["project"] == "MANAGE":
-                receiver = record["origin"]
+        # Define the receiver
+        if record["project"] == "MANAGE":
+            receiver = record["origin"]
+        else:
+            receiver = record["project"]
+
+        # Choose proper time type
+        if message.reply_to_message.sticker:
+            time_type = "long"
+            time_text = "长期"
+        else:
+            time_type = "temp"
+            time_text = "临时"
+
+        if action == "error":
+            action_type = "add"
+            id_type = "except"
+
+            # Remove the bad user if possible
+            if "封禁" in record["level"]:
+                action_text = "解禁"
+                remove_bad_user(client, int(record["uid"]))
             else:
-                receiver = record["project"]
+                action_text = "解明"
 
-            # Choose proper time type
-            if message.reply_to_message.sticker:
-                time_type = "long"
-                time_text = "长期"
-            else:
-                time_type = "temp"
-                time_text = "临时"
+            # Send messages to the error channel
+            result = send_error(client, message.reply_to_message, receiver, aid, action, reason)
+        elif action == "bad":
+            action_type = "add"
+            id_type = "bad"
+            action_text = "收录"
+            receiver = "NOSPAM"
+        elif action == "mole":
+            action_type = "remove"
+            id_type = "except"
+            action_text = "重置"
+        elif action == "innocent":
+            action_type = "remove"
+            id_type = "bad"
+            action_text = "重置"
+            receiver = "NOSPAM"
 
-            if action == "error":
-                action_type = "add"
-                id_type = "except"
+        # Share report message's id
+        if action_type:
+            share_id(client, action_type, id_type, the_id, time_type, receiver)
 
-                # Remove the bad user if possible
-                if "封禁" in record["level"]:
-                    action_text = "解禁"
-                    remove_bad_user(client, int(record["uid"]))
-                else:
-                    action_text = "解明"
+        thread(edit_evidence, (client, message, record, action_text, reason))
+        thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
+        glovar.actions.pop(key, {})
 
-                # Send messages to the error channel
-                result = send_error(client, message.reply_to_message, receiver, aid, action, reason)
-            elif action == "bad":
-                action_type = "add"
-                id_type = "bad"
-                action_text = "收录"
-                receiver = "NOSPAM"
-            elif action == "mole":
-                action_type = "remove"
-                id_type = "except"
-                action_text = "重置"
-            elif action == "innocent":
-                action_type = "remove"
-                id_type = "bad"
-                action_text = "重置"
-                receiver = "NOSPAM"
-
-            # Share report message's id
-            if action_type:
-                share_id(client, action_type, id_type, the_id, time_type, receiver)
-
-            thread(edit_evidence, (client, message, record, action_text, reason))
-            thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
-
-            return True
-        except Exception as e:
-            logger.warning(f"Action proceed error: {e}", exc_info=True)
-        finally:
-            glovar.actions.pop(key, {})
+        return True
+    except Exception as e:
+        logger.warning(f"Action proceed error: {e}", exc_info=True)
 
     return False
 
@@ -218,6 +213,7 @@ def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str,
                 text += f"状态：{code('已取消该退群请求')}\n"
 
             text += f"原因：{code(reason)}\n"
+            glovar.leaves.pop(key, {})
         else:
             text += f"状态：{code('已失效')}\n"
 
