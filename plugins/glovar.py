@@ -88,8 +88,8 @@ leaves: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 #         "lock": False,
 #         "project": "USER",
 #         "group_id": -10012345678,
-#         "group_name": "SCP-079-DEBUG",
-#         "group_link": "https://t.me/SCP_079_DEBUG",
+#         "group_name": "SCP-079-CHAT",
+#         "group_link": "https://t.me/SCP_079_CHAT",
 #         "reason": ""
 #     }
 # }
