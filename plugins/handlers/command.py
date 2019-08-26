@@ -105,7 +105,7 @@ def leave(client: Client, message: Message):
                 if r_message.from_user.is_self and callback_data_list:
                     r_mid = r_message.message_id
                     action_key = callback_data_list[0]["d"]
-                    thread(leave_answer, (client, command_type, uid, mid, action_key, reason))
+                    thread(leave_answer, (client, command_type, uid, r_mid, action_key, reason))
                     text += (f"状态：{code('已操作')}\n"
                              f"查看：{general_link(r_mid, message_link(r_message))}\n")
                 else:

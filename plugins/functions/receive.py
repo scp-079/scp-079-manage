@@ -95,8 +95,8 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
                 f"群组 ID：{code(gid)}\n"
                 f"状态：{code('请求退出该群组')}\n"
                 f"原因：{code(reason)}\n")
-        data_approve = button_data("leave", "approve", gid)
-        data_cancel = button_data("leave", "cancel", gid)
+        data_approve = button_data("leave", "approve", key)
+        data_cancel = button_data("leave", "cancel", key)
         markup = InlineKeyboardMarkup(
             [
                 [
