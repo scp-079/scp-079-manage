@@ -104,7 +104,7 @@ names: Dict[str, str] = {
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE", "NOFLOOD", "NOPORN",
             "NOSPAM", "RECHECK", "USER", "WATCH"],
-    "except": ["CLEAN", "LANG", "LONG", "NOPORN", "NOSPAM", "RECHECK"],
+    "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK"],
     "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
               "NOSPAM", "RECHECK", "TIP", "USER"],
     "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE", "NOFLOOD", "NOPORN",
