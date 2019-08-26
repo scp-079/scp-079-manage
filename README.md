@@ -31,7 +31,7 @@ See [this article](https://scp-079.org/manage/).
         - `manage.py` : MANAGE's core functions
         - `telegram.py` : Some telegram functions
         - `timers.py` : Timer functions
-        - `user.py` : Functions about user or channel object
+        - `user.py` : Functions about user and channel object
     - handlers
         - `callback.py` : Handle callbacks
         - `command` : Handle commands
