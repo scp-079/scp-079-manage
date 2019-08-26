@@ -18,13 +18,13 @@
 
 import logging
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_data, share_id
-from .etc import button_data, code, general_link, random_str, thread, user_mention
+from .etc import code, general_link, thread, user_mention
 from .group import delete_message
-from .telegram import edit_message_text, send_message
+from .telegram import edit_message_text
 from .user import remove_bad_user
 
 # Enable logging
