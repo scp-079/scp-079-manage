@@ -167,7 +167,7 @@ def process_data(client: Client, message: Message):
 
                     if action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "CLEAN":
                     if action == "add":
@@ -178,7 +178,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "LANG":
 
@@ -190,7 +190,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "LONG":
 
@@ -202,7 +202,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "NOFLOOD":
 
@@ -214,7 +214,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "NOPORN":
 
@@ -226,7 +226,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "NOSPAM":
 
@@ -238,7 +238,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "RECHECK":
 
@@ -250,7 +250,7 @@ def process_data(client: Client, message: Message):
 
                     elif action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "USER":
                     if action == "leave":
@@ -266,7 +266,7 @@ def process_data(client: Client, message: Message):
 
                     if action == "update":
                         if action_type == "score":
-                            receive_user_score(data)
+                            receive_user_score(sender, data)
 
                 elif sender == "WATCH":
 

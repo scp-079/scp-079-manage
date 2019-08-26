@@ -229,9 +229,10 @@ def receive_remove_user(data: dict) -> bool:
     return False
 
 
-def receive_user_score(data: dict) -> bool:
+def receive_user_score(project: str, data: dict) -> bool:
     # Receive and update user's score
     try:
+        project = project.lower()
         uid = data["id"]
         init_user_id(uid)
         score = data["score"]
