@@ -18,11 +18,11 @@
 
 import logging
 
-from pyrogram import Client
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .channel import edit_evidence, send_debug, send_error, share_id
-from .etc import code, general_link, thread, user_mention
+from .channel import edit_evidence, send_debug, send_error, share_data, share_id
+from .etc import button_data, code, general_link, random_str, thread, user_mention
 from .group import delete_message
 from .telegram import edit_message_text, send_message
 from .user import remove_bad_user
@@ -31,26 +31,22 @@ from .user import remove_bad_user
 logger = logging.getLogger(__name__)
 
 
-def action_answer(client: Client, uid: int, mid: int, key: str, action_type: str, reason: str = None) -> bool:
+def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None) -> bool:
     # Answer the error ask
     try:
         text = f"管理员：{user_mention(uid)}\n"
         if glovar.actions.get(key):
-            aid = glovar.actions[key]["aid"]
-            if uid == aid or not aid:
-                action = glovar.actions[key]["action"]
-                text += f"执行操作：{code(glovar.names[action])}\n"
-                if action_type == "proceed":
-                    thread(action_proceed, (client, key, reason))
-                    status = "已处理"
-                elif action_type == "delete":
-                    thread(action_delete, (client, key, reason))
-                    status = "已删除"
-                else:
-                    glovar.actions.pop(key, {})
-                    status = "已取消"
+            action = glovar.actions[key]["action"]
+            text += f"执行操作：{code(glovar.names[action])}\n"
+            if action_type == "proceed":
+                thread(action_proceed, (client, key, reason))
+                status = "已处理"
+            elif action_type == "delete":
+                thread(action_delete, (client, key, reason))
+                status = "已删除"
             else:
-                return False
+                glovar.actions.pop(key, {})
+                status = "已取消"
         else:
             status = "已失效"
 
@@ -177,5 +173,104 @@ def info_left_group(client: Client, project: str, data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Info left group error: {e}", exc_info=True)
+
+    return False
+
+
+def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None):
+    # Answer leaving request
+    try:
+        text = f"管理员：{user_mention(uid)}\n"
+        if action_type == "approve":
+            action_text = "批准请求"
+        else:
+            action_text = "取消请求"
+
+        text += f"执行操作：{code(action_text)}\n"
+        # Check lock
+        if glovar.leaves.get(key, {}) and not glovar.leaves[key]["lock"]:
+            glovar.leaves[key]["lock"] = True
+            project = glovar.leaves[key]["project"]
+            gid = glovar.leaves[key]["group_id"]
+            name = glovar.leaves[key]["group_name"]
+            link = glovar.leaves[key]["group_link"]
+            if not reason:
+                reason = glovar.leaves[key]["reason"]
+
+            text = (f"项目编号：{code(project)}\n"
+                    f"群组名称：{general_link(name, link)}\n"
+                    f"群组 ID：{code(gid)}\n")
+            if action_type == "approve":
+                share_data(
+                    client=client,
+                    receivers=[project],
+                    action="leave",
+                    action_type="approve",
+                    data={
+                        "admin_id": uid,
+                        "group_id": gid,
+                        "reason": reason
+                    }
+                )
+                text += f"状态：{code('已批准退出该群组')}\n"
+            else:
+                glovar.leaves.pop(key, {})
+                text += f"状态：{code('已取消该退群请求')}\n"
+
+            text += f"原因：{code(reason)}\n"
+        else:
+            text += f"状态：{code('已失效')}\n"
+
+        thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Leave answer error: {e}", exc_info=True)
+
+
+def request_leave_group(client: Client, project: str, data: dict) -> bool:
+    # Request leave group
+    try:
+        gid = data["group_id"]
+        name = data["group_name"]
+        link = data["group_link"]
+        reason = data["reason"]
+        key = random_str(8)
+        glovar.leaves[key] = {
+            "lock": False,
+            "project": project,
+            "group_id": gid,
+            "group_name": name,
+            "group_link": link,
+            "reason": reason
+        }
+        text = (f"项目编号：{code(project)}\n"
+                f"群组名称：{general_link(name, link)}\n"
+                f"群组 ID：{code(gid)}\n"
+                f"状态：{code('请求退出该群组')}\n"
+                f"原因：{code(reason)}\n")
+        data_approve = button_data("leave", "approve", gid)
+        data_cancel = button_data("leave", "cancel", gid)
+        markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text="批准",
+                        callback_data=data_approve
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="取消",
+                        callback_data=data_cancel
+                    )
+                ]
+            ]
+        )
+        thread(send_message, (client, glovar.manage_group_id, text, None, markup))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Request leave group error: {e}", exc_info=True)
 
     return False

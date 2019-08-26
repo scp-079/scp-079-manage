@@ -121,7 +121,9 @@ def get_admin(message: Message) -> int:
     try:
         text = get_text(message)
         if text:
-            result = get_int(text.split("\n")[0].split("：")[-1])
+            first_line_list = text.split("\n")[0].split("：")
+            if "管理" in first_line_list[0]:
+                result = get_int(first_line_list[-1])
     except Exception as e:
         logger.warning(f"Get admin error: {e}", exc_info=True)
 
@@ -241,10 +243,10 @@ def get_object(message: Message) -> (str, str, bool):
 
             text = get_text(message.reply_to_message)
             if text:
-                if re.search("^(用户|频道) ID：", text, re.M):
+                if re.search("^(用户|频道|群组) ID：", text, re.M):
                     text_list = text.split("\n")
                     for text_unit in text_list:
-                        if re.search("^(用户|频道) ID：", text_unit):
+                        if re.search("^(用户|频道|群组) ID：", text_unit):
                             id_text = text_unit.split("：")[1]
                             return id_text, reason, from_check
     except Exception as e:

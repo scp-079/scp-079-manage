@@ -26,7 +26,7 @@ from ..functions.channel import receive_text_data
 from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
 from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
 from ..functions.group import get_message
-from ..functions.manage import info_left_group
+from ..functions.manage import info_left_group, request_leave_group
 from ..functions.telegram import send_message
 from ..functions.user import check_object, receive_bad_user, receive_remove_user, receive_user_score, receive_watch_user
 
@@ -257,7 +257,7 @@ def process_data(client: Client, message: Message):
                         if action_type == "info":
                             info_left_group(client, sender, data)
                         elif action_type == "request":
-                            pass
+                            request_leave_group(client, sender, data)
                     elif action == "remove":
                         if action_type == "bad":
                             receive_remove_user(data)

@@ -24,7 +24,7 @@ from pyrogram import Client, CallbackQuery
 from .. import glovar
 from ..functions.etc import get_admin, thread, user_mention
 from ..functions.filters import manage_group
-from ..functions.manage import action_answer
+from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import answer_callback, edit_message_text, edit_message_reply_markup
 from ..functions.user import add_channel, remove_bad_user, remove_channel, remove_watch_user
 
@@ -50,7 +50,7 @@ def answer(client: Client, callback_query: CallbackQuery):
             # Answer
             if action in {"error", "bad", "mole", "innocent"}:
                 action_key = data
-                thread(action_answer, (client, uid, mid, action_key, action_type))
+                thread(action_answer, (client, action_type, uid, mid, action_key))
             elif action == "check":
                 the_id = data
                 text = ""
@@ -76,7 +76,8 @@ def answer(client: Client, callback_query: CallbackQuery):
             elif action == "join":
                 pass
             elif action == "leave":
-                pass
+                action_key = data
+                thread(leave_answer, (client, action_type, uid, action_key))
 
             thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
