@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_callback_query(manage_group)
-def answer(client: Client, callback_query: CallbackQuery):
+def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
         # Basic callback data
@@ -80,5 +80,9 @@ def answer(client: Client, callback_query: CallbackQuery):
                 thread(leave_answer, (client, action_type, uid, mid, action_key))
 
             thread(answer_callback, (client, callback_query.id, ""))
+
+        return True
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
+
+    return False

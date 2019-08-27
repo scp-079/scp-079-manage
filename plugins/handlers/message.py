@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & logging_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def action_ask(client: Client, message: Message):
+def action_ask(client: Client, message: Message) -> bool:
     # Ask how to deal with the report message
     try:
         cid = message.chat.id
@@ -106,13 +106,17 @@ def action_ask(client: Client, message: Message):
 
                 markup = InlineKeyboardMarkup(markup_list)
                 thread(send_message, (client, cid, text, mid, markup))
+
+        return True
     except Exception as e:
         logger.warning(f"Check error error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & ~logging_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def check_forwarded(client: Client, message: Message):
+def check_forwarded(client: Client, message: Message) -> bool:
     # Check forwarded messages
     try:
         # Read basic information
@@ -121,13 +125,17 @@ def check_forwarded(client: Client, message: Message):
         text, markup = check_object(client, message)
         if text:
             thread(send_message, (client, cid, text, mid, markup))
+
+        return True
     except Exception as e:
         logger.warning(f"Check object error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
-def exchange_emergency(_: Client, message: Message):
+def exchange_emergency(_: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
         # Read basic information
@@ -142,13 +150,17 @@ def exchange_emergency(_: Client, message: Message):
                     if action_type == "hide":
                         if data is True:
                             glovar.should_hide = data
+
+        return True
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.channel & exchange_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def process_data(client: Client, message: Message):
+def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel
     try:
         data = receive_text_data(message)
@@ -273,5 +285,9 @@ def process_data(client: Client, message: Message):
                     if action == "add":
                         if action_type == "watch":
                             receive_watch_user(data)
+
+        return True
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)
+
+    return False

@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["action"], glovar.prefix))
-def action(client: Client, message: Message):
+def action(client: Client, message: Message) -> bool:
     # Deal with report messages
     try:
         cid = message.chat.id
@@ -69,26 +69,34 @@ def action(client: Client, message: Message):
                      f"原因：{code('格式有误')}\n")
 
         thread(send_message, (client, cid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Action error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["check"], glovar.prefix))
-def check(client: Client, message: Message):
+def check(client: Client, message: Message) -> bool:
     # Check a user's status
     try:
         cid = message.chat.id
         mid = message.message_id
         text, markup = check_object(client, message)
         thread(send_message, (client, cid, text, mid, markup))
+
+        return True
     except Exception as e:
         logger.warning(f"Check error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["leave"], glovar.prefix))
-def leave(client: Client, message: Message):
+def leave(client: Client, message: Message) -> bool:
     # Let other bots leave a group
     try:
         cid = message.chat.id
@@ -138,14 +146,18 @@ def leave(client: Client, message: Message):
                 text += f"结果：{code('缺少参数')}\n"
 
         thread(send_message, (client, cid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Leave error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group
                    & Filters.command(["add_bad", "add_except", "remove_bad", "remove_except", "remove_watch"],
                                      glovar.prefix))
-def modify_object(client: Client, message: Message):
+def modify_object(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:
         cid = message.chat.id
@@ -195,8 +207,12 @@ def modify_object(client: Client, message: Message):
             thread(send_message, (client, cid, text, mid))
         else:
             thread(send_message, (client, cid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Modify object error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group
@@ -210,5 +226,9 @@ def version(client: Client, message: Message):
         text = (f"管理员：{user_mention(aid)}\n\n"
                 f"版本：{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)
+
+    return False
