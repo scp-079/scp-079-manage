@@ -50,7 +50,7 @@ def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
 def delete_file(path: str) -> bool:
     # Delete a file
     try:
-        if exists(path):
+        if path and exists(path):
             remove(path)
 
         return True
