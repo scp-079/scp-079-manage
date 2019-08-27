@@ -103,9 +103,7 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
                     InlineKeyboardButton(
                         text="批准",
                         callback_data=data_approve
-                    )
-                ],
-                [
+                    ),
                     InlineKeyboardButton(
                         text="取消",
                         callback_data=data_cancel
