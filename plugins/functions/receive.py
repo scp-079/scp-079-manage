@@ -76,11 +76,6 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
         name = data["group_name"]
         link = data["group_link"]
         reason = data["reason"]
-        if reason == "permissions":
-            reason = "权限缺失"
-        elif reason == "user":
-            reason = "缺失 USER"
-
         key = random_str(8)
         glovar.leaves[key] = {
             "lock": False,
@@ -90,6 +85,11 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
             "group_link": link,
             "reason": reason
         }
+        if reason == "permissions":
+            reason = "权限缺失"
+        elif reason == "user":
+            reason = "缺失 USER"
+
         text = (f"项目编号：{code(project)}\n"
                 f"群组名称：{general_link(name, link)}\n"
                 f"群组 ID：{code(gid)}\n"

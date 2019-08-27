@@ -188,11 +188,18 @@ def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str,
                         "reason": reason
                     }
                 )
-                text += f"状态：{code('已批准退出该群组')}\n"
+                if reason == "permissions":
+                    reason = "权限缺失"
+                elif reason == "user":
+                    reason = "缺失 USER"
+
+                text += (f"状态：{code('已批准退出该群组')}\n"
+                         f"原因：{code(reason)}\n")
             else:
                 text += f"状态：{code('已取消该退群请求')}\n"
+                if reason not in {"permissions", "user"}:
+                    text += f"原因：{code(reason)}\n"
 
-            text += f"原因：{code(reason)}\n"
             glovar.leaves.pop(key, {})
         else:
             text += f"状态：{code('已失效')}\n"
