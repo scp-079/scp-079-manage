@@ -77,7 +77,7 @@ def answer(client: Client, callback_query: CallbackQuery):
                 pass
             elif action == "leave":
                 action_key = data
-                thread(leave_answer, (client, action_type, uid, action_key))
+                thread(leave_answer, (client, action_type, uid, mid, action_key))
 
             thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
