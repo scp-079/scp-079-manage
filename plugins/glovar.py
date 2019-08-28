@@ -96,6 +96,7 @@ leaves: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 
 names: Dict[str, str] = {
     "bad": "收录消息",
+    "delete": "删除存档",
     "error": "解除错误",
     "innocent": "取消收录",
     "mole": "移除例外"

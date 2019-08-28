@@ -66,6 +66,8 @@ def action_ask(client: Client, message: Message) -> bool:
                     action = "mole"
                 elif record["status"] == "已收录":
                     action = "innocent"
+            elif report_message.reply_to_message:
+                action = "delete"
 
             if action:
                 action_text = glovar.names[action]
@@ -95,7 +97,7 @@ def action_ask(client: Client, message: Message) -> bool:
                         )
                     ]
                 ]
-                if report_message.reply_to_message:
+                if action != "delete" and report_message.reply_to_message:
                     data_delete = button_data(action, "delete", action_key)
                     markup_list[0].append(
                         InlineKeyboardButton(
