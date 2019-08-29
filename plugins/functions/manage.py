@@ -121,6 +121,10 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             else:
                 action_text = "解明"
 
+            # CLEAN should not receive except contents
+            if receiver == "CLEAN":
+                return True
+
             # Send messages to the error channel
             result = send_error(client, message.reply_to_message, receiver, aid, action, reason)
         elif action == "bad":
@@ -147,7 +151,6 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
 
         thread(edit_evidence, (client, message, record, action_text, reason))
         thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
-        glovar.actions.pop(key, {})
 
         return True
     except Exception as e:
