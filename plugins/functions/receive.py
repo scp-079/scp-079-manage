@@ -22,7 +22,7 @@ from json import loads
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .etc import button_data, code, crypt_str, general_link, get_text, random_str, thread
+from .etc import button_data, code, crypt_str, general_link, get_int, get_text, random_str, thread
 from .file import save
 from .ids import init_user_id
 from .telegram import send_message
@@ -174,7 +174,7 @@ def receive_watch_user(data: dict) -> bool:
 
         # Decrypt the data
         until = crypt_str("decrypt", until, glovar.key)
-        until = int(until)
+        until = get_int(until)
 
         # Add to list
         if watch_type == "ban":
