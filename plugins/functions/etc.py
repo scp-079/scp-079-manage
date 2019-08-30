@@ -265,6 +265,7 @@ def get_report_record(message: Message) -> Dict[str, str]:
         "level": "",
         "rule": "",
         "name": "",
+        "type": "",
         "more": ""
     }
     try:
@@ -284,6 +285,8 @@ def get_report_record(message: Message) -> Dict[str, str]:
                 record_type = "rule"
             elif re.search("^用户昵称", r):
                 record_type = "name"
+            elif re.search("^消息类别", r):
+                record_type = "type"
             else:
                 record_type = "more"
 
