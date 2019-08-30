@@ -23,7 +23,7 @@ from pyrogram import Client, InlineKeyboardMarkup, Message
 from pyrogram.api.types import InputPeerUser, InputPeerChannel
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, UsernameInvalid
 
-from .etc import wait_flood
+from .etc import get_int, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -160,6 +160,27 @@ def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, I
         logger.warning(f"Resolve peer error: {e}", exc_info=True)
 
     return result
+
+
+def resolve_username(client: Client, username: str) -> (str, int):
+    # Resolve peer by username
+    peer_type = ""
+    peer_id = 0
+    try:
+        if username:
+            result = resolve_peer(client, username)
+            if result:
+                if isinstance(result, InputPeerChannel):
+                    peer_type = "channel"
+                    peer_id = result.channel_id
+                    peer_id = get_int(f"-100{peer_id}")
+                elif isinstance(result, InputPeerUser):
+                    peer_type = "user"
+                    peer_id = result.user_id
+    except Exception as e:
+        logger.warning(f"Resolve username error: {e}", exc_info=True)
+
+    return peer_type, peer_id
 
 
 def send_document(client: Client, cid: int, file: str, text: str = None, mid: int = None,

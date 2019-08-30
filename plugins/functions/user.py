@@ -19,13 +19,12 @@
 import logging
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
-from pyrogram.api.types import InputPeerUser, InputPeerChannel
 
 from .. import glovar
 from .channel import send_debug, share_data
 from .etc import button_data, code, get_int, get_now, get_object, italic, user_mention
 from .file import save
-from .telegram import resolve_peer
+from .telegram import resolve_username
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -311,24 +310,3 @@ def remove_watch_user(client: Client, the_id: int, aid: int, reason: str = None)
         logger.warning(f"Remove watch user error: {e}", exc_info=True)
 
     return result
-
-
-def resolve_username(client: Client, username: str) -> (str, int):
-    # Resolve peer by username
-    peer_type = ""
-    peer_id = 0
-    try:
-        if username:
-            result = resolve_peer(client, username)
-            if result:
-                if isinstance(result, InputPeerChannel):
-                    peer_type = "channel"
-                    peer_id = result.channel_id
-                    peer_id = get_int(f"-100{peer_id}")
-                elif isinstance(result, InputPeerUser):
-                    peer_type = "user"
-                    peer_id = result.user_id
-    except Exception as e:
-        logger.warning(f"Resolve username error: {e}", exc_info=True)
-
-    return peer_type, peer_id
