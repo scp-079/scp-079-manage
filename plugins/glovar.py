@@ -51,8 +51,8 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 #             "uid": "",
 #             "level": "",
 #             "rule": "",
-#             "name": "",
 #             "type": "",
+#             "name": "",
 #             "more": ""
 #         }
 #     }
