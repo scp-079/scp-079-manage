@@ -44,5 +44,5 @@ scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
 scheduler.start()
 
-# Hold
-app.idle()
+# Run
+app.run()
