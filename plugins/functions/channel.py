@@ -41,10 +41,14 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
         mid = message.message_id
         text = (f"项目编号：{code(glovar.sender)}\n"
                 f"原始项目：{code(record['origin'] or record['project'])}\n"
-                f"状态：{code(f'已{action_text}')}\n"
-                f"用户 ID：{code(record['uid'])}\n"
-                f"操作等级：{code(record['level'])}\n"
-                f"规则：{code(record['rule'])}\n")
+                f"状态：{code(f'已{action_text}')}\n")
+
+        if reason:
+            text += f"原因：{code(reason)}\n"
+
+        text += (f"用户 ID：{code(record['uid'])}\n"
+                 f"操作等级：{code(record['level'])}\n"
+                 f"规则：{code(record['rule'])}\n")
 
         if record["type"]:
             text += f"消息类别：{code(record['type'])}\n"
@@ -54,9 +58,6 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
 
         if record["more"]:
             text += f"附加信息：{code(record['more'])}\n"
-
-        if reason:
-            text += f"原因：{code(reason)}\n"
 
         result = edit_message_text(client, cid, mid, text)
     except Exception as e:
