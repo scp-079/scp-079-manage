@@ -62,11 +62,6 @@ def reset_data() -> bool:
         }
         save("bad_ids")
 
-        glovar.except_ids = {
-            "channels": set()
-        }
-        save("except_ids")
-
         glovar.user_ids = {}
         save("user_ids")
 
