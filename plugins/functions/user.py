@@ -278,7 +278,7 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
     return result
 
 
-def remove_watch_user(client: Client, the_id: int, aid: int, reason: str = None) -> str:
+def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:
     # Remove watched user
     result = ""
     try:
@@ -302,7 +302,8 @@ def remove_watch_user(client: Client, the_id: int, aid: int, reason: str = None)
                 }
             )
             result += f"结果：{code('操作成功')}\n"
-            send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+            if debug:
+                send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
         else:
             result += (f"结果：{code('未操作')}\n"
                        f"原因：{code('用户不在追踪名单中')}\n")

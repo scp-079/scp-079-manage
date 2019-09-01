@@ -22,10 +22,10 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_data, share_id
-from .etc import code, general_link, thread, user_mention
+from .etc import code, general_link, get_int, thread, user_mention
 from .group import delete_message
 from .telegram import edit_message_text
-from .user import remove_bad_user
+from .user import remove_bad_user, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -117,7 +117,10 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             # Remove the bad user if possible
             if "封禁" in record["level"] and record["level"] != "封禁追踪":
                 action_text = "解禁"
-                remove_bad_user(client, int(record["uid"]))
+                remove_bad_user(client, get_int(record["uid"]))
+            elif record["level"] != "封禁追踪":
+                action_text = "解明"
+                remove_watch_user(client, get_int(record["uid"]))
             else:
                 action_text = "解明"
 

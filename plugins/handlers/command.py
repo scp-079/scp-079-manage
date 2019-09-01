@@ -185,7 +185,7 @@ def modify_object(client: Client, message: Message) -> bool:
                     elif "remove_except" in message.command:
                         result = remove_channel(client, "except", the_id, aid, reason)
                     else:
-                        result = remove_watch_user(client, the_id, aid, reason)
+                        result = remove_watch_user(client, the_id, True, aid, reason)
 
                     text += result
                     if reason and result and "成功" in result:

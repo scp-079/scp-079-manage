@@ -57,7 +57,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
                 if action_type == "cancel":
                     thread(edit_message_reply_markup, (client, cid, mid, None))
                 elif action_type == "watch":
-                    text = remove_watch_user(client, the_id, uid)
+                    text = remove_watch_user(client, the_id, True, uid)
                 else:
                     # Modify channel lists
                     if the_id < 0:
