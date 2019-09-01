@@ -247,8 +247,11 @@ def get_object(message: Message) -> (str, str, bool):
                     text_list = text.split("\n")
                     for text_unit in text_list:
                         if re.search("^(用户|频道|群组) ID：", text_unit):
-                            id_text = text_unit.split("：")[1]
-                            return id_text, reason, from_check
+                            if re.search("^群组 ID：", text_unit) and re.search("^用户 ID：", text, re.M):
+                                continue
+                            else:
+                                id_text = text_unit.split("：")[1]
+                                return id_text, reason, from_check
     except Exception as e:
         logger.warning(f"Get object error: {e}", exc_info=True)
 
