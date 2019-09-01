@@ -126,6 +126,10 @@ def check_forwarded(client: Client, message: Message) -> bool:
         # Read basic information
         cid = message.chat.id
         mid = message.message_id
+        # Check debug object automatically without using "/check" reply to that message
+        if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:
+            message.reply_to_message = message
+
         text, markup = check_object(client, message)
         if text:
             thread(send_message, (client, cid, text, mid, markup))
