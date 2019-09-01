@@ -115,7 +115,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             id_type = "except"
 
             # Remove the bad user if possible
-            if "封禁" in record["level"]:
+            if "封禁" in record["level"] and record["level"] != "封禁追踪":
                 action_text = "解禁"
                 remove_bad_user(client, int(record["uid"]))
             else:
