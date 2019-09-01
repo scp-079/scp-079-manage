@@ -232,6 +232,9 @@ def get_object(message: Message) -> (str, str, bool):
     reason = ""
     from_check = False
     try:
+        if message.forward_from or message.forward_from_chat:
+            return id_text, reason, from_check
+
         id_text, reason = get_command_context(message)
         if message.reply_to_message:
             # /command reason
@@ -247,7 +250,7 @@ def get_object(message: Message) -> (str, str, bool):
                     text_list = text.split("\n")
                     for text_unit in text_list:
                         if re.search("^(用户|频道|群组) ID：", text_unit):
-                            if re.search("^群组 ID：", text_unit) and re.search("^用户 ID：", text, re.M):
+                            if re.search("^群组 ID：", text_unit) and re.search("^(用户|频道) ID：", text, re.M):
                                 continue
                             else:
                                 id_text = text_unit.split("：")[1]

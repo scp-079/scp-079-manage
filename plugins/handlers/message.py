@@ -132,7 +132,7 @@ def check_forwarded(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Check object error: {e}", exc_info=True)
+        logger.warning(f"Check forwarded error: {e}", exc_info=True)
 
     return False
 
