@@ -254,7 +254,10 @@ def get_object(message: Message) -> (str, str, bool):
                     text_list = text.split("\n")
                     for text_unit in text_list:
                         if re.search("^(用户|频道|群组) ID：", text_unit):
-                            if re.search("^群组 ID：", text_unit) and re.search("^(用户|频道) ID：", text, re.M):
+                            # If the message from debug channel does not include valid object ID
+                            if (re.search("^群组 ID：", text_unit)
+                                    and (re.search("^(用户|频道) ID：", text, re.M)
+                                         or message.forward_from_chat)):
                                 continue
                             else:
                                 id_text = text_unit.split("：")[1]
