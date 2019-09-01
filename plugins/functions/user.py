@@ -99,7 +99,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
         elif message.forward_from_chat:
             the_id = message.forward_from_chat.id
 
-        if the_id:
+        if the_id and the_id != glovar.debug_channel_id:
             if the_id > 0:
                 now = get_now()
                 is_bad = the_id in glovar.bad_ids["users"]
