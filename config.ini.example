@@ -27,6 +27,7 @@ hide_channel_id = [DATA EXPUNGED]
 logging_channel_id = [DATA EXPUNGED]
 manage_group_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
+watch_channel_id = [DATA EXPUNGED]
 
 [custom]
 project_link = [DATA EXPUNGED]

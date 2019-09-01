@@ -60,7 +60,7 @@ def is_logging_channel(_, message: Message) -> bool:
     # Check if the message is forwarded from the logging channel
     try:
         if message.forward_from_chat:
-            if glovar.logging_channel_id == message.forward_from_chat.id:
+            if message.forward_from_chat.id == glovar.logging_channel_id:
                 return True
     except Exception as e:
         logger.warning(f"Is logging channel error: {e}", exc_info=True)
@@ -99,6 +99,18 @@ def is_test_group(_, message: Message) -> bool:
     return False
 
 
+def is_watch_channel(_, message: Message) -> bool:
+    # Check if the message is forwarded from the watch channel
+    try:
+        if message.forward_from_chat:
+            if message.forward_from_chat.id == glovar.watch_channel_id:
+                return True
+    except Exception as e:
+        logger.warning(f"Is watch channel error: {e}", exc_info=True)
+
+    return False
+
+
 exchange_channel = Filters.create(
     func=is_exchange_channel,
     name="Exchange Channel"
@@ -122,4 +134,9 @@ manage_group = Filters.create(
 test_group = Filters.create(
     func=is_test_group,
     name="Test Group"
+)
+
+watch_channel = Filters.create(
+    func=is_watch_channel,
+    name="Watch Channel"
 )

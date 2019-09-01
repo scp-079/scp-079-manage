@@ -72,7 +72,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         time_text = ""
         result = None
 
-        delete_message(client, glovar.logging_channel_id, message.reply_to_message.message_id)
+        delete_message(client, message.forward_from_chat.id, message.reply_to_message.message_id)
         thread(edit_evidence, (client, message, record, action_text, reason))
         send_debug(client, aid, action_text, time_text, record["uid"], message, result, reason)
 

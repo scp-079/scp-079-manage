@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
-from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group
+from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_leave_info, receive_leave_request, receive_remove_bad
 from ..functions.receive import receive_text_data, receive_user_score, receive_watch_user
@@ -34,7 +34,8 @@ from ..functions.user import check_object
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & logging_channel
+@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded
+                   & (logging_channel | watch_channel)
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def action_ask(client: Client, message: Message) -> bool:
     # Ask how to deal with the report message
@@ -43,7 +44,8 @@ def action_ask(client: Client, message: Message) -> bool:
         mid = message.message_id
         aid = message.from_user.id
         rid = message.forward_from_message_id
-        report_message = get_message(client, glovar.logging_channel_id, rid)
+        channel_id = message.forward_from_chat.id
+        report_message = get_message(client, channel_id, rid)
         report_text = get_text(report_message)
         if (report_message and report_text
                 and not report_message.forward_date
@@ -118,7 +120,8 @@ def action_ask(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded & ~logging_channel
+@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded
+                   & ~logging_channel & ~watch_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def check_forwarded(client: Client, message: Message) -> bool:
     # Check forwarded messages

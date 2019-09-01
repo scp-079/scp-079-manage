@@ -148,6 +148,7 @@ hide_channel_id: int = 0
 logging_channel_id: int = 0
 manage_group_id: int = 0
 test_group_id: int = 0
+watch_channel_id: int = 0
 
 # [custom]
 project_link: str = ""
@@ -173,6 +174,7 @@ try:
     logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
     manage_group_id = int(config["channels"].get("manage_group_id", manage_group_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    watch_channel_id = int(config["channels"].get("watch_channel_id", watch_channel_id))
     # [custom]
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
@@ -195,6 +197,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or logging_channel_id == 0
         or manage_group_id == 0
         or test_group_id == 0
+        or watch_channel_id == 0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}
