@@ -232,6 +232,7 @@ def get_object(message: Message) -> (str, str, bool):
     reason = ""
     from_check = False
     try:
+        # Do not treat this message as a valid command
         if message.forward_from or message.forward_from_chat:
             return id_text, reason, from_check
 
