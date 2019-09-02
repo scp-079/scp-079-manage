@@ -119,19 +119,6 @@ should_hide: bool = False
 
 version: str = "0.0.6"
 
-watch_ids: Dict[str, Dict[int, int]] = {
-    "ban": {},
-    "delete": {}
-}
-# watch_ids = {
-#     "ban": {
-#         12345678: 0
-#     },
-#     "delete": {
-#         12345678: 0
-#     }
-# }
-
 # Read data from config.ini
 
 # [basic]
@@ -251,8 +238,21 @@ user_ids: Dict[int, Dict[str, float]] = {}
 #     }
 # }
 
+watch_ids: Dict[str, Dict[int, int]] = {
+    "ban": {},
+    "delete": {}
+}
+# watch_ids = {
+#     "ban": {
+#         12345678: 0
+#     },
+#     "delete": {
+#         12345678: 0
+#     }
+# }
+
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids", "user_ids"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids"]
 for file in file_list:
     try:
         try:
