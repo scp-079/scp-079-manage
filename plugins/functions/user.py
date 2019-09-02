@@ -103,13 +103,13 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
             if the_id > 0:
                 now = get_now()
                 is_bad = the_id in glovar.bad_ids["users"]
-                is_watch_delete = glovar.watch_ids["delete"].get(the_id, 0) > now
                 is_watch_ban = glovar.watch_ids["ban"].get(the_id, 0) > now
+                is_watch_delete = glovar.watch_ids["delete"].get(the_id, 0) > now
                 text = (f"管理员：{user_mention(aid)}\n"
                         f"用户 ID：{code(the_id)}\n"
                         f"黑名单：{code(is_bad)}\n"
-                        f"删除追踪：{code(is_watch_delete)}\n"
-                        f"封禁追踪：{code(is_watch_ban)}\n")
+                        f"封禁追踪：{code(is_watch_ban)}\n"
+                        f"删除追踪：{code(is_watch_delete)}\n")
                 total_score = sum([glovar.user_ids.get(the_id, glovar.default_user_status)[project]
                                    for project in glovar.default_user_status])
                 text += f"总分：{code(total_score)}\n\n"
@@ -121,7 +121,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                 bad_data = button_data("check", "bad", the_id)
                 watch_data = button_data("check", "watch", the_id)
                 cancel_data = button_data("check", "cancel", the_id)
-                if is_bad or is_watch_delete or is_watch_ban:
+                if is_bad or is_watch_ban or is_watch_delete:
                     markup_list = [
                         [],
                         [
