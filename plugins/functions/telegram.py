@@ -19,7 +19,7 @@
 import logging
 from typing import Iterable, List, Optional, Union
 
-from pyrogram import Client, InlineKeyboardMarkup, Message, User
+from pyrogram import Client, InlineKeyboardMarkup, Message
 from pyrogram.api.types import InputPeerUser, InputPeerChannel
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
@@ -143,24 +143,6 @@ def get_messages(client: Client, cid: int, mids: Iterable[int]) -> List[Message]
     return result
 
 
-def get_users(client: Client, uids: Iterable[int]) -> Optional[List[User]]:
-    # Get users
-    result = None
-    try:
-        flood_wait = True
-        while flood_wait:
-            flood_wait = False
-            try:
-                result = client.get_users(user_ids=uids)
-            except FloodWait as e:
-                flood_wait = True
-                wait_flood(e)
-    except Exception as e:
-        logger.warning(f"Get users error: {e}", exc_info=True)
-
-    return result
-
-
 def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, InputPeerChannel, InputPeerUser]]:
     # Get an input peer by id
     result = None
@@ -196,9 +178,6 @@ def resolve_username(client: Client, username: str) -> (str, int):
                 elif isinstance(result, InputPeerUser):
                     peer_type = "user"
                     peer_id = result.user_id
-                    user = get_users(client, [peer_id])
-                    if user and user[0].is_bot:
-                        peer_type = "bot"
     except Exception as e:
         logger.warning(f"Resolve username error: {e}", exc_info=True)
 
