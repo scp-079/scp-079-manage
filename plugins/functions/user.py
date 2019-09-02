@@ -211,6 +211,7 @@ def remove_bad_user(client: Client, the_id: int, debug: bool = False, aid: int =
 
             glovar.watch_ids["ban"].pop(the_id, 0)
             glovar.watch_ids["delete"].pop(the_id, 0)
+            save("watch_ids")
 
             # Share
             share_data(
@@ -289,6 +290,7 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
             # Local
             glovar.watch_ids["ban"].pop(the_id, 0)
             glovar.watch_ids["delete"].pop(the_id, 0)
+            save("watch_ids")
 
             # Share
             share_data(

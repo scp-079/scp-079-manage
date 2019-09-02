@@ -184,6 +184,8 @@ def receive_watch_user(data: dict) -> bool:
         else:
             return False
 
+        save("watch_ids")
+
         return True
     except Exception as e:
         logger.warning(f"Receive watch user error: {e}", exc_info=True)
