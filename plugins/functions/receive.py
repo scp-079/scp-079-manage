@@ -168,7 +168,7 @@ def receive_user_score(project: str, data: dict) -> bool:
 def receive_watch_user(data: dict) -> bool:
     # Receive watch users that other bots shared
     try:
-        watch_type = data["type"]
+        the_type = data["type"]
         uid = data["id"]
         until = data["until"]
 
@@ -177,9 +177,9 @@ def receive_watch_user(data: dict) -> bool:
         until = get_int(until)
 
         # Add to list
-        if watch_type == "ban":
+        if the_type == "ban":
             glovar.watch_ids["ban"][uid] = until
-        elif watch_type == "delete":
+        elif the_type == "delete":
             glovar.watch_ids["delete"][uid] = until
         else:
             return False
