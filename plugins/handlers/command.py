@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
-from ..functions.etc import get_int, get_object, message_link, thread, user_mention
+from ..functions.etc import get_command_type, get_int, get_object, message_link, thread, user_mention
 from ..functions.filters import manage_group, test_group
 from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import edit_message_text, send_message
@@ -211,6 +211,45 @@ def modify_object(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Modify object error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group
+                   & Filters.command(["status"], glovar.prefix))
+def status(client: Client, message: Message) -> bool:
+    # Check bots' status
+    try:
+        cid = message.chat.id
+        mid = message.message_id
+        uid = message.from_user.id
+        text = f"管理：{user_mention(uid)}\n"
+        command_type = get_command_type(message)
+        if command_type and command_type in {"all", "nospam", "watch"}:
+            if command_type == "all":
+                receivers = ["NOSPAM", "WATCH"]
+            else:
+                receivers = [command_type.upper()]
+
+            share_data(
+                client=client,
+                receivers=receivers,
+                action="status",
+                action_type="ask",
+                data={
+                    "admin_id": uid,
+                    "message_id": mid
+                }
+            )
+        else:
+            text += (f"项目：{code(command_type or '未知')}\n"
+                     f"状态：{code('未请求')}\n"
+                     f"原因：{code('格式有误')}\n")
+            thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Status error: {e}", exc_info=True)
 
     return False
 

@@ -17,13 +17,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import pickle
 from json import loads
+from typing import Any
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .etc import button_data, code, crypt_str, general_link, get_int, get_text, random_str, thread
-from .file import save
+from .etc import button_data, code, crypt_str, general_link, get_int, get_text, random_str, thread, user_mention
+from .file import crypt_file, delete_file, get_downloaded_path, get_new_path, save
 from .ids import init_user_id
 from .telegram import send_message
 
@@ -48,6 +50,35 @@ def receive_add_bad(sender: str, data: dict) -> bool:
         logger.warning(f"Receive add bad error: {e}", exc_info=True)
 
     return False
+
+
+def receive_file_data(client: Client, message: Message, decrypt: bool = False) -> Any:
+    # Receive file's data from exchange channel
+    data = None
+    try:
+        if message.document:
+            file_id = message.document.file_id
+            path = get_downloaded_path(client, file_id)
+            if path:
+                if decrypt:
+                    # Decrypt the file, save to the tmp directory
+                    path_decrypted = get_new_path()
+                    crypt_file("decrypt", path, path_decrypted)
+                    path_final = path_decrypted
+                else:
+                    # Read the file directly
+                    path_decrypted = ""
+                    path_final = path
+
+                with open(path_final, "rb") as f:
+                    data = pickle.load(f)
+
+                for f in {path, path_decrypted}:
+                    thread(delete_file, (f,))
+    except Exception as e:
+        logger.warning(f"Receive file error: {e}", exc_info=True)
+
+    return data
 
 
 def receive_leave_info(client: Client, project: str, data: dict) -> bool:
@@ -131,6 +162,26 @@ def receive_remove_bad(data: dict) -> bool:
             return True
     except Exception as e:
         logger.warning(f"Receive remove user error: {e}", exc_info=True)
+
+    return False
+
+
+def receive_status_reply(client: Client, message: Message, sender: str, data: dict) -> bool:
+    # Receive status reply
+    try:
+        aid = data["admin_id"]
+        mid = data["message_id"]
+        status = receive_file_data(client, message, True)
+        if status:
+            text = (f"管理：{user_mention(aid)}\n\n"
+                    f"操作：{code('查询状态')}\n"
+                    f"项目：{code(sender)}\n")
+            for name in status:
+                text += f"{name}：{code(status[name])}\n"
+
+            thread(send_message, (client, glovar.manage_group_id, text, mid))
+    except Exception as e:
+        logger.warning(f"Receive status reply error: {e}", exc_info=True)
 
     return False
 
