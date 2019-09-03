@@ -301,6 +301,10 @@ def process_data(client: Client, message: Message) -> bool:
                         if action_type == "watch":
                             receive_watch_user(data)
 
+                    elif action == "status":
+                        if action_type == "reply":
+                            receive_status_reply(client, message, sender, data)
+
         return True
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)
