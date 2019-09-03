@@ -241,11 +241,14 @@ def status(client: Client, message: Message) -> bool:
                     "message_id": mid
                 }
             )
+            text += (f"项目：{code((lambda t: t.upper() if t != 'all' else '全部')(command_type))}\n"
+                     f"状态：{code('已请求')}\n")
         else:
             text += (f"项目：{code(command_type or '未知')}\n"
                      f"状态：{code('未请求')}\n"
                      f"原因：{code('格式有误')}\n")
-            thread(send_message, (client, cid, text, mid))
+
+        thread(send_message, (client, cid, text, mid))
 
         return True
     except Exception as e:
