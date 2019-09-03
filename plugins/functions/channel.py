@@ -56,6 +56,9 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
         if record["name"]:
             text += f"用户昵称：{code(record['name'])}\n"
 
+        if record["from"]:
+            text += f"来源名称：{code(record['from'])}\n"
+
         if record["more"]:
             text += f"附加信息：{code(record['more'])}\n"
 
