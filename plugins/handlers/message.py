@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
-from ..functions.filters import exchange_channel, hide_channel, logging_channel, manage_group, watch_channel
+from ..functions.filters import exchange_channel, from_user, hide_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_leave_info, receive_leave_request, receive_remove_bad
 from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
@@ -34,7 +34,7 @@ from ..functions.user import check_object
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
                    & (logging_channel | watch_channel)
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def action_ask(client: Client, message: Message) -> bool:
@@ -120,7 +120,7 @@ def action_ask(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & Filters.forwarded
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
                    & ~logging_channel & ~watch_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def check_forwarded(client: Client, message: Message) -> bool:

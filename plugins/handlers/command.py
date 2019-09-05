@@ -24,7 +24,7 @@ from .. import glovar
 from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
 from ..functions.etc import get_command_type, get_int, get_object, message_link, thread, user_mention
-from ..functions.filters import manage_group, test_group
+from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import add_channel, check_object, remove_bad_user, remove_channel, remove_watch_user
@@ -33,7 +33,7 @@ from ..functions.user import add_channel, check_object, remove_bad_user, remove_
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["action"], glovar.prefix))
 def action(client: Client, message: Message) -> bool:
     # Deal with report messages
@@ -77,7 +77,7 @@ def action(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["check"], glovar.prefix))
 def check(client: Client, message: Message) -> bool:
     # Check a user's status
@@ -94,7 +94,7 @@ def check(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["leave"], glovar.prefix))
 def leave(client: Client, message: Message) -> bool:
     # Let other bots leave a group
@@ -154,7 +154,7 @@ def leave(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["add_bad", "add_except", "remove_bad", "remove_except", "remove_watch"],
                                      glovar.prefix))
 def modify_object(client: Client, message: Message) -> bool:
@@ -215,7 +215,7 @@ def modify_object(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["status"], glovar.prefix))
 def status(client: Client, message: Message) -> bool:
     # Check bots' status
@@ -258,7 +258,7 @@ def status(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & test_group
+@Client.on_message(Filters.incoming & Filters.group & test_group & from_user
                    & Filters.command(["version"], glovar.prefix))
 def version(client: Client, message: Message):
     # Check the program's version
