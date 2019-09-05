@@ -204,7 +204,7 @@ def get_command_type(message: Message) -> str:
     return result
 
 
-def get_int(text: str) -> int:
+def get_int(text: str) -> Optional[int]:
     # Get a int from a string
     result = None
     try:
