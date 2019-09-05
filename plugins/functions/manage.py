@@ -118,7 +118,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             if "封禁" in record["level"] and record["level"] != "封禁追踪":
                 action_text = "解禁"
                 remove_bad_user(client, get_int(record["uid"]))
-            elif record["level"] != "封禁追踪":
+            elif record["level"] in {"封禁追踪", "删除追踪"}:
                 action_text = "解明"
                 remove_watch_user(client, get_int(record["uid"]))
             else:
