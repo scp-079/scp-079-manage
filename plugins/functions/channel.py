@@ -60,7 +60,7 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
             text += f"消息频率：{code(record['freq'])}\n"
 
         if record["score"]:
-            text += f"用户评分：{code(record['score'])}\n"
+            text += f"用户得分：{code(record['score'])}\n"
 
         if record["name"]:
             text += f"用户昵称：{code(record['name'])}\n"
