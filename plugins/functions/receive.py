@@ -52,7 +52,7 @@ def receive_add_bad(sender: str, data: dict) -> bool:
     return False
 
 
-def receive_file_data(client: Client, message: Message, decrypt: bool = False) -> Any:
+def receive_file_data(client: Client, message: Message, decrypt: bool = True) -> Any:
     # Receive file's data from exchange channel
     data = None
     try:
@@ -173,7 +173,7 @@ def receive_status_reply(client: Client, message: Message, sender: str, data: di
     try:
         aid = data["admin_id"]
         mid = data["message_id"]
-        status = receive_file_data(client, message, True)
+        status = receive_file_data(client, message)
         if status:
             text = (f"管理：{user_mention(aid)}\n\n"
                     f"操作：{code('查询状态')}\n"
