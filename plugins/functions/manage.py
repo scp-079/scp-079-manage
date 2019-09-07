@@ -131,6 +131,8 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             id_type = "bad"
             action_text = "收录"
             receiver = "NOSPAM"
+            time_type = "temp"
+            time_text = "临时"
         elif action == "mole":
             action_type = "remove"
             id_type = "except"
