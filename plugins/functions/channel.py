@@ -162,7 +162,7 @@ def send_debug(client: Client, aid: int, action_text: str, time_text: str = None
                 f"执行操作：{code(action_text)}\n")
 
         if time_text:
-            text += f"例外时效：{code(time_text)}\n"
+            text += f"操作时效：{code(time_text)}\n"
 
         id_text = str(id_text)
         if id_text:
