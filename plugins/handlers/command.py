@@ -216,6 +216,46 @@ def modify_object(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["refresh"], glovar.prefix))
+def refresh(client: Client, message: Message) -> bool:
+    # Refresh admins
+    try:
+        cid = message.chat.id
+        mid = message.message_id
+        uid = message.from_user.id
+        text = (f"管理：{user_mention(uid)}\n"
+                f"操作：{code('刷新群管列表')}\n")
+        command_type = get_command_type(message)
+        if command_type and command_type in ["all"] + glovar.receivers["refresh"]:
+            if command_type == "all":
+                receivers = glovar.receivers["refresh"]
+            else:
+                receivers = [command_type.upper()]
+
+            share_data(
+                client=client,
+                receivers=receivers,
+                action="update",
+                action_type="refresh",
+                data="admin"
+            )
+            text += (f"项目：{code((lambda t: t.upper() if t != 'all' else '全部')(command_type))}\n"
+                     f"状态：{code('已请求')}\n")
+        else:
+            text += (f"项目：{code(command_type or '未知')}\n"
+                     f"状态：{code('未请求')}\n"
+                     f"原因：{code('格式有误')}\n")
+
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Refresh error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["status"], glovar.prefix))
 def status(client: Client, message: Message) -> bool:
     # Check bots' status

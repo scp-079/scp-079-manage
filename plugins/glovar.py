@@ -68,6 +68,7 @@ all_commands: List[str] = [
     "check",
     "join",
     "leave",
+    "refresh",
     "remove_bad",
     "remove_except",
     "remove_watch",
@@ -113,6 +114,8 @@ receivers: Dict[str, List[str]] = {
     "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
     "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
               "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
+    "refresh": ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
+                "NOSPAM", "RECHECK", "USER"],
     "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE", "NOFLOOD", "NOPORN",
               "NOSPAM", "RECHECK", "USER", "WATCH"]
 }
