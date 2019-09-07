@@ -237,7 +237,7 @@ def refresh(client: Client, message: Message) -> bool:
                 receivers=receivers,
                 action="update",
                 action_type="refresh",
-                data="admin"
+                data=uid
             )
             text += (f"项目：{code((lambda t: t.upper() if t != 'all' else '全部')(command_type))}\n"
                      f"状态：{code('已请求')}\n")

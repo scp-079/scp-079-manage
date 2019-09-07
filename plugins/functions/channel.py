@@ -156,7 +156,7 @@ def send_debug(client: Client, aid: int, action_text: str, time_text: str = None
                id_text: Union[int, str] = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
-        # Attention: project admin can make a fake operator name
+        # Attention: project admin can make a fake operator name, so keep showing the ID
         text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"项目管理员：{user_mention(aid)}\n"
                 f"执行操作：{code(action_text)}\n")
