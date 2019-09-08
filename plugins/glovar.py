@@ -55,6 +55,7 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 #             "lang": "",
 #             "freq": "",
 #             "score": "",
+#             "bio": "",
 #             "name": "",
 #             "more": ""
 #         }
