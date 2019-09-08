@@ -285,9 +285,14 @@ def process_data(client: Client, message: Message) -> bool:
                             receive_leave_info(client, sender, data)
                         elif action_type == "request":
                             receive_leave_request(client, sender, data)
+
                     elif action == "remove":
                         if action_type == "bad":
                             receive_remove_bad(data)
+
+                    elif action == "status":
+                        if action_type == "reply":
+                            receive_status_reply(client, message, sender, data)
 
                 elif sender == "WARN":
 
