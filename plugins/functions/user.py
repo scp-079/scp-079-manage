@@ -110,8 +110,7 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
                         f"黑名单：{code(is_bad)}\n"
                         f"封禁追踪：{code(is_watch_ban)}\n"
                         f"删除追踪：{code(is_watch_delete)}\n")
-                total_score = sum([glovar.user_ids.get(the_id, glovar.default_user_status)[project]
-                                   for project in glovar.default_user_status])
+                total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
                 text += f"总分：{code(total_score)}\n\n"
                 for project in glovar.default_user_status:
                     text += "\t" * 4
