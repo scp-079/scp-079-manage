@@ -266,9 +266,9 @@ def status(client: Client, message: Message) -> bool:
         text = (f"管理：{user_mention(uid)}\n"
                 f"操作：{code('查询状态')}\n")
         command_type = get_command_type(message)
-        if command_type and command_type in {"all", "nospam", "watch"}:
+        if command_type and command_type in {"all", "nospam", "user", "watch"}:
             if command_type == "all":
-                receivers = ["NOSPAM", "WATCH"]
+                receivers = ["NOSPAM", "USER", "WATCH"]
             else:
                 receivers = [command_type.upper()]
 
