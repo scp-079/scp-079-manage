@@ -55,10 +55,10 @@ def action_ask(client: Client, message: Message) -> bool:
             action = ""
             action_key = random_str(8)
             if record["project"] in glovar.receivers["except"]:
-                if report_message.reply_to_message or record["more"] == "入群消息":
+                if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "error"
             elif record["project"] == "WARN":
-                if report_message.reply_to_message or record["more"] == "入群消息":
+                if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "bad"
             elif record["project"] == "MANAGE":
                 if record["status"] == "已重置":

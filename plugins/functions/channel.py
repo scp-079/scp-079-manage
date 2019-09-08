@@ -125,7 +125,10 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
     # Send the error record message
     result = None
     try:
-        # Attention: project admin can make a fake operator name
+        # Get the right message
+        message = message.reply_to_message or message
+
+        # Attention: project admin can make a fake operator name, so keep showing the ID
         text = (f"原始项目：{code(project)}\n"
                 f"项目管理员：{user_mention(aid)}\n"
                 f"执行操作：{code(glovar.names[action_text])}\n")

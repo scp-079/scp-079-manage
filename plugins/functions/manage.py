@@ -103,7 +103,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             receiver = record["project"]
 
         # Choose proper time type
-        if message.reply_to_message and message.reply_to_message.sticker:
+        if message.reply_to_message and message.reply_to_message.sticker or record["type"] == "服务消息":
             time_type = "long"
             time_text = "长期"
         else:
@@ -125,7 +125,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 action_text = "解明"
 
             # Send messages to the error channel
-            result = send_error(client, message.reply_to_message, receiver, aid, action, reason)
+            result = send_error(client, message, receiver, aid, action, reason)
         elif action == "bad":
             action_type = "add"
             id_type = "bad"
