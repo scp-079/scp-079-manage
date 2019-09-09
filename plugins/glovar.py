@@ -110,15 +110,15 @@ names: Dict[str, str] = {
 }
 
 receivers: Dict[str, List[str]] = {
-    "bad": ["ANALYZE", "APPEAL", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE", "NOFLOOD", "NOPORN",
-            "NOSPAM", "RECHECK", "USER", "WATCH"],
+    "bad": ["ANALYZE", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
+            "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WATCH"],
     "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
-    "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
-              "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
-    "refresh": ["CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
-                "NOSPAM", "RECHECK", "USER"],
-    "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE", "NOFLOOD", "NOPORN",
-              "NOSPAM", "RECHECK", "USER", "WATCH"]
+    "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG",
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
+    "refresh": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
+                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
+    "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
+              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"]
 }
 
 sender: str = "MANAGE"
