@@ -165,6 +165,12 @@ def modify_object(client: Client, message: Message) -> bool:
         mid = message.message_id
         text = f"管理：{user_mention(uid)}\n"
         id_text, reason, from_check = get_object(message)
+        if "force" in reason:
+            reason = reason.replace("force", "").strip()
+            force = True
+        else:
+            force = False
+
         if id_text:
             aid = uid
             if from_check:
@@ -174,18 +180,18 @@ def modify_object(client: Client, message: Message) -> bool:
                 the_id = get_int(id_text)
                 if the_id:
                     if "add_bad" in message.command:
-                        result = add_channel(client, "bad", the_id, aid, reason)
+                        result = add_channel(client, "bad", the_id, aid, reason, force)
                     elif "add_except" in message.command:
-                        result = add_channel(client, "except", the_id, aid, reason)
+                        result = add_channel(client, "except", the_id, aid, reason, force)
                     elif "remove_bad" in message.command:
                         if the_id < 0:
-                            result = remove_channel(client, "bad", the_id, aid, reason)
+                            result = remove_channel(client, "bad", the_id, aid, reason, force)
                         else:
-                            result = remove_bad_user(client, the_id, True, aid, reason)
+                            result = remove_bad_user(client, the_id, aid, True, reason, force)
                     elif "remove_except" in message.command:
-                        result = remove_channel(client, "except", the_id, aid, reason)
+                        result = remove_channel(client, "except", the_id, aid, reason, force)
                     else:
-                        result = remove_watch_user(client, the_id, True, aid, reason)
+                        result = remove_watch_user(client, the_id, True, aid, reason, force)
 
                     text += result
                     if reason and result and "成功" in result:

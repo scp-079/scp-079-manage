@@ -68,7 +68,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
                     # Remove bad user
                     elif action_type == "bad":
                         if the_id in glovar.bad_ids["users"]:
-                            text = remove_bad_user(client, the_id, True, uid)
+                            text = remove_bad_user(client, the_id, uid, True)
 
                 if text:
                     text = f"管理：{user_mention(uid)}\n" + text

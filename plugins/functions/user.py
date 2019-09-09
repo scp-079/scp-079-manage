@@ -30,7 +30,8 @@ from .telegram import resolve_username
 logger = logging.getLogger(__name__)
 
 
-def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: str = None) -> str:
+def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: str = None,
+                force: bool = False) -> str:
     # Add channel
     result = ""
     try:
@@ -41,7 +42,7 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
 
         result += (f"执行操作：{code(action_text)}\n"
                    f"频道 ID：{code(the_id)}\n")
-        if the_id not in eval(f"glovar.{the_type}_ids")["channels"]:
+        if the_id not in eval(f"glovar.{the_type}_ids")["channels"] or force:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].add(the_id)
             save(f"{the_type}_ids")
@@ -197,14 +198,15 @@ def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup
     return text, markup
 
 
-def remove_bad_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:
+def remove_bad_user(client: Client, the_id: int, aid: int, debug: bool = False, reason: str = None,
+                    force: bool = False) -> str:
     # Remove bad user
     result = ""
     try:
         action_text = "解禁用户"
         result += (f"执行操作：{code(action_text)}\n"
                    f"用户 ID：{code(the_id)}\n")
-        if the_id in glovar.bad_ids["users"]:
+        if the_id in glovar.bad_ids["users"] or force:
             # Local
             glovar.bad_ids["users"].discard(the_id)
             save("bad_ids")
@@ -236,7 +238,8 @@ def remove_bad_user(client: Client, the_id: int, debug: bool = False, aid: int =
     return result
 
 
-def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason: str = None) -> str:
+def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason: str = None,
+                   force: bool = False) -> str:
     # Remove channel
     result = ""
     try:
@@ -247,7 +250,7 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
 
         result += (f"执行操作：{code(action_text)}\n"
                    f"频道 ID：{code(the_id)}\n")
-        if the_id in eval(f"glovar.{the_type}_ids")["channels"]:
+        if the_id in eval(f"glovar.{the_type}_ids")["channels"] or force:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].discard(the_id)
             save(f"{the_type}_ids")
@@ -279,14 +282,15 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
     return result
 
 
-def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None) -> str:
+def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None,
+                      force: bool = False) -> str:
     # Remove watched user
     result = ""
     try:
         action_text = "移除用户追踪状态"
         result += (f"执行操作：{code(action_text)}\n"
                    f"用户 ID：{code(the_id)}\n")
-        if glovar.watch_ids["ban"].get(the_id, 0) or glovar.watch_ids["delete"].get(the_id, 0):
+        if glovar.watch_ids["ban"].get(the_id, 0) or glovar.watch_ids["delete"].get(the_id, 0) or force:
             # Local
             glovar.watch_ids["ban"].pop(the_id, 0)
             glovar.watch_ids["delete"].pop(the_id, 0)
