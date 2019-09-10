@@ -284,7 +284,7 @@ def get_report_record(message: Message) -> Dict[str, str]:
 
 
 def get_subject(message: Message) -> (str, str, bool):
-    # Get a subject from message's text
+    # Get the subject from the message's text
     id_text = ""
     reason = ""
     from_check = False
@@ -320,7 +320,7 @@ def get_subject(message: Message) -> (str, str, bool):
                                 id_text = text_unit.split("：")[1]
                                 return id_text, reason, from_check
     except Exception as e:
-        logger.warning(f"Get object error: {e}", exc_info=True)
+        logger.warning(f"Get subject error: {e}", exc_info=True)
 
     return id_text, reason, from_check
 

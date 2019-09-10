@@ -193,7 +193,7 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                     f"结果：{code('无法显示')}\n"
                     f"原因：{code('格式有误')}\n")
     except Exception as e:
-        logger.warning(f"Check object error: {e}", exc_info=True)
+        logger.warning(f"Check subject error: {e}", exc_info=True)
 
     return text, markup
 
