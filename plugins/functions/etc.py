@@ -226,48 +226,6 @@ def get_now() -> int:
     return result
 
 
-def get_object(message: Message) -> (str, str, bool):
-    # Get message's target
-    id_text = ""
-    reason = ""
-    from_check = False
-    try:
-        # Do not treat this message as a valid command
-        if (message.forward_from or message.forward_from_chat) and not message.reply_to_message:
-            return id_text, reason, from_check
-
-        # Read command
-        id_text, reason = get_command_context(message)
-
-        # Override command result if there is a reply_to_message
-        if message.reply_to_message:
-            # /command reason
-            if not reason:
-                reason = id_text
-
-            if message.reply_to_message.from_user.is_self:
-                from_check = True
-
-            text = get_text(message.reply_to_message)
-            if text:
-                if re.search("^(用户|频道|群组) ID：", text, re.M):
-                    text_list = text.split("\n")
-                    for text_unit in text_list:
-                        if re.search("^(用户|频道|群组) ID：", text_unit):
-                            # If the message from debug channel does not include valid object ID
-                            if (re.search("^群组 ID：", text_unit)
-                                    and (re.search("^(用户|频道) ID：", text, re.M)
-                                         or message.forward_from_chat)):
-                                continue
-                            else:
-                                id_text = text_unit.split("：")[1]
-                                return id_text, reason, from_check
-    except Exception as e:
-        logger.warning(f"Get object error: {e}", exc_info=True)
-
-    return id_text, reason, from_check
-
-
 def get_report_record(message: Message) -> Dict[str, str]:
     # Get report message's full record
     record = {
@@ -323,6 +281,48 @@ def get_report_record(message: Message) -> Dict[str, str]:
         logger.warning(f"Get report record error: {e}", exc_info=True)
 
     return record
+
+
+def get_subject(message: Message) -> (str, str, bool):
+    # Get a subject from message's text
+    id_text = ""
+    reason = ""
+    from_check = False
+    try:
+        # Do not treat this message as a valid command
+        if (message.forward_from or message.forward_from_chat) and not message.reply_to_message:
+            return id_text, reason, from_check
+
+        # Read command
+        id_text, reason = get_command_context(message)
+
+        # Override command result if there is a reply_to_message
+        if message.reply_to_message:
+            # /command reason
+            if not reason:
+                reason = id_text
+
+            if message.reply_to_message.from_user.is_self:
+                from_check = True
+
+            text = get_text(message.reply_to_message)
+            if text:
+                if re.search("^(用户|频道|群组) ID：", text, re.M):
+                    text_list = text.split("\n")
+                    for text_unit in text_list:
+                        if re.search("^(用户|频道|群组) ID：", text_unit):
+                            # If the message from debug channel does not include valid object ID
+                            if (re.search("^群组 ID：", text_unit)
+                                    and (re.search("^(用户|频道) ID：", text, re.M)
+                                         or message.forward_from_chat)):
+                                continue
+                            else:
+                                id_text = text_unit.split("：")[1]
+                                return id_text, reason, from_check
+    except Exception as e:
+        logger.warning(f"Get object error: {e}", exc_info=True)
+
+    return id_text, reason, from_check
 
 
 def get_text(message: Message) -> str:

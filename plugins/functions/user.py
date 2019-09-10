@@ -22,7 +22,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import send_debug, share_data
-from .etc import button_data, code, get_int, get_now, get_object, italic, user_mention
+from .etc import button_data, code, get_int, get_now, get_subject, italic, user_mention
 from .file import save
 from .telegram import resolve_username
 
@@ -83,14 +83,14 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
     return result
 
 
-def check_object(client: Client, message: Message) -> (str, InlineKeyboardMarkup):
-    # Check object's status
+def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarkup):
+    # Check the subject's status
     text = ""
     markup = None
     try:
         aid = message.from_user.id
         the_id = 0
-        id_text, _, _ = get_object(message)
+        id_text, _, _ = get_subject(message)
         if id_text:
             the_id = get_int(id_text)
             if not the_id:

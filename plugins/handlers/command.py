@@ -23,11 +23,11 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
-from ..functions.etc import get_command_type, get_int, get_object, message_link, thread, user_mention
+from ..functions.etc import get_command_type, get_int, get_subject, message_link, thread, user_mention
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import edit_message_text, send_message
-from ..functions.user import add_channel, check_object, remove_bad_user, remove_channel, remove_watch_user
+from ..functions.user import add_channel, check_subject, remove_bad_user, remove_channel, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ def check(client: Client, message: Message) -> bool:
     try:
         cid = message.chat.id
         mid = message.message_id
-        text, markup = check_object(client, message)
+        text, markup = check_subject(client, message)
         thread(send_message, (client, cid, text, mid, markup))
 
         return True
@@ -123,7 +123,7 @@ def leave(client: Client, message: Message) -> bool:
                          f"原因：{code('格式有误')}\n")
         else:
             text += f"操作：{code('主动退群')}\n"
-            id_text, reason, _ = get_object(message)
+            id_text, reason, _ = get_subject(message)
             if id_text:
                 text += f"群组 ID：{code(id_text)}\n"
                 the_id = get_int(id_text)
@@ -164,7 +164,7 @@ def modify_object(client: Client, message: Message) -> bool:
         uid = message.from_user.id
         mid = message.message_id
         text = f"管理：{user_mention(uid)}\n"
-        id_text, reason, from_check = get_object(message)
+        id_text, reason, from_check = get_subject(message)
         if "force" in reason:
             reason = reason.replace("force", "").strip()
             force = True

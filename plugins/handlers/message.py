@@ -28,7 +28,7 @@ from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_leave_info, receive_leave_request, receive_remove_bad
 from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
 from ..functions.telegram import send_message
-from ..functions.user import check_object
+from ..functions.user import check_subject
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -133,7 +133,7 @@ def check_forwarded(client: Client, message: Message) -> bool:
         if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:
             message.reply_to_message = message
 
-        text, markup = check_object(client, message)
+        text, markup = check_subject(client, message)
         if text:
             thread(send_message, (client, cid, text, mid, markup))
 
