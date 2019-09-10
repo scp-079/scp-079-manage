@@ -125,7 +125,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 action_text = "解明"
 
             # Send messages to the error channel
-            result = send_error(client, message, receiver, aid, action, reason)
+            result = send_error(client, message, receiver, aid, action, record["level"], reason)
         elif action == "bad":
             action_type = "add"
             id_type = "bad"

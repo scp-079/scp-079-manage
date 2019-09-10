@@ -123,7 +123,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
     return text
 
 
-def send_error(client: Client, message: Message, project: str, aid: int, action_text: str,
+def send_error(client: Client, message: Message, project: str, aid: int, action_text: str, level: str,
                reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
@@ -134,7 +134,8 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
         # Attention: project admin can make a fake operator name, so keep showing the ID
         text = (f"原始项目：{code(project)}\n"
                 f"项目管理员：{user_mention(aid)}\n"
-                f"执行操作：{code(glovar.names[action_text])}\n")
+                f"执行操作：{code(glovar.names[action_text])}\n"
+                f"错误等级：{code(level)}\n")
         if reason:
             text += f"原因：{code(reason)}\n"
 
