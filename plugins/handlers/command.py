@@ -232,7 +232,8 @@ def refresh(client: Client, message: Message) -> bool:
         text = (f"管理：{user_mention(uid)}\n"
                 f"操作：{code('刷新群管列表')}\n")
         command_type = get_command_type(message)
-        if command_type and command_type in ["all"] + glovar.receivers["refresh"]:
+        project_list = ["all"] + [p.lower() for p in glovar.receivers["refresh"]]
+        if command_type and command_type in project_list:
             if command_type == "all":
                 receivers = glovar.receivers["refresh"]
             else:
