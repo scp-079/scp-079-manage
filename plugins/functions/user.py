@@ -307,7 +307,7 @@ def remove_score(client: Client, the_id: int, aid: int = None, reason: str = Non
             # Share
             share_data(
                 client=client,
-                receivers=glovar.receivers["watch"],
+                receivers=glovar.receivers["score"],
                 action="remove",
                 action_type="score",
                 data=the_id
