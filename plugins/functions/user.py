@@ -112,11 +112,11 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                         f"封禁追踪：{code(is_watch_ban)}\n"
                         f"删除追踪：{code(is_watch_delete)}\n")
                 total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
-                text += f"总分：{code(total_score)}\n\n"
+                text += f"总分：{code(f'{total_score:.1f}')}\n\n"
                 for project in glovar.default_user_status:
                     text += "\t" * 4
                     text += (f"{italic(project.upper())}    "
-                             f"{code(glovar.user_ids.get(the_id, glovar.default_user_status)[project])}\n")
+                             f"{code(f'{glovar.user_ids.get(the_id, glovar.default_user_status)[project]:.1f}')}\n")
 
                 bad_data = button_data("check", "bad", the_id)
                 watch_data = button_data("check", "watch", the_id)
