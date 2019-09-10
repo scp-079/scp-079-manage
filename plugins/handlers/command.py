@@ -27,7 +27,8 @@ from ..functions.etc import get_command_type, get_int, get_subject, message_link
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import edit_message_text, send_message
-from ..functions.user import add_channel, check_subject, remove_bad_user, remove_channel, remove_watch_user
+from ..functions.user import add_channel, check_subject
+from ..functions.user import remove_bad_user, remove_channel, remove_score, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -155,8 +156,8 @@ def leave(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["add_bad", "add_except", "remove_bad", "remove_except", "remove_watch"],
-                                     glovar.prefix))
+                   & Filters.command(["add_bad", "add_except",
+                                      "remove_bad", "remove_except", "remove_score", "remove_watch"], glovar.prefix))
 def modify_object(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:
@@ -190,6 +191,8 @@ def modify_object(client: Client, message: Message) -> bool:
                             result = remove_bad_user(client, the_id, aid, True, reason, force)
                     elif "remove_except" in message.command:
                         result = remove_channel(client, "except", the_id, aid, reason, force)
+                    elif "remove_score" in message.command:
+                        result = remove_score(client, the_id, aid, reason, force)
                     else:
                         result = remove_watch_user(client, the_id, True, aid, reason, force)
 

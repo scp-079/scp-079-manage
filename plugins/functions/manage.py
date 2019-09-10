@@ -131,7 +131,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             id_type = "bad"
             action_text = "收录"
             receiver = "NOSPAM"
-            time_type = "temp"
+            time_type = "content"
             time_text = "临时"
         elif action == "mole":
             action_type = "remove"
@@ -142,7 +142,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             id_type = "bad"
             action_text = "重置"
             receiver = "NOSPAM"
-            time_type = "temp"
+            time_type = "content"
             time_text = "临时"
         elif action == "delete":
             action_delete(client, key, reason)

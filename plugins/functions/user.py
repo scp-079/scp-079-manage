@@ -119,9 +119,10 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                              f"{code(f'{glovar.user_ids.get(the_id, glovar.default_user_status)[project]:.1f}')}\n")
 
                 bad_data = button_data("check", "bad", the_id)
+                score_data = button_data("check", "score", the_id)
                 watch_data = button_data("check", "watch", the_id)
                 cancel_data = button_data("check", "cancel", the_id)
-                if is_bad or is_watch_ban or is_watch_delete:
+                if is_bad or total_score or is_watch_ban or is_watch_delete:
                     markup_list = [
                         [],
                         [
@@ -136,6 +137,14 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                             InlineKeyboardButton(
                                 text="解禁用户",
                                 callback_data=bad_data
+                            )
+                        )
+
+                    if total_score:
+                        markup_list[0].append(
+                            InlineKeyboardButton(
+                                text="清空评分",
+                                callback_data=score_data
                             )
                         )
 
@@ -278,6 +287,38 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
                        f"原因：{code(reason)}\n")
     except Exception as e:
         logger.warning(f"Remove channel error: {e}", exc_info=True)
+
+    return result
+
+
+def remove_score(client: Client, the_id: int, aid: int = None, reason: str = None,
+                 force: bool = False) -> str:
+    # Remove watched user
+    result = ""
+    try:
+        action_text = "清空用户评分"
+        result += (f"执行操作：{code(action_text)}\n"
+                   f"用户 ID：{code(the_id)}\n")
+        if (glovar.user_ids.get(the_id, {}) and sum(glovar.user_ids[the_id].values())) or force:
+            # Local
+            glovar.user_ids.pop(the_id, {})
+            save("user_ids")
+
+            # Share
+            share_data(
+                client=client,
+                receivers=glovar.receivers["watch"],
+                action="remove",
+                action_type="score",
+                data=the_id
+            )
+            result += f"结果：{code('操作成功')}\n"
+            send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+        else:
+            result += (f"结果：{code('未操作')}\n"
+                       f"原因：{code('用户未获得评分')}\n")
+    except Exception as e:
+        logger.warning(f"Remove score error: {e}", exc_info=True)
 
     return result
 

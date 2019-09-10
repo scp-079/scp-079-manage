@@ -274,7 +274,7 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
     return False
 
 
-def share_id(client: Client, action_type: str, id_type: str, the_id: int, time_type: str, receiver: str) -> bool:
+def share_id(client: Client, action_type: str, id_type: str, the_id: int, the_type: str, receiver: str) -> bool:
     # Add bad or except id
     try:
         share_data(
@@ -284,7 +284,7 @@ def share_id(client: Client, action_type: str, id_type: str, the_id: int, time_t
             action_type=id_type,
             data={
                 "id": the_id,
-                "type": time_type
+                "type": the_type
             }
         )
 

@@ -72,6 +72,7 @@ all_commands: List[str] = [
     "refresh",
     "remove_bad",
     "remove_except",
+    "remove_score",
     "remove_watch",
     "status",
     "version"

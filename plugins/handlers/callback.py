@@ -26,7 +26,7 @@ from ..functions.etc import get_admin, thread, user_mention
 from ..functions.filters import manage_group
 from ..functions.manage import action_answer, leave_answer
 from ..functions.telegram import answer_callback, edit_message_text, edit_message_reply_markup
-from ..functions.user import add_channel, remove_bad_user, remove_channel, remove_watch_user
+from ..functions.user import add_channel, remove_bad_user, remove_channel, remove_score, remove_watch_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -56,6 +56,8 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
                 text = ""
                 if action_type == "cancel":
                     thread(edit_message_reply_markup, (client, cid, mid, None))
+                elif action_type == "score":
+                    text = remove_score(client, the_id, uid)
                 elif action_type == "watch":
                     text = remove_watch_user(client, the_id, True, uid)
                 else:
