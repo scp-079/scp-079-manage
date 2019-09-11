@@ -70,7 +70,10 @@ def action_ask(client: Client, message: Message) -> bool:
                 elif record["status"] == "已收录":
                     action = "innocent"
             elif record["status"] != "已清除":
-                action = "delete"
+                if record["status"] == "已删除":
+                    action = "redact"
+                else:
+                    action = "delete"
 
             if action:
                 action_text = glovar.names[action]

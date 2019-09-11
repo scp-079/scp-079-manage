@@ -107,7 +107,8 @@ names: Dict[str, str] = {
     "delete": "删除存档",
     "error": "解除错误",
     "innocent": "取消收录",
-    "mole": "移除例外"
+    "mole": "移除例外",
+    "redact": "清除信息"
 }
 
 receivers: Dict[str, List[str]] = {
