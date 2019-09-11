@@ -70,7 +70,7 @@ def action_ask(client: Client, message: Message) -> bool:
                     action = "mole"
                 elif record["status"] == "已收录":
                     action = "innocent"
-            elif report_message.reply_to_message:
+            elif record["status"] != "已清除":
                 action = "delete"
 
             if action:

@@ -68,13 +68,17 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         aid = glovar.actions[key]["aid"]
         message = glovar.actions[key]["message"]
         record = glovar.actions[key]["record"]
-        action_text = "删除"
-        time_text = ""
-        result = None
+        if message.reply_to_message:
+            delete_message(client, message.forward_from_chat.id, message.reply_to_message.message_id)
+            thread(edit_evidence, (client, message, record, "删除", reason))
+            send_debug(client, aid, "删除", None, record["uid"], message, None, reason)
+        else:
+            for r in record:
+                if record[r]:
+                    record[r] = int(len(record[r]) / 2 + 1) * "█"
 
-        delete_message(client, message.forward_from_chat.id, message.reply_to_message.message_id)
-        thread(edit_evidence, (client, message, record, action_text, reason))
-        send_debug(client, aid, action_text, time_text, record["uid"], message, result, reason)
+            thread(edit_evidence, (client, message, record, "清除", reason))
+            send_debug(client, aid, "清除", None, record["uid"], message, None, reason)
 
         return True
     except Exception as e:
