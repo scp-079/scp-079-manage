@@ -49,8 +49,7 @@ def action_ask(client: Client, message: Message) -> bool:
         report_text = get_text(report_message)
         if (report_message and report_text
                 and not report_message.forward_date
-                and re.search("^项目编号：", report_text)
-                and not re.search("^状态：已删除$", report_text, re.M)):
+                and re.search("^项目编号：", report_text)):
             record = get_report_record(report_message)
             action = ""
             action_key = random_str(8)
@@ -60,7 +59,7 @@ def action_ask(client: Client, message: Message) -> bool:
             elif record["project"] == "WARN":
                 if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "bad"
-            elif record["project"] == "MANAGE":
+            elif record["project"] == "MANAGE" and not re.search("^状态：已删除$", report_text, re.M):
                 if record["status"] == "已重置":
                     if record["origin"] in glovar.receivers["except"]:
                         action = "error"
