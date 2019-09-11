@@ -74,7 +74,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
             send_debug(client, aid, "删除存档", None, record["uid"], message, None, reason)
         else:
             for r in record:
-                if record[r] and r in {"name", "from", "more"}:
+                if record[r] and r in {"bio", "name", "from", "more"}:
                     record[r] = int(len(record[r]) / 2 + 1) * "█"
 
             thread(edit_evidence, (client, message, record, "清除", reason))
