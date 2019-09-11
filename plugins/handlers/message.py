@@ -103,7 +103,7 @@ def action_ask(client: Client, message: Message) -> bool:
                         )
                     ]
                 ]
-                if action != "delete" and report_message.reply_to_message:
+                if action != "delete" and report_message.reply_to_message and not report_message.reply_to_message.empty:
                     data_delete = button_data(action, "delete", action_key)
                     markup_list[0].append(
                         InlineKeyboardButton(
