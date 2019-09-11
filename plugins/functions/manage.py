@@ -68,6 +68,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         aid = glovar.actions[key]["aid"]
         message = glovar.actions[key]["message"]
         record = glovar.actions[key]["record"]
+        logger.warning(message)
         if message.reply_to_message:
             delete_message(client, message.forward_from_chat.id, message.reply_to_message.message_id)
             thread(edit_evidence, (client, message, record, "删除", reason))
