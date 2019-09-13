@@ -51,7 +51,7 @@ def action_ask(client: Client, message: Message) -> bool:
         action = ""
         action_key = random_str(8)
         record = get_report_record(report_message)
-        if is_error_channel(None, message):
+        if is_error_channel(None, message) and report_message.reply_to_message:
             action = "recall"
         elif (report_message and report_text
               and not report_message.forward_date
@@ -116,7 +116,7 @@ def action_ask(client: Client, message: Message) -> bool:
                         callback_data=data_delete
                     )
                 )
-            elif action == "bad" and not message.reply_to_message:
+            elif action == "bad" and not report_message.reply_to_message:
                 data_delete = button_data("redact", "delete", action_key)
                 markup_list[0].append(
                     InlineKeyboardButton(
