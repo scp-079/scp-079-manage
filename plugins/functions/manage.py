@@ -68,17 +68,24 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         aid = glovar.actions[key]["aid"]
         message = glovar.actions[key]["message"]
         record = glovar.actions[key]["record"]
-        if message.reply_to_message and not message.reply_to_message.empty:
+        action = glovar.actions[key]["action"]
+        if action == "recall":
+            delete_message(client, message.chat.id, message.message_id)
+            if message.reply_to_message:
+                delete_message(client, message.chat.id, message.reply_to_message.message_id)
+
+            send_debug(client, aid, glovar.names[action], None, None, message, None, reason)
+        elif message.reply_to_message and not message.reply_to_message.empty:
             delete_message(client, message.chat.id, message.reply_to_message.message_id)
             thread(edit_evidence, (client, message, record, "删除", reason))
-            send_debug(client, aid, "删除存档", None, record["uid"], message, None, reason)
+            send_debug(client, aid, glovar.names[action], None, record["uid"], message, None, reason)
         else:
             for r in record:
                 if record[r] and r in {"bio", "name", "from", "more"}:
                     record[r] = int(len(record[r]) / 2 + 1) * "█"
 
             thread(edit_evidence, (client, message, record, "清除", reason))
-            send_debug(client, aid, "清除信息", None, None, message, None, reason)
+            send_debug(client, aid, glovar.names[action], None, None, message, None, reason)
 
         return True
     except Exception as e:

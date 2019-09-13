@@ -43,6 +43,18 @@ def is_exchange_channel(_, message: Message) -> bool:
     return False
 
 
+def is_error_channel(_, message: Message) -> bool:
+    # Check if the message is forwarded from the error channel
+    try:
+        if message.forward_from_chat:
+            if message.forward_from_chat.id == glovar.error_channel_id:
+                return True
+    except Exception as e:
+        logger.warning(f"Is error channel error: {e}", exc_info=True)
+
+    return False
+
+
 def is_from_user(_, message: Message) -> bool:
     # Check if the message is sent from a user
     try:
@@ -125,6 +137,11 @@ def is_watch_channel(_, message: Message) -> bool:
 exchange_channel = Filters.create(
     func=is_exchange_channel,
     name="Exchange Channel"
+)
+
+error_channel = Filters.create(
+    func=is_error_channel,
+    name="Error Channel"
 )
 
 from_user = Filters.create(

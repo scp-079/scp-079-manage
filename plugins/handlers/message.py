@@ -23,7 +23,8 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
-from ..functions.filters import exchange_channel, from_user, hide_channel, logging_channel, manage_group, watch_channel
+from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_error_channel
+from ..functions.filters import logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_leave_info, receive_leave_request, receive_remove_bad
 from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
-                   & (logging_channel | watch_channel)
+                   & (error_channel | logging_channel | watch_channel)
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def action_ask(client: Client, message: Message) -> bool:
     # Ask how to deal with the report message
@@ -47,12 +48,15 @@ def action_ask(client: Client, message: Message) -> bool:
         channel_id = message.forward_from_chat.id
         report_message = get_message(client, channel_id, rid)
         report_text = get_text(report_message)
-        if (report_message and report_text
-                and not report_message.forward_date
-                and re.search("^项目编号：", report_text)):
+        action = ""
+        action_key = random_str(8)
+        record = {}
+        if is_error_channel(None, message):
+            action = "recall"
+        elif (report_message and report_text
+              and not report_message.forward_date
+              and re.search("^项目编号：", report_text)):
             record = get_report_record(report_message)
-            action = ""
-            action_key = random_str(8)
             if record["project"] in glovar.receivers["except"]:
                 if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "error"
@@ -77,45 +81,45 @@ def action_ask(client: Client, message: Message) -> bool:
                 else:
                     action = "delete"
 
-            if action:
-                action_text = glovar.names[action]
-                glovar.actions[action_key] = {
-                    "lock": False,
-                    "aid": aid,
-                    "action": action,
-                    "message": report_message,
-                    "record": record
-                }
-                text = (f"管理员：{user_mention(aid)}\n"
-                        f"执行操作：{code(action_text)}\n"
-                        f"状态：{code('等待操作')}\n")
-                data_proceed = button_data(action, "proceed", action_key)
-                data_cancel = button_data(action, "cancel", action_key)
-                markup_list = [
-                    [
-                        InlineKeyboardButton(
-                            text="处理",
-                            callback_data=data_proceed
-                        )
-                    ],
-                    [
-                        InlineKeyboardButton(
-                            text="取消",
-                            callback_data=data_cancel
-                        )
-                    ]
-                ]
-                if action != "delete" and report_message.reply_to_message and not report_message.reply_to_message.empty:
-                    data_delete = button_data(action, "delete", action_key)
-                    markup_list[0].append(
-                        InlineKeyboardButton(
-                            text="删除",
-                            callback_data=data_delete
-                        )
+        if action:
+            action_text = glovar.names[action]
+            glovar.actions[action_key] = {
+                "lock": False,
+                "aid": aid,
+                "action": action,
+                "message": report_message,
+                "record": record
+            }
+            text = (f"管理员：{user_mention(aid)}\n"
+                    f"执行操作：{code(action_text)}\n"
+                    f"状态：{code('等待操作')}\n")
+            data_proceed = button_data(action, "proceed", action_key)
+            data_cancel = button_data(action, "cancel", action_key)
+            markup_list = [
+                [
+                    InlineKeyboardButton(
+                        text="处理",
+                        callback_data=data_proceed
                     )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="取消",
+                        callback_data=data_cancel
+                    )
+                ]
+            ]
+            if action != "delete" and report_message.reply_to_message and not report_message.reply_to_message.empty:
+                data_delete = button_data(action, "delete", action_key)
+                markup_list[0].append(
+                    InlineKeyboardButton(
+                        text="删除",
+                        callback_data=data_delete
+                    )
+                )
 
-                markup = InlineKeyboardMarkup(markup_list)
-                thread(send_message, (client, cid, text, mid, markup))
+            markup = InlineKeyboardMarkup(markup_list)
+            thread(send_message, (client, cid, text, mid, markup))
 
         return True
     except Exception as e:
@@ -125,7 +129,7 @@ def action_ask(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
-                   & ~logging_channel & ~watch_channel
+                   & ~error_channel & ~logging_channel & ~watch_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def check_forwarded(client: Client, message: Message) -> bool:
     # Check forwarded messages
