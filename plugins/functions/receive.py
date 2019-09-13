@@ -175,7 +175,7 @@ def receive_status_reply(client: Client, message: Message, sender: str, data: di
         mid = data["message_id"]
         status = receive_file_data(client, message)
         if status:
-            text = (f"管理：{user_mention(aid)}\n\n"
+            text = (f"管理：{user_mention(aid)}\n"
                     f"操作：{code('查询状态')}\n"
                     f"项目：{code(sender)}\n")
             for name in status:
