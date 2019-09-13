@@ -155,7 +155,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             receiver = "NOSPAM"
             time_type = "content"
             time_text = "临时"
-        elif action in {"delete", "redact"}:
+        elif action in {"delete", "redact", "recall"}:
             action_delete(client, key, reason)
             return True
 

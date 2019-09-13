@@ -50,13 +50,12 @@ def action_ask(client: Client, message: Message) -> bool:
         report_text = get_text(report_message)
         action = ""
         action_key = random_str(8)
-        record = {}
+        record = get_report_record(report_message)
         if is_error_channel(None, message):
             action = "recall"
         elif (report_message and report_text
               and not report_message.forward_date
               and re.search("^项目编号：", report_text)):
-            record = get_report_record(report_message)
             if record["project"] in glovar.receivers["except"]:
                 if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "error"
