@@ -109,11 +109,19 @@ def action_ask(client: Client, message: Message) -> bool:
                     )
                 ]
             ]
-            if action != "delete" and report_message.reply_to_message and not report_message.reply_to_message.empty:
+            if action not in {"delete", "redact", "recall"}:
                 data_delete = button_data(action, "delete", action_key)
                 markup_list[0].append(
                     InlineKeyboardButton(
                         text="删除",
+                        callback_data=data_delete
+                    )
+                )
+            elif action == "bad" and not message.reply_to_message:
+                data_delete = button_data("redact", "delete", action_key)
+                markup_list[0].append(
+                    InlineKeyboardButton(
+                        text="清除",
                         callback_data=data_delete
                     )
                 )
