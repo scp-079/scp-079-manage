@@ -56,6 +56,8 @@ def action_ask(client: Client, message: Message) -> bool:
             if record["project"] in glovar.receivers["except"]:
                 if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "error"
+            elif record["project"] == "NOFLOOD" and "名称" in record["rule"]:
+                action = "error"
             elif record["project"] == "WARN":
                 if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "bad"
