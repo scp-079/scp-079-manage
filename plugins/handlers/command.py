@@ -96,6 +96,53 @@ def check(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["hide"], glovar.prefix))
+def hide(client: Client, message: Message) -> bool:
+    # Let bots hide
+    try:
+        cid = message.chat.id
+        mid = message.message_id
+        uid = message.from_user.id
+        text = (f"管理：{user_mention(uid)}\n"
+                f"操作：{code('频道转移')}\n")
+        command_type = get_command_type(message)
+        if command_type and command_type in {"off", "on"}:
+            if command_type == "off":
+                data = False
+            else:
+                data = True
+
+            glovar.should_hide = data
+            share_data(
+                client=client,
+                receivers=["EMERGENCY"],
+                action="backup",
+                action_type="hide",
+                data=data
+            )
+            text += (f"应急：{code((lambda d: '启用' if d else '禁用')(data))}\n"
+                     f"状态：{code('已下达指令')}\n")
+
+            # Send debug
+            text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                    f"项目管理员：{user_mention(uid)}\n"
+                    f"执行操作：{code('频道转移')}\n"
+                    f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
+            thread(send_message, (client, glovar.debug_channel_id, text))
+        else:
+            text += (f"状态：{code('未下达指令')}\n"
+                     f"原因：{code('格式有误')}\n")
+
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Hide error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["leave"], glovar.prefix))
 def leave(client: Client, message: Message) -> bool:
     # Let other bots leave a group
@@ -276,9 +323,9 @@ def status(client: Client, message: Message) -> bool:
         text = (f"管理：{user_mention(uid)}\n"
                 f"操作：{code('查询状态')}\n")
         command_type = get_command_type(message)
-        if command_type and command_type in {"all", "nospam", "user", "watch"}:
-            if command_type == "all":
-                receivers = ["NOSPAM", "USER", "WATCH"]
+        if command_type and command_type.upper() in ["ALL"] + glovar.receivers["status"]:
+            if command_type.upper() == "ALL":
+                receivers = glovar.receivers["status"]
             else:
                 receivers = [command_type.upper()]
 

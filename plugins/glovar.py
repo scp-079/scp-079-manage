@@ -67,6 +67,7 @@ all_commands: List[str] = [
     "add_bad",
     "add_except",
     "check",
+    "hide",
     "join",
     "leave",
     "refresh",
@@ -122,6 +123,7 @@ receivers: Dict[str, List[str]] = {
                 "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
               "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"],
+    "status": ["NOSPAM", "USER", "WATCH"],
     "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
               "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"]
 }

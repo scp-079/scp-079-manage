@@ -22,7 +22,8 @@ import re
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from ..functions.etc import code, button_data, get_report_record, get_text, random_str, thread, user_mention
+from ..functions.etc import code, button_data, general_link, get_report_record, get_text, random_str
+from ..functions.etc import thread, user_mention
 from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_error_channel
 from ..functions.filters import logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
@@ -161,7 +162,7 @@ def check_forwarded(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
-def exchange_emergency(_: Client, message: Message) -> bool:
+def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
         # Read basic information
@@ -176,6 +177,11 @@ def exchange_emergency(_: Client, message: Message) -> bool:
                     if action_type == "hide":
                         if data is True:
                             glovar.should_hide = data
+
+                        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                                f"执行操作：{code('频道转移')}\n"
+                                f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
+                        thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:
