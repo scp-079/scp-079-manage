@@ -124,11 +124,11 @@ def hide(client: Client, message: Message) -> bool:
                      f"状态：{code('已下达指令')}\n")
 
             # Send debug
-            text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                    f"项目管理员：{user_mention(uid)}\n"
-                    f"执行操作：{code('频道转移')}\n"
-                    f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
-            thread(send_message, (client, glovar.debug_channel_id, text))
+            debug_text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                          f"项目管理员：{user_mention(uid)}\n"
+                          f"执行操作：{code('频道转移')}\n"
+                          f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
         else:
             text += (f"状态：{code('未下达指令')}\n"
                      f"原因：{code('格式有误')}\n")
