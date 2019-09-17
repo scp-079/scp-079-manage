@@ -97,7 +97,7 @@ def reset_data() -> bool:
         save("watch_ids")
 
         glovar.actions_pure = {}
-        save("actions")
+        save("actions_pure")
 
         return True
     except Exception as e:
