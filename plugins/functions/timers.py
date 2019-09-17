@@ -96,6 +96,9 @@ def reset_data() -> bool:
         }
         save("watch_ids")
 
+        glovar.actions_pure = {}
+        save("actions")
+
         return True
     except Exception as e:
         logger.warning(f"Reset data error: {e}", exc_info=True)
