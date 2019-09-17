@@ -50,8 +50,10 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
             else:
                 status = "已取消"
 
-            glovar.actions_pure[key] = deepcopy(glovar.actions[key])
-            glovar.actions_pure[key].pop("message", None)
+            for item in glovar.actions[key]:
+                if item != "message":
+                    glovar.actions_pure[key][item] = deepcopy(glovar.actions[key][item])
+
             save("actions_pure")
         else:
             status = "已失效"

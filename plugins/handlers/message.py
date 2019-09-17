@@ -137,8 +137,10 @@ def action_ask(client: Client, message: Message) -> bool:
             result = send_message(client, cid, text, mid, markup)
             if result:
                 glovar.actions[key]["mid"] = result.message_id
-                glovar.actions_pure[key] = deepcopy(glovar.actions[key])
-                glovar.actions_pure[key].pop("message", None)
+                for item in glovar.actions[key]:
+                    if item != "message":
+                        glovar.actions_pure[key][item] = deepcopy(glovar.actions[key][item])
+
                 save("actions_pure")
             else:
                 glovar.actions.pop(key, {})
