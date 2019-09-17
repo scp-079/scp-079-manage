@@ -114,9 +114,11 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                 total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
                 text += f"总分：{code(f'{total_score:.1f}')}\n\n"
                 for project in glovar.default_user_status:
-                    text += "\t" * 4
-                    text += (f"{italic(project.upper())}    "
-                             f"{code(f'{glovar.user_ids.get(the_id, glovar.default_user_status)[project]:.1f}')}\n")
+                    project_score = glovar.user_ids.get(the_id, glovar.default_user_status)[project]
+                    if project_score:
+                        text += "\t" * 4
+                        text += (f"{italic(project.upper())}    "
+                                 f"{code(f'{project_score:.1f}')}\n")
 
                 bad_data = button_data("check", "bad", the_id)
                 score_data = button_data("check", "score", the_id)
