@@ -60,15 +60,16 @@ def interval_hour_01(client: Client) -> bool:
     try:
         # Clear old actions
         now = get_now()
-        for key in list(glovar.actions):
-            action = glovar.actions[key]
+        for key in list(glovar.actions_pure):
+            action = glovar.actions_pure[key]
             time = action["time"]
             if now - time > 3600:
                 mid = action["mid"]
                 thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
                 glovar.actions.pop(key, {})
+                glovar.actions_pure.pop(key, {})
 
-        save("actions")
+        save("actions_pure")
 
         return True
     except Exception as e:

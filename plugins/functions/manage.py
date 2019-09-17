@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from copy import deepcopy
 
 from pyrogram import Client
 
@@ -49,7 +50,9 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
             else:
                 status = "已取消"
 
-            save("actions")
+            glovar.actions_pure[key] = deepcopy(glovar.actions[key])
+            glovar.actions_pure[key].pop("message", None)
+            save("actions_pure")
         else:
             status = "已失效"
 

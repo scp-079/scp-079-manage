@@ -271,8 +271,35 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 #     }
 # }
 
+actions_pure: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str]]]] = {}
+# actions = {
+#     "random": {
+#         "lock": False,
+#         "time": 15112345678,
+#         "mid": 123,
+#         "aid": 12345678,
+#         "action": "error",
+#         "record" = {
+#             "project": "",
+#             "origin": "",
+#             "status": "",
+#             "uid": "",
+#             "level": "",
+#             "rule": "",
+#             "type": "",
+#             "lang": "",
+#             "freq": "",
+#             "score": "",
+#             "bio": "",
+#             "name": "",
+#             "from": "",
+#             "more": ""
+#         }
+#     }
+# }
+
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "actions"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "actions_pure"]
 for file in file_list:
     try:
         try:

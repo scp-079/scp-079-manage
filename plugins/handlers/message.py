@@ -18,6 +18,7 @@
 
 import logging
 import re
+from copy import deepcopy
 
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
@@ -136,7 +137,9 @@ def action_ask(client: Client, message: Message) -> bool:
             result = send_message(client, cid, text, mid, markup)
             if result:
                 glovar.actions[key]["mid"] = result.message_id
-                save("actions")
+                glovar.actions_pure[key] = deepcopy(glovar.actions[key])
+                glovar.actions_pure[key].pop("message", None)
+                save("actions_pure")
             else:
                 glovar.actions.pop(key, {})
                 
