@@ -23,6 +23,7 @@ from pyrogram import Client
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_data, share_id
 from .etc import code, general_link, get_int, thread, user_mention
+from .file import save
 from .group import delete_message
 from .telegram import edit_message_text
 from .user import remove_bad_user, remove_watch_user
@@ -35,7 +36,7 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
     # Answer the error ask
     try:
         text = f"管理员：{user_mention(uid)}\n"
-        if glovar.actions.get(key) and not glovar.actions[key]["lock"]:
+        if glovar.actions.get(key, {}) and not glovar.actions[key].get("lock", True):
             glovar.actions[key]["lock"] = True
             action = glovar.actions[key]["action"]
             text += f"执行操作：{code(glovar.names[action])}\n"
@@ -48,7 +49,7 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
             else:
                 status = "已取消"
 
-            glovar.actions.pop(key, {})
+            save("actions")
         else:
             status = "已失效"
 

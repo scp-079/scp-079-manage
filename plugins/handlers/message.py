@@ -22,8 +22,9 @@ import re
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from ..functions.etc import code, button_data, general_link, get_report_record, get_text, random_str
+from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, random_str
 from ..functions.etc import thread, user_mention
+from ..functions.file import save
 from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_error_channel
 from ..functions.filters import logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
@@ -50,7 +51,10 @@ def action_ask(client: Client, message: Message) -> bool:
         report_message = get_message(client, channel_id, rid)
         report_text = get_text(report_message)
         action = ""
-        action_key = random_str(8)
+        key = random_str(8)
+        while glovar.actions.get(key):
+            key = random_str(8)
+
         record = get_report_record(report_message)
         if is_error_channel(None, message) and report_message.reply_to_message:
             action = "recall"
@@ -83,8 +87,10 @@ def action_ask(client: Client, message: Message) -> bool:
 
         if action:
             action_text = glovar.names[action]
-            glovar.actions[action_key] = {
+            glovar.actions[key] = {
                 "lock": False,
+                "time": get_now(),
+                "mid": 0,
                 "aid": aid,
                 "action": action,
                 "message": report_message,
@@ -93,8 +99,8 @@ def action_ask(client: Client, message: Message) -> bool:
             text = (f"管理员：{user_mention(aid)}\n"
                     f"执行操作：{code(action_text)}\n"
                     f"状态：{code('等待操作')}\n")
-            data_proceed = button_data(action, "proceed", action_key)
-            data_cancel = button_data(action, "cancel", action_key)
+            data_proceed = button_data(action, "proceed", key)
+            data_cancel = button_data(action, "cancel", key)
             markup_list = [
                 [
                     InlineKeyboardButton(
@@ -110,7 +116,7 @@ def action_ask(client: Client, message: Message) -> bool:
                 ]
             ]
             if action not in {"delete", "redact", "recall"}:
-                data_delete = button_data(action, "delete", action_key)
+                data_delete = button_data(action, "delete", key)
                 markup_list[0].append(
                     InlineKeyboardButton(
                         text="删除",
@@ -118,7 +124,7 @@ def action_ask(client: Client, message: Message) -> bool:
                     )
                 )
             elif action == "bad" and not report_message.reply_to_message:
-                data_delete = button_data("redact", "delete", action_key)
+                data_delete = button_data("redact", "delete", key)
                 markup_list[0].append(
                     InlineKeyboardButton(
                         text="清除",
@@ -127,8 +133,13 @@ def action_ask(client: Client, message: Message) -> bool:
                 )
 
             markup = InlineKeyboardMarkup(markup_list)
-            thread(send_message, (client, cid, text, mid, markup))
-
+            result = send_message(client, cid, text, mid, markup)
+            if result:
+                glovar.actions[key]["mid"] = result.message_id
+                save("actions")
+            else:
+                glovar.actions.pop(key, {})
+                
         return True
     except Exception as e:
         logger.warning(f"Check error error: {e}", exc_info=True)

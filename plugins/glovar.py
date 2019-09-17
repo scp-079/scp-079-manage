@@ -35,105 +35,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Init
-
-actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
-# actions = {
-#     "random": {
-#         "lock": False,
-#         "aid": 12345678,
-#         "action": "error",
-#         "message": Message,
-#         "record" = {
-#             "project": "",
-#             "origin": "",
-#             "status": "",
-#             "uid": "",
-#             "level": "",
-#             "rule": "",
-#             "type": "",
-#             "lang": "",
-#             "freq": "",
-#             "score": "",
-#             "bio": "",
-#             "name": "",
-#             "more": ""
-#         }
-#     }
-# }
-
-all_commands: List[str] = [
-    "action",
-    "add_bad",
-    "add_except",
-    "check",
-    "hide",
-    "join",
-    "leave",
-    "refresh",
-    "remove_bad",
-    "remove_except",
-    "remove_score",
-    "remove_watch",
-    "status",
-    "version"
-]
-
-default_user_status: Dict[str, float] = {
-    "captcha": 0.0,
-    "clean": 0.0,
-    "lang": 0.0,
-    "long": 0.0,
-    "noflood": 0.0,
-    "noporn": 0.0,
-    "nospam": 0.0,
-    "recheck": 0.0,
-    "warn": 0.0
-}
-
-leaves: Dict[str, Dict[str, Union[bool, int, str]]] = {}
-# leaves = {
-#     "random": {
-#         "lock": False,
-#         "project": "USER",
-#         "group_id": -10012345678,
-#         "group_name": "SCP-079-CHAT",
-#         "group_link": "https://t.me/SCP_079_CHAT",
-#         "reason": ""
-#     }
-# }
-
-names: Dict[str, str] = {
-    "bad": "收录消息",
-    "delete": "删除存档",
-    "error": "解除错误",
-    "innocent": "取消收录",
-    "mole": "移除例外",
-    "redact": "清除信息",
-    "recall": "撤回判误"
-}
-
-receivers: Dict[str, List[str]] = {
-    "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
-            "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],
-    "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
-    "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
-    "refresh": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
-                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
-    "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
-              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"],
-    "status": ["NOSPAM", "USER", "WATCH"],
-    "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
-              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"]
-}
-
-sender: str = "MANAGE"
-
-should_hide: bool = False
-
-version: str = "0.0.6"
-
 # Read data from config.ini
 
 # [basic]
@@ -208,6 +109,80 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
 
+# Init
+
+all_commands: List[str] = [
+    "action",
+    "add_bad",
+    "add_except",
+    "check",
+    "hide",
+    "join",
+    "leave",
+    "refresh",
+    "remove_bad",
+    "remove_except",
+    "remove_score",
+    "remove_watch",
+    "status",
+    "version"
+]
+
+default_user_status: Dict[str, float] = {
+    "captcha": 0.0,
+    "clean": 0.0,
+    "lang": 0.0,
+    "long": 0.0,
+    "noflood": 0.0,
+    "noporn": 0.0,
+    "nospam": 0.0,
+    "recheck": 0.0,
+    "warn": 0.0
+}
+
+leaves: Dict[str, Dict[str, Union[bool, int, str]]] = {}
+# leaves = {
+#     "random": {
+#         "lock": False,
+#         "project": "USER",
+#         "group_id": -10012345678,
+#         "group_name": "SCP-079-CHAT",
+#         "group_link": "https://t.me/SCP_079_CHAT",
+#         "reason": ""
+#     }
+# }
+
+names: Dict[str, str] = {
+    "bad": "收录消息",
+    "delete": "删除存档",
+    "error": "解除错误",
+    "innocent": "取消收录",
+    "mole": "移除例外",
+    "redact": "清除信息",
+    "recall": "撤回判误"
+}
+
+receivers: Dict[str, List[str]] = {
+    "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
+            "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],
+    "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
+    "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG",
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
+    "refresh": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
+                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
+    "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
+              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"],
+    "status": ["NOSPAM", "USER", "WATCH"],
+    "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
+              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"]
+}
+
+sender: str = "MANAGE"
+
+should_hide: bool = False
+
+version: str = "0.0.7"
+
 # Load data from pickle
 
 # Init dir
@@ -266,8 +241,38 @@ watch_ids: Dict[str, Dict[int, int]] = {
 #     }
 # }
 
+# Init data variables
+
+actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
+# actions = {
+#     "random": {
+#         "lock": False,
+#         "time": 15112345678,
+#         "mid": 123,
+#         "aid": 12345678,
+#         "action": "error",
+#         "message": Message,
+#         "record" = {
+#             "project": "",
+#             "origin": "",
+#             "status": "",
+#             "uid": "",
+#             "level": "",
+#             "rule": "",
+#             "type": "",
+#             "lang": "",
+#             "freq": "",
+#             "score": "",
+#             "bio": "",
+#             "name": "",
+#             "from": "",
+#             "more": ""
+#         }
+#     }
+# }
+
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "actions"]
 for file in file_list:
     try:
         try:

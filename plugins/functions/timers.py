@@ -23,7 +23,9 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data
+from .etc import get_now, thread
 from .file import save
+from .telegram import edit_message_reply_markup
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -49,6 +51,28 @@ def backup_files(client: Client) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Backup error: {e}", exc_info=True)
+
+    return False
+
+
+def interval_hour_01(client: Client) -> bool:
+    # Execute every hour
+    try:
+        # Clear old actions
+        now = get_now()
+        for key in list(glovar.actions):
+            action = glovar.actions[key]
+            time = action["time"]
+            if now - time > 3600:
+                mid = action["mid"]
+                thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+                glovar.actions.pop(key, {})
+
+        save("actions")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
 
     return False
 
