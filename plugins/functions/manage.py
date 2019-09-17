@@ -17,14 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from copy import deepcopy
 
 from pyrogram import Client
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_data, share_id
 from .etc import code, general_link, get_int, thread, user_mention
-from .file import save
 from .group import delete_message
 from .telegram import edit_message_text
 from .user import remove_bad_user, remove_watch_user
@@ -49,12 +47,6 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
                 status = "已删除"
             else:
                 status = "已取消"
-
-            for item in glovar.actions[key]:
-                if item != "message":
-                    glovar.actions_pure[key][item] = deepcopy(glovar.actions[key][item])
-
-            save("actions_pure")
         else:
             status = "已失效"
 

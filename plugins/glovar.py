@@ -271,31 +271,11 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 #     }
 # }
 
-actions_pure: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str]]]] = {}
+actions_pure: Dict[str, Dict[str, int]] = {}
 # actions = {
 #     "random": {
-#         "lock": False,
 #         "time": 15112345678,
-#         "mid": 123,
-#         "aid": 12345678,
-#         "action": "error",
-#         "record" = {
-#             "project": "",
-#             "origin": "",
-#             "status": "",
-#             "uid": "",
-#             "level": "",
-#             "rule": "",
-#             "type": "",
-#             "lang": "",
-#             "freq": "",
-#             "score": "",
-#             "bio": "",
-#             "name": "",
-#             "from": "",
-#             "more": ""
-#         }
-#     }
+#         "mid": 123
 # }
 
 # Load data
