@@ -164,7 +164,7 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                 is_except = the_id in glovar.except_ids["channels"]
                 text = (f"管理员：{user_mention(aid)}\n"
                         f"频道 ID：{code(the_id)}\n"
-                        f"受限频道：{code(bool(message.forward_from_chat.restriction_reason))}\n"
+                        f"受限频道：{code(bool(message.forward_from_chat.restrictions))}\n"
                         f"黑名单：{code(is_bad)}\n"
                         f"白名单：{code(is_except)}\n")
                 bad_data = button_data("check", "bad", the_id)
