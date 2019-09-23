@@ -38,6 +38,7 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
         text = f"管理员：{user_mention(uid)}\n"
         if glovar.actions.get(key, {}) and not glovar.actions[key].get("lock", True):
             glovar.actions[key]["lock"] = True
+            glovar.actions_pure[key]["lock"] = True
             action = glovar.actions[key]["action"]
             text += f"执行操作：{code(glovar.names[action])}\n"
             if action_type == "proceed":
@@ -49,11 +50,15 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
             else:
                 status = "已取消"
 
-            save("actions")
             text += f"状态：{code(status)}\n"
             thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
+            if glovar.actions_pure.get(key, {}):
+                glovar.actions_pure[key]["lock"] = True
+
             thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+
+        save("actions_pure")
 
         return True
     except Exception as e:

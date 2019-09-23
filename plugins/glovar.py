@@ -271,9 +271,10 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 #     }
 # }
 
-actions_pure: Dict[str, Dict[str, int]] = {}
+actions_pure: Dict[str, Dict[str, Union[bool, int]]] = {}
 # actions = {
 #     "random": {
+#         "lock": False,
 #         "time": 15112345678,
 #         "mid": 123
 # }
