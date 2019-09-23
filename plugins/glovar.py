@@ -280,7 +280,7 @@ actions_pure: Dict[str, Dict[str, Union[bool, int]]] = {}
 # }
 
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "actions", "actions_pure"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "actions_pure"]
 for file in file_list:
     try:
         try:
