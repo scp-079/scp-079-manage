@@ -96,6 +96,9 @@ def reset_data() -> bool:
         }
         save("watch_ids")
 
+        glovar.actions = {}
+        save("actions")
+
         glovar.actions_pure = {}
         save("actions_pure")
 

@@ -63,7 +63,8 @@ def action_ask(client: Client, message: Message) -> bool:
               and not report_message.forward_date
               and re.search("^项目编号：", report_text)):
             if record["project"] in glovar.receivers["except"]:
-                if report_message.reply_to_message or record["type"] == "服务消息":
+                # TODO 解决无具体证据的问题
+                if report_message.reply_to_message or record["type"] in {"服务"}:
                     action = "error"
             elif record["project"] == "NOFLOOD" and "名称" in record["rule"]:
                 action = "error"
