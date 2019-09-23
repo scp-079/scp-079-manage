@@ -24,7 +24,7 @@ from .. import glovar
 from .channel import send_debug, share_data
 from .etc import button_data, code, get_int, get_now, get_subject, italic, user_mention
 from .file import save
-from .telegram import resolve_username
+from .telegram import get_chat, resolve_username
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -100,7 +100,7 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
         elif message.forward_from_chat:
             the_id = message.forward_from_chat.id
 
-        if the_id and the_id != glovar.debug_channel_id:
+        if the_id:
             if the_id > 0:
                 now = get_now()
                 is_bad = the_id in glovar.bad_ids["users"]
@@ -163,10 +163,14 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
                 is_bad = the_id in glovar.bad_ids["channels"]
                 is_except = the_id in glovar.except_ids["channels"]
                 text = (f"管理员：{user_mention(aid)}\n"
-                        f"频道 ID：{code(the_id)}\n"
-                        f"受限频道：{code(bool(message.forward_from_chat.restrictions))}\n"
-                        f"黑名单：{code(is_bad)}\n"
-                        f"白名单：{code(is_except)}\n")
+                        f"频道 ID：{code(the_id)}\n")
+                if str(the_id) != id_text:
+                    chat = get_chat(client, id_text)
+                    if chat:
+                        text += f"受限频道：{code(bool(chat.restrictions))}\n"
+
+                text += (f"黑名单：{code(is_bad)}\n"
+                         f"白名单：{code(is_except)}\n")
                 bad_data = button_data("check", "bad", the_id)
                 except_data = button_data("check", "except", the_id)
                 cancel_data = button_data("check", "cancel", the_id)
