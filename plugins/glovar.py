@@ -128,6 +128,34 @@ all_commands: List[str] = [
     "version"
 ]
 
+actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
+# actions = {
+#     "random": {
+#         "lock": False,
+#         "time": 15112345678,
+#         "mid": 123,
+#         "aid": 12345678,
+#         "action": "error",
+#         "message": Message,
+#         "record" = {
+#             "project": "",
+#             "origin": "",
+#             "status": "",
+#             "uid": "",
+#             "level": "",
+#             "rule": "",
+#             "type": "",
+#             "lang": "",
+#             "freq": "",
+#             "score": "",
+#             "bio": "",
+#             "name": "",
+#             "from": "",
+#             "more": ""
+#         }
+#     }
+# }
+
 default_user_status: Dict[str, float] = {
     "captcha": 0.0,
     "clean": 0.0,
@@ -242,34 +270,6 @@ watch_ids: Dict[str, Dict[int, int]] = {
 # }
 
 # Init data variables
-
-actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = {}
-# actions = {
-#     "random": {
-#         "lock": False,
-#         "time": 15112345678,
-#         "mid": 123,
-#         "aid": 12345678,
-#         "action": "error",
-#         "message": Message,
-#         "record" = {
-#             "project": "",
-#             "origin": "",
-#             "status": "",
-#             "uid": "",
-#             "level": "",
-#             "rule": "",
-#             "type": "",
-#             "lang": "",
-#             "freq": "",
-#             "score": "",
-#             "bio": "",
-#             "name": "",
-#             "from": "",
-#             "more": ""
-#         }
-#     }
-# }
 
 actions_pure: Dict[str, Dict[str, Union[bool, int]]] = {}
 # actions = {
