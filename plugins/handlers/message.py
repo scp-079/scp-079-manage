@@ -143,6 +143,7 @@ def action_ask(client: Client, message: Message) -> bool:
                     if item in {"time", "mid"}:
                         glovar.actions_pure[key][item] = deepcopy(glovar.actions[key][item])
 
+                save("actions")
                 save("actions_pure")
             else:
                 glovar.actions.pop(key, {})

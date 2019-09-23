@@ -65,10 +65,14 @@ def interval_hour_01(client: Client) -> bool:
             time = action["time"]
             if now - time > 3600:
                 mid = action["mid"]
-                thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+                lock = glovar.actions.get(key, {}) and glovar.actions[key]["lock"]
+                if not lock:
+                    thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+
                 glovar.actions.pop(key, {})
                 glovar.actions_pure.pop(key, {})
 
+        save("actions")
         save("actions_pure")
 
         return True
