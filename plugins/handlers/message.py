@@ -64,10 +64,8 @@ def action_ask(client: Client, message: Message) -> bool:
               and re.search("^项目编号：", report_text)):
             if record["project"] in glovar.receivers["except"]:
                 # TODO 解决无具体证据的问题
-                if report_message.reply_to_message or record["type"] in {"服务"}:
+                if report_message.reply_to_message or "游戏" in record["type"] or "服务" in record["type"]:
                     action = "error"
-            elif record["project"] == "LANG" and "名称" in record["rule"]:
-                action = "error"
             elif record["project"] == "WARN":
                 if report_message.reply_to_message or record["type"] == "服务消息":
                     action = "bad"
