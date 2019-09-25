@@ -66,7 +66,7 @@ def action_ask(client: Client, message: Message) -> bool:
                 # TODO 解决无具体证据的问题
                 if report_message.reply_to_message or record["type"] in {"服务"}:
                     action = "error"
-            elif record["project"] == "NOFLOOD" and "名称" in record["rule"]:
+            elif record["project"] == "LANG" and "名称" in record["rule"]:
                 action = "error"
             elif record["project"] == "WARN":
                 if report_message.reply_to_message or record["type"] == "服务消息":
