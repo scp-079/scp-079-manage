@@ -24,7 +24,7 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, general_link, message_link, thread, user_mention, wait_flood
+from .etc import code, code_block, general_link, lang, message_link, thread, user_mention, wait_flood
 from .file import crypt_file, delete_file, get_new_path
 from .telegram import edit_message_text, send_document, send_message
 
@@ -39,40 +39,46 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
     try:
         cid = message.chat.id
         mid = message.message_id
-        text = (f"项目编号：{code(glovar.sender)}\n"
-                f"原始项目：{code(record['origin'] or record['project'])}\n"
-                f"状态：{code(f'已{action_text}')}\n")
+        text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
+                f"{lang('project_origin')}{lang('colon')}{code(record['origin'] or record['project'])}\n"
+                f"{lang('status')}{lang('colon')}{code(action_text)}\n")
 
         if reason:
-            text += f"原因：{code(reason)}\n"
+            text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
-        text += (f"用户 ID：{code(record['uid'])}\n"
-                 f"操作等级：{code(record['level'])}\n"
-                 f"规则：{code(record['rule'])}\n")
+        text += (f"{lang('user_id')}{lang('colon')}{code(record['uid'])}\n"
+                 f"{lang('level')}{lang('colon')}{code(record['level'])}\n"
+                 f"{lang('rule')}{lang('colon')}{code(record['rule'])}\n")
 
         if record["type"]:
-            text += f"消息类别：{code(record['type'])}\n"
+            text += f"{lang('message_type')}{lang('colon')}{code(record['type'])}\n"
+
+        if record["game"]:
+            text += f"{lang('message_game')}{lang('colon')}{code(record['game'])}\n"
 
         if record["lang"]:
-            text += f"消息语言：{code(record['lang'])}\n"
+            text += f"{lang('message_lang')}{lang('colon')}{code(record['lang'])}\n"
+
+        if record["length"]:
+            text += f"{lang('message_len')}{lang('colon')}{code(record['length'])}\n"
 
         if record["freq"]:
-            text += f"消息频率：{code(record['freq'])}\n"
+            text += f"{lang('message_freq')}{lang('colon')}{code(record['freq'])}\n"
 
         if record["score"]:
-            text += f"用户得分：{code(record['score'])}\n"
+            text += f"{lang('user_score')}{lang('colon')}{code(record['score'])}\n"
 
         if record["bio"]:
-            text += f"用户简介：{code(record['bio'])}\n"
+            text += f"{lang('user_bio')}{lang('colon')}{code(record['bio'])}\n"
 
         if record["name"]:
-            text += f"用户昵称：{code(record['name'])}\n"
+            text += f"{lang('user_name')}{lang('colon')}{code(record['name'])}\n"
 
         if record["from"]:
-            text += f"来源名称：{code(record['from'])}\n"
+            text += f"{lang('from_name')}{lang('colon')}{code(record['from'])}\n"
 
         if record["more"]:
-            text += f"附加信息：{code(record['more'])}\n"
+            text += f"{lang('more')}{lang('colon')}{code(record['more'])}\n"
 
         result = edit_message_text(client, cid, mid, text)
     except Exception as e:
@@ -92,9 +98,11 @@ def exchange_to_hide(client: Client) -> bool:
             action_type="hide",
             data=True
         )
-        text = (f"项目编号：{code(glovar.sender)}\n"
-                f"发现状况：{code('数据交换频道失效')}\n"
-                f"自动处理：{code('启用 1 号协议')}\n")
+
+        # Send debug message
+        text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
+                f"{lang('issue')}{lang('colon')}{code(lang('exchange_invalid'))}\n"
+                f"{lang('auto_fix')}{lang('colon')}{code(lang('protocol_1'))}\n")
         thread(send_message, (client, glovar.critical_channel_id, text))
 
         return True
@@ -128,17 +136,18 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
     # Send the error record message
     result = None
     try:
-        # Get the right message
+        # Report text
+        text = (f"{lang('project_origin')}{lang('colon')}{code(project)}\n"
+                f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(glovar.names[action_text])}\n"
+                f"{lang('level_error')}{lang('colon')}{code(level)}\n")
+        if reason:
+            text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+        # Get the evidence message
         message = message.reply_to_message or message
 
-        # Attention: project admin can make a fake operator name, so keep showing the ID
-        text = (f"原始项目：{code(project)}\n"
-                f"项目管理员：{user_mention(aid)}\n"
-                f"执行操作：{code(glovar.names[action_text])}\n"
-                f"错误等级：{code(level)}\n")
-        if reason:
-            text += f"原因：{code(reason)}\n"
-
+        # Forward the message
         flood_wait = True
         while flood_wait:
             flood_wait = False
@@ -159,33 +168,28 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
     return result
 
 
-def send_debug(client: Client, aid: int, action_text: str, time_text: str = None,
-               id_text: Union[int, str] = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
+def send_debug(client: Client, aid: int, action_text: str, time_type: str = None, time_text: str = None,
+               the_id: int = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
-        # Attention: project admin can make a fake operator name, so keep showing the ID
-        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"项目管理员：{user_mention(aid)}\n"
-                f"执行操作：{code(action_text)}\n")
+        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(action_text)}\n")
 
-        if time_text:
-            text += f"操作时效：{code(time_text)}\n"
+        if time_type and time_text:
+            text += f"{lang(f'time_{time_type}')}{lang('colon')}{code(time_text)}\n"
 
-        if id_text:
-            id_text = str(id_text)
-            if "-100" not in id_text:
-                text += f"用户 ID：{code(id_text)}\n"
-            else:
-                text += f"频道 ID：{code(id_text)}\n"
+        if the_id:
+            text += f"{lang((lambda x: 'user_id' if x else 'channel_id')(the_id))}{lang('colon')}{code(the_id)}\n"
 
         if em:
-            text += f"原始记录：{general_link(em.message_id, message_link(em))}\n"
+            text += f"{lang('record_origin')}{lang('colon')}{general_link(em.message_id, message_link(em))}\n"
 
         if err_m:
-            text += f"错误存档：{general_link(err_m.message_id, message_link(err_m))}\n"
+            text += f"{lang('record_error')}{lang('colon')}{general_link(err_m.message_id, message_link(err_m))}\n"
 
         if reason:
-            text += f"原因：{code(reason)}\n"
+            text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
         thread(send_message, (client, glovar.debug_channel_id, text))
 

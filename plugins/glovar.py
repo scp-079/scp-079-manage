@@ -117,6 +117,48 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
 
+# Languages
+lang: Dict[str, str] = {
+    # Admin
+    "admin": (zh_cn and "管理员") or "Admin",
+    "admin_project": (zh_cn and "项目管理员") or "Project Admin",
+    # Basic
+    "colon": (zh_cn and "：") or ": ",
+    "reason": (zh_cn and "原因") or "Reason",
+    "action": (zh_cn and "执行操作") or "Action",
+    # Emergency
+    "issue": (zh_cn and "发现状况") or "Issue",
+    "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
+    "auto_fix": (zh_cn and "自动处理") or "Auto Fix",
+    "protocol_1": (zh_cn and "启动 1 号协议") or "Initiate Protocol 1",
+    "transfer_channel": (zh_cn and "频道转移") or "Transfer Channel",
+    "emergency_channel": (zh_cn and "应急频道") or "Emergency Channel",
+    # Manage
+    "level_error": (zh_cn and "错误等级") or "Error Level",
+    "time_content": (zh_cn and "内容收录") or "Content Record Time",
+    "time_except": (zh_cn and "内容例外") or "Content Whitelist Time",
+    "channel_id": (zh_cn and "频道 ID") or "Channel ID",
+    "record_origin": (zh_cn and "原始记录") or "Original Record",
+    "record_error": (zh_cn and "错误存档") or "Error Record",
+    # Record
+    "project": (zh_cn and "项目编号") or "Project",
+    "project_origin": (zh_cn and "原始项目") or "Original Project",
+    "status": (zh_cn and "状态") or "Status",
+    "user_id": (zh_cn and "用户 ID") or "User ID",
+    "level": (zh_cn and "操作等级") or "Level",
+    "rule": (zh_cn and "规则") or "Rule",
+    "message_type": (zh_cn and "消息类别") or "Message Type",
+    "message_game": (zh_cn and "游戏标识") or "Game Short Name",
+    "message_lang": (zh_cn and "消息语言") or "Message Language",
+    "message_len": (zh_cn and "消息长度") or "Message Length",
+    "message_freq": (zh_cn and "消息频率") or "Message Frequency",
+    "user_score": (zh_cn and "用户得分") or "User Score",
+    "user_bio": (zh_cn and "用户简介") or "User Bio",
+    "user_name": (zh_cn and "用户昵称") or "User Name",
+    "from_name": (zh_cn and "来源名称") or "Forward Name",
+    "more": (zh_cn and "附加信息") or "Extra Info",
+}
+
 # Init
 
 all_commands: List[str] = [
@@ -217,7 +259,7 @@ sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.7"
+version: str = "0.0.8"
 
 # Load data from pickle
 

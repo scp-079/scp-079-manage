@@ -168,6 +168,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
         if action_type:
             share_id(client, action_type, id_type, the_id, time_type, receiver)
 
+        # TODO action_text 在 action_names 中获取
         thread(edit_evidence, (client, message, record, action_text, reason))
         thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
 
