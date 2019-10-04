@@ -54,9 +54,11 @@ test_group_id: int = 0
 watch_channel_id: int = 0
 
 # [custom]
+backup: Union[str, bool] = ""
 project_link: str = ""
 project_name: str = ""
-reset_day: str = ""
+date_reset: str = ""
+zh_cn: Union[str, bool] = ""
 
 # [encrypt]
 key: Union[str, bytes] = ""
@@ -79,9 +81,13 @@ try:
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     watch_channel_id = int(config["channels"].get("watch_channel_id", watch_channel_id))
     # [custom]
+    backup = config["custom"].get("backup", backup)
+    backup = eval(backup)
+    date_reset = config["custom"].get("date_reset", date_reset)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
-    reset_day = config["custom"].get("reset_day", reset_day)
+    zh_cn = config["custom"].get("zh_cn", zh_cn)
+    zh_cn = eval(zh_cn)
     # [encrypt]
     key = config["encrypt"].get("key", key)
     key = key.encode("utf-8")
@@ -101,10 +107,12 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or manage_group_id == 0
         or test_group_id == 0
         or watch_channel_id == 0
+        or backup not in {False, True}
+        or date_reset in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
-        or reset_day in {"", "[DATA EXPUNGED]"}
-        or key in {b"", b"[DATA EXPUNGED]"}
+        or zh_cn not in {False, True}
+        or key in {b"", b"[DATA EXPUNGED]", "", "[DATA EXPUNGED]"}
         or password in {"", "[DATA EXPUNGED]"}):
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
