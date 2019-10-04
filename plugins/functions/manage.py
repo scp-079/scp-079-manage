@@ -22,7 +22,7 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_data, share_id
-from .etc import code, general_link, get_int, thread, user_mention
+from .etc import code, general_link, get_int, lang, thread, user_mention
 from .file import save
 from .group import delete_message
 from .telegram import edit_message_reply_markup, edit_message_text
@@ -32,33 +32,35 @@ from .user import remove_bad_user, remove_watch_user
 logger = logging.getLogger(__name__)
 
 
-def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None) -> bool:
+def action_answer(client: Client, action: str, uid: int, mid: int, key: str, reason: str = None) -> bool:
     # Answer the error ask
     try:
-        text = f"管理员：{user_mention(uid)}\n"
-        if glovar.actions.get(key, {}) and not glovar.actions[key].get("lock", True):
-            glovar.actions[key]["lock"] = True
-            glovar.actions_pure[key]["lock"] = True
-            action = glovar.actions[key]["action"]
-            text += f"执行操作：{code(glovar.names[action])}\n"
-            if action_type == "proceed":
-                thread(action_proceed, (client, key, reason))
-                status = "已处理"
-            elif action_type in {"delete", "redact", "recall"}:
-                thread(action_delete, (client, key, reason))
-                status = "已删除"
-            else:
-                status = "已取消"
+        # Check the data
+        if not glovar.actions.get(key, {}):
+            return True
 
-            text += f"状态：{code(status)}\n"
+        # Check the lock
+        if not glovar.actions[key]["lock"]:
+            # Lock the session
+            glovar.actions[key]["lock"] = True
+            glovar.records[key]["lock"] = True
+
+            # Proceed
+            if action == "proceed":
+                thread(action_proceed, (client, key, reason))
+            elif action in {"delete", "redact", "recall"}:
+                thread(action_delete, (client, key, reason))
+
+            # Edit the original report message
+            text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang(f'already_{action}'))}\n")
             thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
-            if glovar.actions_pure.get(key, {}):
-                glovar.actions_pure[key]["lock"] = True
-
+            glovar.records[key]["lock"] = True
             thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
 
-        save("actions_pure")
+        save("records")
 
         return True
     except Exception as e:
@@ -70,27 +72,55 @@ def action_answer(client: Client, action_type: str, uid: int, mid: int, key: str
 def action_delete(client: Client, key: str, reason: str = None) -> bool:
     # Delete the evidence message
     try:
-        aid = glovar.actions[key]["aid"]
+        # Basic data
         message = glovar.actions[key]["message"]
+        r_message = message.reply_to_message
         record = glovar.actions[key]["record"]
         action = glovar.actions[key]["action"]
-        if action == "recall":
-            delete_message(client, message.chat.id, message.message_id)
-            if message.reply_to_message:
-                delete_message(client, message.chat.id, message.reply_to_message.message_id)
 
-            send_debug(client, aid, glovar.names[action], None, None, message, None, reason)
-        elif message.reply_to_message and not message.reply_to_message.empty:
-            delete_message(client, message.chat.id, message.reply_to_message.message_id)
-            thread(edit_evidence, (client, message, record, "删除", reason))
-            send_debug(client, aid, "删除存档", None, record["uid"], message, None, reason)
-        else:
+        # ID
+        aid = glovar.actions[key]["aid"]
+        cid = message.chat.id
+        mid = message.message_id
+        rid = (r_message and r_message.message_id) or 0
+
+        # Proceed
+        if action == "delete":
+            # Delete the evidence
+            delete_message(client, cid, rid)
+            edit_evidence(
+                client=client,
+                message=message,
+                record=record,
+                status=lang("already_delete"),
+                reason=reason
+            )
+        elif action == "redact":
+            # Redact the report message
             for r in record:
                 if record[r] and r in {"bio", "name", "from", "more"}:
                     record[r] = int(len(record[r]) / 2 + 1) * "█"
 
-            thread(edit_evidence, (client, message, record, "清除", reason))
-            send_debug(client, aid, "清除信息", None, None, message, None, reason)
+            edit_evidence(
+                client=client,
+                message=message,
+                record=record,
+                status=lang("already_redact"),
+                reason=reason
+            )
+        elif action == "recall":
+            # Delete the error reports
+            delete_message(client, cid, mid)
+            delete_message(client, cid, rid)
+
+        # Send debug message
+        send_debug(
+            client=client,
+            aid=aid,
+            action=lang(f"action_{action}"),
+            em=message,
+            reason=reason
+        )
 
         return True
     except Exception as e:
@@ -102,14 +132,21 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
 def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     # Proceed the action
     try:
-        aid = glovar.actions[key]["aid"]
+        # Basic Data
         action = glovar.actions[key]["action"]
         message = glovar.actions[key]["message"]
+        r_message = message.reply_to_message
         record = glovar.actions[key]["record"]
+
+        # ID
+        aid = glovar.actions[key]["aid"]
+        cid = message.chat.id
+        mid = message.message_id
+
+        # Init
         action_type = ""
-        action_text = ""
         id_type = ""
-        the_id = message.message_id
+        status = lang(f"already_{action}")
         result = None
 
         # Define the receiver
@@ -119,58 +156,78 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             receiver = record["project"]
 
         # Choose proper time type
-        if message.reply_to_message and message.reply_to_message.sticker or record["type"] == "服务消息":
-            time_type = "long"
-            time_text = "长期"
+        if ((r_message and (r_message.animation or r_message.sticker))
+                or record["type"] in {lang("gam"), lang("ser")}):
+            the_type = "long"
         else:
-            time_type = "temp"
-            time_text = "临时"
+            the_type = "temp"
 
+        # Proceed
         if action == "error":
             action_type = "add"
             id_type = "except"
-
-            # Remove the bad user if possible
-            if "封禁" in record["level"] and record["level"] != "封禁追踪":
-                action_text = "解禁"
-                remove_bad_user(client, get_int(record["uid"]), aid)
-            elif record["level"] in {"封禁追踪", "删除追踪"}:
-                action_text = "解明"
+            if cid == glovar.watch_channel_id:
                 remove_watch_user(client, get_int(record["uid"]))
-            else:
-                action_text = "解明"
+            elif cid == glovar.logging_channel_id:
+                # Remove the bad user if possible
+                if lang("ban") in record["level"] and cid:
+                    status = lang("already_unban")
+                    remove_bad_user(client, get_int(record["uid"]), aid)
 
-            # Send messages to the error channel
-            result = send_error(client, message, receiver, aid, action, record["level"], reason)
+                # Send the message to the error channel
+                result = send_error(
+                    client=client,
+                    message=message,
+                    project=receiver,
+                    aid=aid,
+                    action=lang("action_error"),
+                    level=record["level"],
+                    reason=reason
+                )
         elif action == "bad":
             action_type = "add"
             id_type = "bad"
-            action_text = "收录"
             receiver = "NOSPAM"
-            time_type = "content"
-            time_text = "临时"
+            the_type = "content"
         elif action == "mole":
             action_type = "remove"
             id_type = "except"
-            action_text = "重置"
         elif action == "innocent":
             action_type = "remove"
             id_type = "bad"
-            action_text = "重置"
             receiver = "NOSPAM"
-            time_type = "content"
-            time_text = "临时"
+            the_type = "content"
         elif action in {"delete", "redact", "recall"}:
-            action_delete(client, key, reason)
-            return True
+            return action_delete(client, key, reason)
 
-        # Share report message's id
+        # Share the report message's id
         if action_type:
-            share_id(client, action_type, id_type, the_id, time_type, receiver)
+            share_id(
+                client=client,
+                action_type=action_type,
+                id_type=id_type,
+                the_id=mid,
+                the_type=the_type,
+                receiver=receiver
+            )
 
-        # TODO action_text 在 action_names 中获取
-        thread(edit_evidence, (client, message, record, action_text, reason))
-        thread(send_debug, (client, aid, action_text, time_text, record["uid"], message, result, reason))
+        edit_evidence(
+            client=client,
+            message=message,
+            record=record,
+            status=status,
+            reason=reason
+        )
+        send_debug(
+            client=client,
+            aid=aid,
+            action=lang(f"action_{action}"),
+            the_type=the_type,
+            the_id=record["uid"],
+            em=message,
+            err_m=result,
+            reason=reason
+        )
 
         return True
     except Exception as e:
@@ -179,30 +236,34 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     return False
 
 
-def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None):
+def leave_answer(client: Client, action: str, uid: int, mid: int, key: str, reason: str = None):
     # Answer leaving request
     try:
-        text = f"管理员：{user_mention(uid)}\n"
-        if action_type == "approve":
-            action_text = "批准请求"
-        else:
-            action_text = "取消请求"
+        # Check the data
+        if not glovar.records.get(key, {}):
+            return True
 
-        text += f"执行操作：{code(action_text)}\n"
         # Check lock
-        if glovar.leaves.get(key, {}) and not glovar.leaves[key]["lock"]:
-            glovar.leaves[key]["lock"] = True
-            project = glovar.leaves[key]["project"]
-            gid = glovar.leaves[key]["group_id"]
-            name = glovar.leaves[key]["group_name"]
-            link = glovar.leaves[key]["group_link"]
-            if not reason:
-                reason = glovar.leaves[key]["reason"]
+        if not glovar.records[key]["lock"]:
+            # Lock the session
+            glovar.records[key]["lock"] = True
 
-            text = (f"项目编号：{code(project)}\n"
-                    f"群组名称：{general_link(name, link)}\n"
-                    f"群组 ID：{code(gid)}\n")
-            if action_type == "approve":
+            # Basic data
+            project = glovar.records[key]["project"]
+            gid = glovar.records[key]["group_id"]
+            name = glovar.records[key]["group_name"]
+            link = glovar.records[key]["group_link"]
+            reason = reason or glovar.records[key]["reason"]
+
+            # Generate the report message's text
+            text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
+                    f"{lang('project')}{lang('colon')}{code(project)}\n"
+                    f"{lang('group_name')}{lang('colon')}{general_link(name, link)}\n"
+                    f"{lang('group_id')}{lang('colon')}{code(gid)}\n")
+
+            # Proceed
+            if action == "approve":
                 share_data(
                     client=client,
                     receivers=[project],
@@ -214,23 +275,20 @@ def leave_answer(client: Client, action_type: str, uid: int, mid: int, key: str,
                         "reason": reason
                     }
                 )
-                if reason == "permissions":
-                    reason = "权限缺失"
-                elif reason == "user":
-                    reason = "缺失 USER"
+                if reason in {"permissions", "user"}:
+                    reason = lang(f"reason_{reason}")
 
-                text += (f"状态：{code('已批准退出该群组')}\n"
-                         f"原因：{code(reason)}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('leave_approve'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang(reason))}\n")
             else:
-                text += f"状态：{code('已取消该退群请求')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('leave_reject'))}\n"
                 if reason not in {"permissions", "user"}:
-                    text += f"原因：{code(reason)}\n"
+                    text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
-            glovar.leaves.pop(key, {})
+            # Edit the original report message
+            thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
-            text += f"状态：{code('已失效')}\n"
-
-        thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
+            thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
 
         return True
     except Exception as e:

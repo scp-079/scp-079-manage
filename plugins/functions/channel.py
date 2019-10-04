@@ -32,7 +32,7 @@ from .telegram import edit_message_text, send_document, send_message
 logger = logging.getLogger(__name__)
 
 
-def edit_evidence(client: Client, message: Message, record: dict, action_text: str,
+def edit_evidence(client: Client, message: Message, record: dict, status: str,
                   reason: str = None) -> Optional[Union[bool, Message]]:
     # Edit the evidence's report message
     result = None
@@ -41,7 +41,7 @@ def edit_evidence(client: Client, message: Message, record: dict, action_text: s
         mid = message.message_id
         text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
                 f"{lang('project_origin')}{lang('colon')}{code(record['origin'] or record['project'])}\n"
-                f"{lang('status')}{lang('colon')}{code(action_text)}\n")
+                f"{lang('status')}{lang('colon')}{code(status)}\n")
 
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
@@ -131,7 +131,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
     return text
 
 
-def send_error(client: Client, message: Message, project: str, aid: int, action_text: str, level: str,
+def send_error(client: Client, message: Message, project: str, aid: int, action: str, level: str,
                reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
@@ -139,8 +139,9 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
         # Report text
         text = (f"{lang('project_origin')}{lang('colon')}{code(project)}\n"
                 f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(glovar.names[action_text])}\n"
+                f"{lang('action')}{lang('colon')}{code(action)}\n"
                 f"{lang('level_error')}{lang('colon')}{code(level)}\n")
+
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
@@ -168,16 +169,16 @@ def send_error(client: Client, message: Message, project: str, aid: int, action_
     return result
 
 
-def send_debug(client: Client, aid: int, action_text: str, time_type: str = None, time_text: str = None,
+def send_debug(client: Client, aid: int, action: str, the_type: str = None,
                the_id: int = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(action_text)}\n")
+                f"{lang('action')}{lang('colon')}{code(action)}\n")
 
-        if time_type and time_text:
-            text += f"{lang(f'time_{time_type}')}{lang('colon')}{code(time_text)}\n"
+        if the_type:
+            text += f"{lang(f'type_{the_type}')}{lang('colon')}{code(lang(f'time_{the_type}'))}\n"
 
         if the_id:
             text += f"{lang((lambda x: 'user_id' if x else 'channel_id')(the_id))}{lang('colon')}{code(the_id)}\n"

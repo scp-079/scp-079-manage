@@ -57,8 +57,8 @@ def interval_hour_01(client: Client) -> bool:
     try:
         # Clear old actions
         now = get_now()
-        for key in list(glovar.actions_pure):
-            action = glovar.actions_pure[key]
+        for key in list(glovar.records):
+            action = glovar.records[key]
             time = action["time"]
             if now - time > 3600:
                 mid = action["mid"]
@@ -67,7 +67,7 @@ def interval_hour_01(client: Client) -> bool:
                     thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
 
                 glovar.actions.pop(key, {})
-                glovar.actions_pure.pop(key, {})
+                glovar.records.pop(key, {})
 
         save("actions_pure")
 
@@ -96,7 +96,7 @@ def reset_data(client: Client) -> bool:
         }
         save("watch_ids")
 
-        glovar.actions_pure = {}
+        glovar.records = {}
         save("actions_pure")
 
         # Send debug message

@@ -133,14 +133,48 @@ lang: Dict[str, str] = {
     "protocol_1": (zh_cn and "启动 1 号协议") or "Initiate Protocol 1",
     "transfer_channel": (zh_cn and "频道转移") or "Transfer Channel",
     "emergency_channel": (zh_cn and "应急频道") or "Emergency Channel",
+    # Group
+    "group_id": (zh_cn and "群组 ID") or "Group ID",
+    "group_name": (zh_cn and "群组名称") or "Group Name",
+    "reason_permissions": (zh_cn and "权限缺失") or "Missing Permissions",
+    "reason_user": (zh_cn and "缺失 USER") or "Missing USER",
+    "leave_approve": (zh_cn and "已批准退出群组") or "Approved to Leave the Group",
+    "leave_reject": (zh_cn and "已拒绝退群请求") or "Rejected to Leave the Group",
+    "refresh": (zh_cn and "刷新群管列表") or "Refresh Admin Lists",
     # Manage
     "level_error": (zh_cn and "错误等级") or "Error Level",
-    "time_content": (zh_cn and "内容收录") or "Content Record Time",
-    "time_except": (zh_cn and "内容例外") or "Content Whitelist Time",
+    "type_content": (zh_cn and "内容收录") or "Contain the Content",
+    "time_content": (zh_cn and "短期") or "Short Term",
+    "type_long": (zh_cn and "内容例外") or "Whitelist the Content",
+    "time_long": (zh_cn and "长期") or "Long Term",
+    "type_temp": (zh_cn and "内容例外") or "Content Whitelist",
+    "time_temp": (zh_cn and "短期") or "Short Temp",
     "channel_id": (zh_cn and "频道 ID") or "Channel ID",
     "record_origin": (zh_cn and "原始记录") or "Original Record",
     "record_error": (zh_cn and "错误存档") or "Error Record",
-    "group_id": (zh_cn and "群组 ID") or "Group ID",
+    "already_proceed": (zh_cn and "已处理") or "Proceeded",
+    "already_delete": (zh_cn and "已删除") or "Deleted",
+    "already_redact": (zh_cn and "已清除") or "Redacted",
+    "already_recall": (zh_cn and "已撤回") or "Recalled",
+    "already_cancel": (zh_cn and "已取消") or "Cancelled",
+    "action_delete": (zh_cn and "删除存档") or "Delete Evidence",
+    "action_redact": (zh_cn and "清除信息") or "Redact Data",
+    "action_recall": (zh_cn and "撤回判误") or "Recall Error",
+    "already_error": (zh_cn and "已解明") or "Explained",
+    "already_bad": (zh_cn and "已收录") or "Contained",
+    "already_mole": (zh_cn and "已移除例外") or "Reset Whitelist",
+    "already_innocent": (zh_cn and "已移除收录") or "Reset Containment",
+    "ban": (zh_cn and "封禁") or "Ban",
+    "already_unban": (zh_cn and "已解禁") or "Unbanned",
+    "action_error": (zh_cn and "解除错误") or "Fix Error",
+    "action_bad": (zh_cn and "收录消息") or "Contain",
+    "action_mole": (zh_cn and "移除例外") or "Remove from Whitelist",
+    "action_innocent": (zh_cn and "取消收录") or "Breach",
+    "action_approve": (zh_cn and "批准请求") or "Approve Request",
+    "action_reject": (zh_cn and "拒绝请求") or "Reject Request",
+    # Message Types
+    "gam": (zh_cn and "游戏") or "Game",
+    "ser": (zh_cn and "服务消息") or "Service",
     # Record
     "project": (zh_cn and "项目编号") or "Project",
     "project_origin": (zh_cn and "原始项目") or "Original Project",
@@ -218,18 +252,6 @@ default_user_status: Dict[str, float] = {
     "recheck": 0.0,
     "warn": 0.0
 }
-
-leaves: Dict[str, Dict[str, Union[bool, int, str]]] = {}
-# leaves = {
-#     "random": {
-#         "lock": False,
-#         "project": "USER",
-#         "group_id": -10012345678,
-#         "group_name": "SCP-079-CHAT",
-#         "group_link": "https://t.me/SCP_079_CHAT",
-#         "reason": ""
-#     }
-# }
 
 names: Dict[str, str] = {
     "bad": "收录消息",
@@ -322,16 +344,27 @@ watch_ids: Dict[str, Dict[int, int]] = {
 
 # Init data variables
 
-actions_pure: Dict[str, Dict[str, Union[bool, int]]] = {}
-# actions = {
-#     "random": {
+records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
+# records = {
+#     "random_1": {
 #         "lock": False,
 #         "time": 15112345678,
 #         "mid": 123
+#     },
+#     "random_2": {
+#         "lock": False,
+#         "time": 15112345678,
+#         "mid": 124,
+#         "project": "USER",
+#         "group_id": -10012345678,
+#         "group_name": "SCP-079-CHAT",
+#         "group_link": "https://t.me/SCP_079_CHAT",
+#         "reason": ""
+#     }
 # }
 
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "actions_pure"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "records"]
 for file in file_list:
     try:
         try:
