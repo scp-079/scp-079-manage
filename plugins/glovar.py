@@ -140,6 +140,7 @@ lang: Dict[str, str] = {
     "channel_id": (zh_cn and "频道 ID") or "Channel ID",
     "record_origin": (zh_cn and "原始记录") or "Original Record",
     "record_error": (zh_cn and "错误存档") or "Error Record",
+    "group_id": (zh_cn and "群组 ID") or "Group ID",
     # Record
     "project": (zh_cn and "项目编号") or "Project",
     "project_origin": (zh_cn and "原始项目") or "Original Project",

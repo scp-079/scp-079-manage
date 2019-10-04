@@ -122,10 +122,12 @@ def get_admin(message: Message) -> int:
     result = 0
     try:
         text = get_text(message)
-        if text:
-            first_line_list = text.split("\n")[0].split("：")
-            if "管理" in first_line_list[0]:
-                result = get_int(first_line_list[-1])
+        if not text.strip():
+            return 0
+
+        first_line_list = text.split("\n")[0].split(lang("colon"))
+        if lang("admin") in first_line_list[0]:
+            result = get_int(first_line_list[-1])
     except Exception as e:
         logger.warning(f"Get admin error: {e}", exc_info=True)
 
@@ -238,7 +240,9 @@ def get_report_record(message: Message) -> Dict[str, str]:
         "level": "",
         "rule": "",
         "type": "",
+        "game": "",
         "lang": "",
+        "length": "",
         "freq": "",
         "score": "",
         "bio": "",
@@ -250,38 +254,42 @@ def get_report_record(message: Message) -> Dict[str, str]:
     try:
         record_list = message.text.split("\n")
         for r in record_list:
-            if re.search("^项目编号：", r):
+            if re.search(f"^{lang('project')}{lang('colon')}", r):
                 record_type = "project"
-            elif re.search("^原始项目：", r):
+            elif re.search(f"^{lang('project_origin')}{lang('colon')}", r):
                 record_type = "origin"
-            elif re.search("^状态：", r):
+            elif re.search(f"^{lang('status')}{lang('colon')}", r):
                 record_type = "status"
-            elif re.search("^用户 ID：", r):
+            elif re.search(f"^{lang('user_id')}{lang('colon')}", r):
                 record_type = "uid"
-            elif re.search("^操作等级：", r):
+            elif re.search(f"^{lang('level')}{lang('colon')}", r):
                 record_type = "level"
-            elif re.search("^规则：", r):
+            elif re.search(f"^{lang('rule')}{lang('colon')}", r):
                 record_type = "rule"
-            elif re.search("^消息类别", r):
+            elif re.search(f"^{lang('message_type')}{lang('colon')}", r):
                 record_type = "type"
-            elif re.search("^消息语言", r):
+            elif re.search(f"^{lang('message_game')}{lang('colon')}", r):
+                record_type = "game"
+            elif re.search(f"^{lang('message_lang')}{lang('colon')}", r):
                 record_type = "lang"
-            elif re.search("^消息频率", r):
+            elif re.search(f"^{lang('message_len')}{lang('colon')}", r):
+                record_type = "length"
+            elif re.search(f"^{lang('message_freq')}{lang('colon')}", r):
                 record_type = "freq"
-            elif re.search("^用户得分", r):
+            elif re.search(f"^{lang('user_score')}{lang('colon')}", r):
                 record_type = "score"
-            elif re.search("^用户简介", r):
+            elif re.search(f"^{lang('user_bio')}{lang('colon')}", r):
                 record_type = "bio"
-            elif re.search("^用户昵称", r):
+            elif re.search(f"^{lang('user_name')}{lang('colon')}", r):
                 record_type = "name"
-            elif re.search("^来源名称", r):
+            elif re.search(f"^{lang('from_name')}{lang('colon')}", r):
                 record_type = "from"
-            elif re.search("^附加信息", r):
+            elif re.search(f"^{lang('more')}{lang('colon')}", r):
                 record_type = "more"
             else:
                 record_type = "unknown"
 
-            record[record_type] = r.split("：")[-1]
+            record[record_type] = r.split(f"{lang('colon')}")[-1]
     except Exception as e:
         logger.warning(f"Get report record error: {e}", exc_info=True)
 
@@ -311,19 +319,18 @@ def get_subject(message: Message) -> (str, str, bool):
                 from_check = True
 
             text = get_text(message.reply_to_message)
-            if text:
-                if re.search("^(用户|频道|群组) ID：", text, re.M):
-                    text_list = text.split("\n")
-                    for text_unit in text_list:
-                        if re.search("^(用户|频道|群组) ID：", text_unit):
-                            # If the message from debug channel does not include valid object ID
-                            if (re.search("^群组 ID：", text_unit)
-                                    and (re.search("^(用户|频道) ID：", text, re.M)
-                                         or message.forward_from_chat)):
-                                continue
-                            else:
-                                id_text = text_unit.split("：")[1]
-                                return id_text, reason, from_check
+            if re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", text, re.M):
+                text_list = text.split("\n")
+                for t in text_list:
+                    if re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", t):
+                        # Get the right object ID
+                        if (re.search(f"^{lang('group_id')}{lang('colon')}", t)
+                                and (re.search(f"^({lang('user_id')}|{lang('group_id')}){lang('colon')}", text, re.M)
+                                     or message.forward_from_chat)):
+                            continue
+                        else:
+                            id_text = t.split(lang("colon"))[1]
+                            return id_text, reason, from_check
     except Exception as e:
         logger.warning(f"Get subject error: {e}", exc_info=True)
 
