@@ -319,9 +319,12 @@ def get_subject(message: Message) -> (str, str, bool):
                 from_check = True
 
             text = get_text(message.reply_to_message)
+            # Check if the message includes object ID
             if re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", text, re.M):
                 text_list = text.split("\n")
+                # Check line by line
                 for t in text_list:
+                    # Check if the line includes object ID
                     if re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", t):
                         # Get the right object ID
                         if (re.search(f"^{lang('group_id')}{lang('colon')}", t)
