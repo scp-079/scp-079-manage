@@ -206,7 +206,7 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
+@Client.on_message(Filters.incoming & Filters.channel & exchange_channel & ~Filters.forwarded
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel

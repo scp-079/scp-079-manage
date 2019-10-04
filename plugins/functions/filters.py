@@ -37,6 +37,10 @@ def is_exchange_channel(_, message: Message) -> bool:
                     return True
             elif cid == glovar.exchange_channel_id:
                 return True
+
+        if message.forward_from_chat:
+            if message.forward_from_chat.id == glovar.exchange_channel_id:
+                return True
     except Exception as e:
         logger.warning(f"Is exchange channel error: {e}", exc_info=True)
 

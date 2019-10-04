@@ -126,6 +126,10 @@ lang: Dict[str, str] = {
     "colon": (zh_cn and "：") or ": ",
     "reason": (zh_cn and "原因") or "Reason",
     "action": (zh_cn and "执行操作") or "Action",
+    "clear": (zh_cn and "清空数据") or "Clear Data",
+    "rollback": (zh_cn and "数据回滚") or "Rollback",
+    "reset": (zh_cn and "重置数据") or "Reset Data",
+    "version": (zh_cn and "版本") or "Version",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
     "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
@@ -139,7 +143,6 @@ lang: Dict[str, str] = {
     "reason_permissions": (zh_cn and "权限缺失") or "Missing Permissions",
     "reason_user": (zh_cn and "缺失 USER") or "Missing USER",
     "leave_approve": (zh_cn and "已批准退出群组") or "Approved to Leave the Group",
-    "leave_reject": (zh_cn and "已拒绝退群请求") or "Rejected to Leave the Group",
     "refresh": (zh_cn and "刷新群管列表") or "Refresh Admin Lists",
     # Manage
     "level_error": (zh_cn and "错误等级") or "Error Level",
@@ -172,6 +175,12 @@ lang: Dict[str, str] = {
     "action_innocent": (zh_cn and "取消收录") or "Breach",
     "action_approve": (zh_cn and "批准请求") or "Approve Request",
     "action_reject": (zh_cn and "拒绝请求") or "Reject Request",
+    "leave_reject": (zh_cn and "已拒绝退群请求") or "Rejected to Leave the Group",
+    "leave_auto": (zh_cn and "已自动退出群组") or "Leave the Group Automatically",
+    "leave_request": (zh_cn and "请求退出该群组") or "Request to Leave the Group",
+    "approve": (zh_cn and "批准") or "Approve",
+    "cancel": (zh_cn and "取消") or "Cancel",
+    "status_request": (zh_cn and "查询状态") or "Request the Status",
     # Message Types
     "gam": (zh_cn and "游戏") or "Game",
     "ser": (zh_cn and "服务消息") or "Service",
@@ -282,7 +291,7 @@ sender: str = "MANAGE"
 
 should_hide: bool = False
 
-version: str = "0.0.8"
+version: str = "0.0.9"
 
 # Load data from pickle
 
