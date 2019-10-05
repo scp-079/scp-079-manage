@@ -121,7 +121,8 @@ def check_subject(client: Client, message: Message) -> bool:
         glovar.records[key] = {
             "lock": True,
             "time": now,
-            "mid": 0
+            "mid": 0,
+            "the_id": the_id
         }
 
         if the_id > 0:
@@ -142,12 +143,12 @@ def check_subject(client: Client, message: Message) -> bool:
                     text += (f"{italic(project.upper())}    "
                              f"{code(f'{project_score:.1f}')}\n")
 
-            bad_data = button_data("check", "bad", the_id)
-            score_data = button_data("check", "score", the_id)
-            watch_data = button_data("check", "watch", the_id)
-            cancel_data = button_data("check", "cancel", the_id)
             if is_bad or total_score or is_watch_ban or is_watch_delete:
                 glovar.records[key]["lock"] = False
+                bad_data = button_data("check", "bad", key)
+                score_data = button_data("check", "score", key)
+                watch_data = button_data("check", "watch", key)
+                cancel_data = button_data("check", "cancel", key)
                 markup_list = [
                     [],
                     [
@@ -195,9 +196,9 @@ def check_subject(client: Client, message: Message) -> bool:
 
             text += (f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
                      f"{lang('whitelist')}{lang('colon')}{code(is_except)}\n")
-            bad_data = button_data("check", "bad", the_id)
-            except_data = button_data("check", "except", the_id)
-            cancel_data = button_data("check", "cancel", the_id)
+            bad_data = button_data("check", "bad", key)
+            except_data = button_data("check", "except", key)
+            cancel_data = button_data("check", "cancel", key)
             bad_text = lang(f"blacklist_{(lambda x: 'add' if x else 'remove')(is_bad)}")
             except_text = lang(f"whitelist_{(lambda x : 'add' if x else 'remove')(is_except)}")
             markup_list = [

@@ -21,12 +21,10 @@ from json import loads
 
 from pyrogram import Client, CallbackQuery
 
-from .. import glovar
-from ..functions.etc import get_admin, thread, user_mention
+from ..functions.etc import get_admin, thread
 from ..functions.filters import manage_group
-from ..functions.manage import action_answer, leave_answer
-from ..functions.telegram import answer_callback, edit_message_text, edit_message_reply_markup
-from ..functions.user import add_channel, remove_bad_user, remove_channel, remove_score, remove_watch_user
+from ..functions.manage import answer_action, answer_check, answer_leave
+from ..functions.telegram import answer_callback
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -37,49 +35,22 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
         # Basic callback data
-        cid = callback_query.message.chat.id
         uid = callback_query.from_user.id
         aid = get_admin(callback_query.message)
         mid = callback_query.message.message_id
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
         action_type = callback_data["t"]
-        data = callback_data["d"]
+        key = callback_data["d"]
         # Check permission
         if uid == aid or not aid:
             # Answer
             if action in {"error", "bad", "mole", "innocent", "delete", "redact", "recall"}:
-                key = data
-                thread(action_answer, (client, action_type, uid, mid, key))
+                thread(answer_action, (client, action_type, uid, mid, key))
             elif action == "check":
-                the_id = data
-                text = ""
-                if action_type == "cancel":
-                    thread(edit_message_reply_markup, (client, cid, mid, None))
-                elif action_type == "score":
-                    text = remove_score(client, the_id, uid)
-                elif action_type == "watch":
-                    text = remove_watch_user(client, the_id, True, uid)
-                else:
-                    # Modify channel lists
-                    if the_id < 0:
-                        if the_id not in eval(f"glovar.{action_type}_ids")["channels"]:
-                            text = add_channel(client, action_type, the_id, uid)
-                        else:
-                            text = remove_channel(client, action_type, the_id, uid)
-                    # Remove bad user
-                    elif action_type == "bad":
-                        if the_id in glovar.bad_ids["users"]:
-                            text = remove_bad_user(client, the_id, uid, True)
-
-                if text:
-                    text = f"管理：{user_mention(uid)}\n" + text
-                    thread(edit_message_text, (client, cid, mid, text))
-            elif action == "join":
-                pass
+                thread(answer_check, (client, action_type, uid, mid, key))
             elif action == "leave":
-                key = data
-                thread(leave_answer, (client, action_type, uid, mid, key))
+                thread(answer_leave, (client, action_type, uid, mid, key))
 
             thread(answer_callback, (client, callback_query.id, ""))
 

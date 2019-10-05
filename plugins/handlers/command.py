@@ -25,7 +25,7 @@ from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
 from ..functions.etc import get_command_type, get_int, get_subject, message_link, thread, user_mention
 from ..functions.filters import from_user, manage_group, test_group
-from ..functions.manage import action_answer, leave_answer
+from ..functions.manage import answer_action, answer_leave
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import add_channel, check_subject
 from ..functions.user import remove_bad_user, remove_channel, remove_score, remove_watch_user
@@ -53,7 +53,7 @@ def action(client: Client, message: Message) -> bool:
                     if r_message.from_user.is_self and callback_data_list:
                         r_mid = r_message.message_id
                         action_key = callback_data_list[0]["d"]
-                        thread(action_answer, (client, command_type, uid, r_mid, action_key, reason))
+                        thread(answer_action, (client, command_type, uid, r_mid, action_key, reason))
                         text += (f"状态：{code('已操作')}\n"
                                  f"查看：{general_link(r_mid, message_link(r_message))}\n")
                     else:
@@ -157,7 +157,7 @@ def leave(client: Client, message: Message) -> bool:
                 if r_message.from_user.is_self and callback_data_list:
                     r_mid = r_message.message_id
                     action_key = callback_data_list[0]["d"]
-                    thread(leave_answer, (client, command_type, uid, r_mid, action_key, reason))
+                    thread(answer_leave, (client, command_type, uid, r_mid, action_key, reason))
                     text += (f"状态：{code('已操作')}\n"
                              f"查看：{general_link(r_mid, message_link(r_message))}\n")
                 else:
