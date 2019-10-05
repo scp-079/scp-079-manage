@@ -106,16 +106,15 @@ def hide(client: Client, message: Message) -> bool:
         cid = message.chat.id
         mid = message.message_id
         uid = message.from_user.id
-        text = (f"管理：{user_mention(uid)}\n"
-                f"操作：{code('频道转移')}\n")
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n")
         command_type = get_command_type(message)
         if command_type and command_type in {"off", "on"}:
-            if command_type == "off":
-                data = False
-            else:
-                data = True
-
+            # Local
+            data = (lambda x: True if x == "on" else False)(command_type)
             glovar.should_hide = data
+
+            # Share the command
             share_data(
                 client=client,
                 receivers=["EMERGENCY"],
@@ -123,19 +122,23 @@ def hide(client: Client, message: Message) -> bool:
                 action_type="hide",
                 data=data
             )
-            text += (f"应急：{code((lambda d: '启用' if d else '禁用')(data))}\n"
-                     f"状态：{code('已下达指令')}\n")
 
-            # Send debug
-            debug_text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                          f"项目管理员：{user_mention(uid)}\n"
-                          f"执行操作：{code('频道转移')}\n"
-                          f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
+            # Generate the report message's text
+            data_text = (lambda x: lang("enabled") if x else lang("disabled"))(data)
+            text += (f"{lang('emergency_channel')}{lang('colon')}{code(data_text)}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
+
+            # Send debug message
+            debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                          f"{lang('admin_project')}{lang('colon')}{user_mention(uid)}\n"
+                          f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n"
+                          f"{lang('emergency_channel')}{lang('colon')}{code(data_text)}\n")
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
         else:
-            text += (f"状态：{code('未下达指令')}\n"
-                     f"原因：{code('格式有误')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
+        # Send the report message
         thread(send_message, (client, cid, text, mid))
 
         return True
