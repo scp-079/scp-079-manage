@@ -265,6 +265,7 @@ all_commands: List[str] = [
     "clear_bad_channels",
     "clear_bad_users",
     "clear_bad_contents",
+    "clear_bad_contacts",
     "clear_except_channels",
     "clear_except_temp",
     "clear_except_long",
