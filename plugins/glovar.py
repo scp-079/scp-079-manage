@@ -141,6 +141,8 @@ lang: Dict[str, str] = {
     "command_reply": (zh_cn and "来源有误") or "Reply to Message Error",
     "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
     "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
+    # Config
+    "config_show": (zh_cn and "查看设置") or "Show Config",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
     "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
@@ -274,9 +276,11 @@ all_commands: List[str] = [
     "clear_watch_all",
     "clear_watch_ban",
     "clear_watch_delete"
+    "config",
     "hide",
     "join",
     "leave",
+    "list",
     "now",
     "refresh",
     "remove_bad",
@@ -342,6 +346,7 @@ names: Dict[str, str] = {
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
             "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],
+    "config": ["CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
     "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
     "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG",
               "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
@@ -349,7 +354,7 @@ receivers: Dict[str, List[str]] = {
                 "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
               "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK"],
-    "status": ["NOSPAM", "USER", "WATCH"],
+    "status": ["NOSPAM", "REGEX", "USER", "WATCH"],
     "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
               "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"]
 }

@@ -42,8 +42,8 @@ def action(client: Client, message: Message) -> bool:
     try:
         # Basic data
         cid = message.chat.id
-        mid = message.message_id
         uid = message.from_user.id
+        mid = message.message_id
 
         # Generate the report message's text
         text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
@@ -117,8 +117,8 @@ def clear(client: Client, message: Message) -> bool:
     try:
         # Basic data
         cid = message.chat.id
-        mid = message.message_id
         aid = message.from_user.id
+        mid = message.message_id
         command = message.command[0]
         data_type = command.split("_")[0]
         the_type = command.split("_")[1]
@@ -185,14 +185,58 @@ def clear(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["config"], glovar.prefix))
+def config(client: Client, message: Message) -> bool:
+    # Let other bots show config of a group
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        receiver, id_text = get_command_context(message)
+        gid = get_int(id_text)
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('config_show')}\n")
+
+        # Proceed
+        if receiver in glovar.receivers["config"] and id_text < 0:
+            share_data(
+                client=client,
+                receivers=[receiver],
+                action="config",
+                action_type="show",
+                data={
+                    "admin_id": aid,
+                    "message_id": mid,
+                    "group_id": gid
+                }
+            )
+            text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+        else:
+            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                     f"{lang('reason')}{lang('colon')}{lang('command_usage')}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Config error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["hide"], glovar.prefix))
 def hide(client: Client, message: Message) -> bool:
     # Let bots hide
     try:
         cid = message.chat.id
+        aid = message.from_user.id
         mid = message.message_id
-        uid = message.from_user.id
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n")
         command_type = get_command_type(message)
         if command_type and command_type in {"off", "on"}:
@@ -216,7 +260,7 @@ def hide(client: Client, message: Message) -> bool:
 
             # Send debug message
             debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                          f"{lang('admin_project')}{lang('colon')}{user_mention(uid)}\n"
+                          f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
                           f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n"
                           f"{lang('emergency_channel')}{lang('colon')}{code(data_text)}\n")
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
@@ -241,11 +285,11 @@ def leave(client: Client, message: Message) -> bool:
     try:
         # Basic data
         cid = message.chat.id
-        uid = message.from_user.id
+        aid = message.from_user.id
         mid = message.message_id
 
         # Generate the report message's text
-        text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+        text = f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
 
         # Proceed
         if message.reply_to_message:
@@ -257,7 +301,7 @@ def leave(client: Client, message: Message) -> bool:
                 if r_message.from_user.is_self and callback_data_list:
                     r_mid = r_message.message_id
                     action_key = callback_data_list[0]["d"]
-                    thread(answer_leave, (client, action_type, uid, r_mid, action_key, reason))
+                    thread(answer_leave, (client, action_type, aid, r_mid, action_key, reason))
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
                              f"{lang('see')}{lang('colon')}{general_link(r_mid, message_link(r_message))}\n")
                 else:
@@ -278,7 +322,7 @@ def leave(client: Client, message: Message) -> bool:
                         action="leave",
                         action_type="approve",
                         data={
-                            "admin_id": uid,
+                            "admin_id": aid,
                             "group_id": the_id,
                             "reason": reason
                         }
@@ -382,9 +426,9 @@ def refresh(client: Client, message: Message) -> bool:
     # Refresh admins
     try:
         cid = message.chat.id
+        aid = message.from_user.id
         mid = message.message_id
-        uid = message.from_user.id
-        text = (f"管理：{user_mention(uid)}\n"
+        text = (f"管理：{user_mention(aid)}\n"
                 f"操作：{code('刷新群管列表')}\n")
         command_type = get_command_type(message)
         project_list = ["all"] + [p.lower() for p in glovar.receivers["refresh"]]
@@ -399,7 +443,7 @@ def refresh(client: Client, message: Message) -> bool:
                 receivers=receivers,
                 action="update",
                 action_type="refresh",
-                data=uid
+                data=aid
             )
             text += (f"项目：{code((lambda t: t.upper() if t != 'all' else '全部')(command_type))}\n"
                      f"状态：{code('已请求')}\n")
