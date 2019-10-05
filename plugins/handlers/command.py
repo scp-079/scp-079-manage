@@ -153,35 +153,39 @@ def hide(client: Client, message: Message) -> bool:
 def leave(client: Client, message: Message) -> bool:
     # Let other bots leave a group
     try:
+        # Basic data
         cid = message.chat.id
         uid = message.from_user.id
         mid = message.message_id
-        text = f"管理：{user_mention(uid)}\n"
+
+        # Generate the report message's text
+        text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+
+        # Proceed
         if message.reply_to_message:
-            text += f"操作：{code('处理退群请求')}\n"
-            command_type, reason = get_command_context(message)
-            if command_type and command_type in {"approve", "cancel"}:
+            text += f"{lang('action')}{lang('colon')}{code(lang('leave_handle'))}\n"
+            action_type, reason = get_command_context(message)
+            if action_type and action_type in {"approve", "cancel"}:
                 r_message = message.reply_to_message
                 callback_data_list = get_callback_data(r_message)
                 if r_message.from_user.is_self and callback_data_list:
                     r_mid = r_message.message_id
                     action_key = callback_data_list[0]["d"]
-                    thread(answer_leave, (client, command_type, uid, r_mid, action_key, reason))
-                    text += (f"状态：{code('已操作')}\n"
-                             f"查看：{general_link(r_mid, message_link(r_message))}\n")
+                    thread(answer_leave, (client, action_type, uid, r_mid, action_key, reason))
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                             f"{lang('see')}{lang('colon')}{general_link(r_mid, message_link(r_message))}\n")
                 else:
-                    text += (f"状态：{code('未操作')}\n"
-                             f"原因：{code('来源有误')}\n")
+                    text += (f"{lang('status')}{lang('colon')}{code('status_failed')}\n"
+                             f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
             else:
-                text += (f"状态：{code('未操作')}\n"
-                         f"原因：{code('格式有误')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
         else:
-            text += f"操作：{code('主动退群')}\n"
+            text += f"{lang('action')}{lang('colon')}{code(lang('leave_manual'))}\n"
             id_text, reason, _ = get_subject(message)
             if id_text:
-                text += f"群组 ID：{code(id_text)}\n"
                 the_id = get_int(id_text)
-                if the_id:
+                if the_id < 0:
                     share_data(
                         client=client,
                         receivers=glovar.receivers["leave"],
@@ -193,12 +197,16 @@ def leave(client: Client, message: Message) -> bool:
                             "reason": reason
                         }
                     )
-                    text += f"状态：{code('已通知所有机器人退出该群组')}\n"
+                    text += (f"{lang('group_id')}{lang('colon')}{code(the_id)}\n"
+                             f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n")
                 else:
-                    text += f"结果：{code('输入有误')}\n"
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                             f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
             else:
-                text += f"结果：{code('缺少参数')}\n"
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
+        # Send the report message
         thread(send_message, (client, cid, text, mid))
 
         return True

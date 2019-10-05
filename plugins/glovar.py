@@ -135,6 +135,8 @@ lang: Dict[str, str] = {
     "status_succeed": (zh_cn and "成功执行") or "Succeed",
     "version": (zh_cn and "版本") or "Version",
     # Command
+    "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
+    "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
     "command_permission": (zh_cn and "权限有误") or "Permission Error",
     "command_reply": (zh_cn and "来源有误") or "Reply to Message Error",
     "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
@@ -192,6 +194,8 @@ lang: Dict[str, str] = {
     "leave_auto": (zh_cn and "已自动退出群组") or "Leave the Group Automatically",
     "leave_reject": (zh_cn and "已拒绝退群请求") or "Rejected to Leave the Group",
     "leave_request": (zh_cn and "请求退出该群组") or "Request to Leave the Group",
+    "leave_handle": (zh_cn and "处理退群请求") or "Deal with the Leave Request",
+    "leave_manual": (zh_cn and "手动退群") or "Leave Manually",
 
     "time_content": (zh_cn and "短期") or "Short Term",
     "time_long": (zh_cn and "长期") or "Long Term",
@@ -204,6 +208,8 @@ lang: Dict[str, str] = {
     "record_origin": (zh_cn and "原始记录") or "Original Record",
 
     "status_request": (zh_cn and "查询状态") or "Request the Status",
+    "status_commanded": (zh_cn and "已下达指令") or "Commanded",
+    "status_requested": (zh_cn and "已发出请求") or "Requested",
 
     "add_bad": (zh_cn and "添加频道黑名单") or "Add Bad Channel",
     "add_except": (zh_cn and "添加频道白名单") or "Add Whitelist Channel",
