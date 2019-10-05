@@ -22,9 +22,9 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import send_debug, share_data
-from .etc import button_data, code, get_int, get_now, get_subject, italic, user_mention
+from .etc import button_data, code, get_int, get_now, get_subject, italic, lang, random_str, thread, user_mention
 from .file import save
-from .telegram import get_chat, resolve_username
+from .telegram import get_chat, resolve_username, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -35,26 +35,18 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
     # Add channel
     result = ""
     try:
-        if the_type == "bad":
-            action_text = "添加频道黑名单"
-        else:
-            action_text = "添加频道白名单"
-
-        result += (f"执行操作：{code(action_text)}\n"
-                   f"频道 ID：{code(the_id)}\n")
+        opposite = {
+            "bad": "except",
+            "except": "bad"
+        }
+        result += (f"{lang('action')}{lang('colon')}{code(lang(f'add_{the_type}'))}\n"
+                   f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
         if the_id not in eval(f"glovar.{the_type}_ids")["channels"] or force:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].add(the_id)
             save(f"{the_type}_ids")
-
-            if the_type == "bad":
-                if the_id in glovar.except_ids["channels"]:
-                    glovar.except_ids["channels"].discard(the_id)
-                    save("except_ids")
-            else:
-                if the_id in glovar.except_ids["channels"]:
-                    glovar.bad_ids["channels"].discard(the_id)
-                    save("bad_ids")
+            eval(f"glovar.{opposite[the_type]}_ids")["channels"].discard(the_id)
+            save(f"{opposite[the_type]}_ids")
 
             # Share
             share_data(
@@ -67,28 +59,39 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
                     "type": "channel"
                 }
             )
-            result += f"结果：{code('操作成功')}\n"
-            send_debug(client, aid, action_text, None, the_id, None, None, reason)
-        else:
-            if the_type == "bad":
-                reason = "频道已在黑名单中"
-            else:
-                reason = "频道已在白名单中"
 
-            result += (f"结果：{code('未操作')}\n"
-                       f"原因：{code(reason)}\n")
+            # Send debug message
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            send_debug(
+                client=client,
+                aid=aid,
+                action=lang(f"add_{the_type}"),
+                the_id=the_id,
+                reason=reason
+            )
+        else:
+            result += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                       f"{lang('reason')}{lang('colon')}{code(lang(f'in_{the_type}'))}\n")
     except Exception as e:
         logger.warning(f"Add channel error: {e}", exc_info=True)
 
     return result
 
 
-def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarkup):
+def check_subject(client: Client, message: Message) -> bool:
     # Check the subject's status
-    text = ""
-    markup = None
     try:
+        # Init
+        text = ""
+        markup = None
+        now = get_now()
+
+        # Basic Data
         aid = message.from_user.id
+        cid = message.chat.id
+        mid = message.message_id
+
+        # Get the subject's ID
         the_id = 0
         id_text, _, _ = get_subject(message)
         if id_text:
@@ -100,117 +103,132 @@ def check_subject(client: Client, message: Message) -> (str, InlineKeyboardMarku
         elif message.forward_from_chat:
             the_id = message.forward_from_chat.id
 
-        if the_id:
-            if the_id > 0:
-                now = get_now()
-                is_bad = the_id in glovar.bad_ids["users"]
-                is_watch_ban = glovar.watch_ids["ban"].get(the_id, 0) > now
-                is_watch_delete = glovar.watch_ids["delete"].get(the_id, 0) > now
-                text = (f"管理员：{user_mention(aid)}\n"
-                        f"用户 ID：{code(the_id)}\n"
-                        f"黑名单：{code(is_bad)}\n"
-                        f"封禁追踪：{code(is_watch_ban)}\n"
-                        f"删除追踪：{code(is_watch_delete)}\n")
-                total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
-                text += f"总分：{code(f'{total_score:.1f}')}\n\n"
-                for project in glovar.default_user_status:
-                    project_score = glovar.user_ids.get(the_id, glovar.default_user_status)[project]
-                    if project_score:
-                        text += "\t" * 4
-                        text += (f"{italic(project.upper())}    "
-                                 f"{code(f'{project_score:.1f}')}\n")
+        # No Valid ID
+        if not the_id:
+            if not message.forward_date:
+                text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                        f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
-                bad_data = button_data("check", "bad", the_id)
-                score_data = button_data("check", "score", the_id)
-                watch_data = button_data("check", "watch", the_id)
-                cancel_data = button_data("check", "cancel", the_id)
-                if is_bad or total_score or is_watch_ban or is_watch_delete:
-                    markup_list = [
-                        [],
-                        [
-                            InlineKeyboardButton(
-                                text="取消",
-                                callback_data=cancel_data
-                            )
-                        ]
-                    ]
-                    if is_bad:
-                        markup_list[0].append(
-                            InlineKeyboardButton(
-                                text="解禁用户",
-                                callback_data=bad_data
-                            )
-                        )
+            thread(send_message, (client, cid, text, mid, markup))
+            return True
 
-                    if total_score:
-                        markup_list[0].append(
-                            InlineKeyboardButton(
-                                text="清空评分",
-                                callback_data=score_data
-                            )
-                        )
+        # Check
+        key = random_str(8)
+        while glovar.records.get(key):
+            key = random_str(8)
 
-                    if is_watch_delete or is_watch_ban:
-                        markup_list[0].append(
-                            InlineKeyboardButton(
-                                text="移除追踪",
-                                callback_data=watch_data
-                            )
-                        )
+        glovar.records[key] = {
+            "lock": True,
+            "time": now,
+            "mid": 0
+        }
 
-                    markup = InlineKeyboardMarkup(markup_list)
-            else:
-                is_bad = the_id in glovar.bad_ids["channels"]
-                is_except = the_id in glovar.except_ids["channels"]
-                text = (f"管理员：{user_mention(aid)}\n"
-                        f"频道 ID：{code(the_id)}\n")
-                if str(the_id) != id_text:
-                    chat = get_chat(client, id_text)
-                    if chat:
-                        text += f"受限频道：{code(bool(chat.restrictions))}\n"
+        if the_id > 0:
+            is_bad = the_id in glovar.bad_ids["users"]
+            is_watch_ban = now < glovar.watch_ids["ban"].get(the_id, 0)
+            is_watch_delete = now < glovar.watch_ids["delete"].get(the_id, 0)
+            total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
+            text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                    f"{lang('user_id')}{lang('colon')}{code(the_id)}\n"
+                    f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
+                    f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
+                    f"{lang('delete_watch')}{lang('colon')}{code(is_watch_delete)}\n"
+                    f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n\n")
+            for project in glovar.default_user_status:
+                project_score = glovar.user_ids.get(the_id, glovar.default_user_status)[project]
+                if project_score:
+                    text += "\t" * 4
+                    text += (f"{italic(project.upper())}    "
+                             f"{code(f'{project_score:.1f}')}\n")
 
-                text += (f"黑名单：{code(is_bad)}\n"
-                         f"白名单：{code(is_except)}\n")
-                bad_data = button_data("check", "bad", the_id)
-                except_data = button_data("check", "except", the_id)
-                cancel_data = button_data("check", "cancel", the_id)
-                if is_bad:
-                    bad_text = "移除黑名单"
-                else:
-                    bad_text = "添加黑名单"
-
-                if is_except:
-                    except_text = "移除白名单"
-                else:
-                    except_text = "添加白名单"
-
+            bad_data = button_data("check", "bad", the_id)
+            score_data = button_data("check", "score", the_id)
+            watch_data = button_data("check", "watch", the_id)
+            cancel_data = button_data("check", "cancel", the_id)
+            if is_bad or total_score or is_watch_ban or is_watch_delete:
+                glovar.records[key]["lock"] = False
                 markup_list = [
+                    [],
                     [
                         InlineKeyboardButton(
-                            text=bad_text,
-                            callback_data=bad_data
-                        ),
-                        InlineKeyboardButton(
-                            text=except_text,
-                            callback_data=except_data
-                        )
-                    ],
-                    [
-                        InlineKeyboardButton(
-                            text="取消",
+                            text=lang("cancel"),
                             callback_data=cancel_data
                         )
                     ]
                 ]
+
+                if is_bad:
+                    markup_list[0].append(
+                        InlineKeyboardButton(
+                            text=lang("user_unban"),
+                            callback_data=bad_data
+                        )
+                    )
+
+                if total_score:
+                    markup_list[0].append(
+                        InlineKeyboardButton(
+                            text=lang("user_forgive"),
+                            callback_data=score_data
+                        )
+                    )
+
+                if is_watch_delete or is_watch_ban:
+                    markup_list[0].append(
+                        InlineKeyboardButton(
+                            text=lang("user_unwatch"),
+                            callback_data=watch_data
+                        )
+                    )
+
                 markup = InlineKeyboardMarkup(markup_list)
-        elif not (message.forward_from or message.forward_from_chat or message.forward_sender_name):
-            text = (f"管理员：{user_mention(aid)}\n"
-                    f"结果：{code('无法显示')}\n"
-                    f"原因：{code('格式有误')}\n")
+        else:
+            glovar.records[key]["lock"] = False
+            is_bad = the_id in glovar.bad_ids["channels"]
+            is_except = the_id in glovar.except_ids["channels"]
+            text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                    f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
+            if id_text != str(the_id):
+                chat = get_chat(client, id_text)
+                text += f"{lang('restricted_channel')}{lang('colon')}{code(bool(chat and chat.restrictions))}\n"
+
+            text += (f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
+                     f"{lang('whitelist')}{lang('colon')}{code(is_except)}\n")
+            bad_data = button_data("check", "bad", the_id)
+            except_data = button_data("check", "except", the_id)
+            cancel_data = button_data("check", "cancel", the_id)
+            bad_text = lang(f"blacklist_{(lambda x: 'add' if x else 'remove')(is_bad)}")
+            except_text = lang(f"whitelist_{(lambda x : 'add' if x else 'remove')(is_except)}")
+            markup_list = [
+                [
+                    InlineKeyboardButton(
+                        text=bad_text,
+                        callback_data=bad_data
+                    ),
+                    InlineKeyboardButton(
+                        text=except_text,
+                        callback_data=except_data
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text=lang("cancel"),
+                        callback_data=cancel_data
+                    )
+                ]
+            ]
+            markup = InlineKeyboardMarkup(markup_list)
+
+        result = send_message(client, cid, text, mid, markup)
+        glovar.records[key]["mid"] = result and result.message_id
+        save("records")
+
+        return True
     except Exception as e:
         logger.warning(f"Check subject error: {e}", exc_info=True)
 
-    return text, markup
+    return False
 
 
 def remove_bad_user(client: Client, the_id: int, aid: int, debug: bool = False, reason: str = None,
@@ -218,9 +236,11 @@ def remove_bad_user(client: Client, the_id: int, aid: int, debug: bool = False, 
     # Remove bad user
     result = ""
     try:
-        action_text = "解禁用户"
-        result += (f"执行操作：{code(action_text)}\n"
-                   f"用户 ID：{code(the_id)}\n")
+        # Generate the report message's text
+        result += (f"{lang('action')}{lang('colon')}{code(lang('action_unban'))}\n"
+                   f"{lang('user_id')}{lang('colon')}{code(the_id)}\n")
+
+        # Proceed
         if the_id in glovar.bad_ids["users"] or force:
             # Local
             glovar.bad_ids["users"].discard(the_id)
@@ -244,12 +264,22 @@ def remove_bad_user(client: Client, the_id: int, aid: int, debug: bool = False, 
                     "type": "user"
                 }
             )
-            result += f"结果：{code('操作成功')}\n"
+
+            # Text
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+
+            # Send debug message
             if debug:
-                send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+                send_debug(
+                    client=client,
+                    aid=aid,
+                    action=lang("action_unban"),
+                    the_id=the_id,
+                    reason=reason
+                )
         else:
-            result += (f"结果：{code('未操作')}\n"
-                       f"原因：{code('用户不在黑名单中')}\n")
+            result += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                       f"{lang('reason')}{lang('colon')}{code(lang('no_bad'))}\n")
     except Exception as e:
         logger.warning(f"Remove bad object error: {e}", exc_info=True)
 
@@ -261,13 +291,11 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
     # Remove channel
     result = ""
     try:
-        if the_type == "bad":
-            action_text = "移除频道黑名单"
-        else:
-            action_text = "移除频道白名单"
+        # Generate the report message's text
+        result += (f"{lang('action')}{lang('colon')}{code(lang(f'remove_{the_type}'))}\n"
+                   f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
 
-        result += (f"执行操作：{code(action_text)}\n"
-                   f"频道 ID：{code(the_id)}\n")
+        # Proceed
         if the_id in eval(f"glovar.{the_type}_ids")["channels"] or force:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].discard(the_id)
@@ -284,16 +312,21 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
                     "type": "channel"
                 }
             )
-            result += f"结果：{code('操作成功')}\n"
-            send_debug(client, aid, action_text, None, the_id, None, None, reason)
-        else:
-            if the_type == "bad":
-                reason = "频道不在黑名单中"
-            else:
-                reason = "频道不在白名单中"
 
-            result += (f"结果：{code('未操作')}\n"
-                       f"原因：{code(reason)}\n")
+            # Text
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+
+            # Send debug message
+            send_debug(
+                client=client,
+                aid=aid,
+                action=lang(f"remove_{the_type}"),
+                the_id=the_id,
+                reason=reason
+            )
+        else:
+            result += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                       f"{lang('reason')}{lang('colon')}{code(lang(f'no_{the_type}'))}\n")
     except Exception as e:
         logger.warning(f"Remove channel error: {e}", exc_info=True)
 
@@ -305,9 +338,11 @@ def remove_score(client: Client, the_id: int, aid: int = None, reason: str = Non
     # Remove watched user
     result = ""
     try:
-        action_text = "清空用户评分"
-        result += (f"执行操作：{code(action_text)}\n"
-                   f"用户 ID：{code(the_id)}\n")
+        # Generate the report message's text
+        result += (f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n"
+                   f"{lang('user_id')}{lang('colon')}{code(the_id)}\n")
+
+        # Proceed
         if (glovar.user_ids.get(the_id, {}) and sum(glovar.user_ids[the_id].values())) or force:
             # Local
             glovar.user_ids.pop(the_id, {})
@@ -321,11 +356,21 @@ def remove_score(client: Client, the_id: int, aid: int = None, reason: str = Non
                 action_type="score",
                 data=the_id
             )
-            result += f"结果：{code('操作成功')}\n"
-            send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+
+            # Text
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+
+            # Send debug message
+            send_debug(
+                client=client,
+                aid=aid,
+                action=lang("action_forgive"),
+                the_id=the_id,
+                reason=reason
+            )
         else:
-            result += (f"结果：{code('未操作')}\n"
-                       f"原因：{code('用户未获得评分')}\n")
+            result += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                       f"{lang('reason')}{lang('colon')}{code(lang('no_score'))}\n")
     except Exception as e:
         logger.warning(f"Remove score error: {e}", exc_info=True)
 
@@ -337,9 +382,11 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
     # Remove watched user
     result = ""
     try:
-        action_text = "移除用户追踪状态"
-        result += (f"执行操作：{code(action_text)}\n"
-                   f"用户 ID：{code(the_id)}\n")
+        # Generate the report message's text
+        result += (f"{lang('action')}{lang('colon')}{code('action_unwatch')}\n"
+                   f"{lang('user_id')}{lang('colon')}{code(the_id)}\n")
+
+        # Proceed
         if glovar.watch_ids["ban"].get(the_id, 0) or glovar.watch_ids["delete"].get(the_id, 0) or force:
             # Local
             glovar.watch_ids["ban"].pop(the_id, 0)
@@ -357,12 +404,22 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
                     "type": "all"
                 }
             )
-            result += f"结果：{code('操作成功')}\n"
+
+            # Text
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+
+            # Send debug message
             if debug:
-                send_debug(client, aid, action_text, None, str(the_id), None, None, reason)
+                send_debug(
+                    client=client,
+                    aid=aid,
+                    action=lang("action_unwatch"),
+                    the_id=the_id,
+                    reason=reason
+                )
         else:
-            result += (f"结果：{code('未操作')}\n"
-                       f"原因：{code('用户不在追踪名单中')}\n")
+            result += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                       f"{lang('reason')}{lang('colon')}{code(lang('no_watch'))}\n")
     except Exception as e:
         logger.warning(f"Remove watch user error: {e}", exc_info=True)
 

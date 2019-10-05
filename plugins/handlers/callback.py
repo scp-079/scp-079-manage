@@ -49,8 +49,8 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         if uid == aid or not aid:
             # Answer
             if action in {"error", "bad", "mole", "innocent", "delete", "redact", "recall"}:
-                action_key = data
-                thread(action_answer, (client, action_type, uid, mid, action_key))
+                key = data
+                thread(action_answer, (client, action_type, uid, mid, key))
             elif action == "check":
                 the_id = data
                 text = ""
@@ -78,8 +78,8 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
             elif action == "join":
                 pass
             elif action == "leave":
-                action_key = data
-                thread(leave_answer, (client, action_type, uid, mid, action_key))
+                key = data
+                thread(leave_answer, (client, action_type, uid, mid, key))
 
             thread(answer_callback, (client, callback_query.id, ""))
 

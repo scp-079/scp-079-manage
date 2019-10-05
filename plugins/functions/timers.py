@@ -55,21 +55,24 @@ def backup_files(client: Client) -> bool:
 def interval_hour_01(client: Client) -> bool:
     # Execute every hour
     try:
-        # Clear old actions
+        # Clear old action sessions
         now = get_now()
+        cid = glovar.manage_group_id
         for key in list(glovar.records):
             action = glovar.records[key]
             time = action["time"]
-            if now - time > 3600:
-                mid = action["mid"]
-                lock = action["lock"]
-                if not lock:
-                    thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+            if now - time < 3600:
+                continue
 
-                glovar.actions.pop(key, {})
-                glovar.records.pop(key, {})
+            mid = action["mid"]
+            lock = action["lock"]
+            if not lock:
+                thread(edit_message_reply_markup, (client, cid, mid, None))
 
-        save("actions_pure")
+            glovar.actions.pop(key, {})
+            glovar.records.pop(key, {})
+
+        save("records")
 
         return True
     except Exception as e:

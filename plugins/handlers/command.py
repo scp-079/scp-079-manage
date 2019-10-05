@@ -83,10 +83,7 @@ def action(client: Client, message: Message) -> bool:
 def check(client: Client, message: Message) -> bool:
     # Check a user's status
     try:
-        cid = message.chat.id
-        mid = message.message_id
-        text, markup = check_subject(client, message)
-        thread(send_message, (client, cid, text, mid, markup))
+        check_subject(client, message)
 
         return True
     except Exception as e:

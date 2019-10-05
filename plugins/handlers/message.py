@@ -23,14 +23,15 @@ from copy import deepcopy
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, random_str
+from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, lang, random_str
 from ..functions.etc import thread, user_mention
 from ..functions.file import save
 from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_error_channel
 from ..functions.filters import logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
-from ..functions.receive import receive_add_bad, receive_leave_info, receive_leave_request, receive_remove_bad
-from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
+from ..functions.receive import receive_add_bad, receive_config_show, receive_leave_info, receive_leave_request
+from ..functions.receive import receive_remove_bad, receive_status_reply, receive_text_data, receive_user_score
+from ..functions.receive import receive_watch_user
 from ..functions.telegram import send_message
 from ..functions.user import check_subject
 
@@ -141,7 +142,7 @@ def action_ask(client: Client, message: Message) -> bool:
                     if item in {"lock", "time", "mid"}:
                         glovar.records[key][item] = deepcopy(glovar.actions[key][item])
 
-                save("actions_pure")
+                save("records")
             else:
                 glovar.actions.pop(key, {})
                 
@@ -153,21 +154,16 @@ def action_ask(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
-                   & ~error_channel & ~logging_channel & ~watch_channel
+                   & ~error_channel & ~exchange_channel & ~logging_channel & ~watch_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def check_forwarded(client: Client, message: Message) -> bool:
     # Check forwarded messages
     try:
-        # Read basic information
-        cid = message.chat.id
-        mid = message.message_id
         # Check debug message automatically without using "/check" reply to that message
         if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:
             message.reply_to_message = message
 
-        text, markup = check_subject(client, message)
-        if text:
-            thread(send_message, (client, cid, text, mid, markup))
+        check_subject(client, message)
 
         return True
     except Exception as e:
@@ -183,21 +179,28 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     try:
         # Read basic information
         data = receive_text_data(message)
-        if data:
-            receivers = data["to"]
-            action = data["action"]
-            action_type = data["type"]
-            data = data["data"]
-            if "EMERGENCY" in receivers:
-                if action == "backup":
-                    if action_type == "hide":
-                        if data is True:
-                            glovar.should_hide = data
+        if not data:
+            return True
 
-                        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                                f"执行操作：{code('频道转移')}\n"
-                                f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
-                        thread(send_message, (client, glovar.debug_channel_id, text))
+        sender = data["from"]
+        receivers = data["to"]
+        action = data["action"]
+        action_type = data["type"]
+        data = data["data"]
+        if "EMERGENCY" in receivers:
+            if action == "backup":
+                if action_type == "hide":
+                    if data is True:
+                        glovar.should_hide = data
+                    elif data is False and sender == "MANAGE":
+                        glovar.should_hide = data
+
+                    project_text = general_link(glovar.project_name, glovar.project_link)
+                    hide_text = (lambda x: lang("enabled") if x else "disabled")(glovar.should_hide)
+                    text = (f"{lang('project')}{lang('colon')}{project_text}\n"
+                            f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n"
+                            f"{lang('emergency_channel')}{lang('colon')}{code(hide_text)}\n")
+                    thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:
@@ -231,12 +234,20 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "score":
                         receive_user_score(sender, data)
 
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
+
             elif sender == "CLEAN":
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -246,9 +257,13 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -258,9 +273,13 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -270,9 +289,13 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -282,9 +305,13 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -294,9 +321,13 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "status":
                     if action_type == "reply":
@@ -310,9 +341,13 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(sender, data)
+                        receive_add_bad(data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+                elif action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -325,7 +360,12 @@ def process_data(client: Client, message: Message) -> bool:
                         receive_status_reply(client, message, sender, data)
 
             elif sender == "USER":
-                if action == "leave":
+
+                if action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
+
+                elif action == "leave":
                     if action_type == "info":
                         receive_leave_info(client, sender, data)
                     elif action_type == "request":
@@ -341,7 +381,11 @@ def process_data(client: Client, message: Message) -> bool:
 
             elif sender == "WARN":
 
-                if action == "update":
+                if action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
+
+                elif action == "update":
                     if action_type == "score":
                         receive_user_score(sender, data)
 

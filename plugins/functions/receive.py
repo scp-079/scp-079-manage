@@ -93,6 +93,24 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
     return False
 
 
+def receive_config_show(client: Client, message: Message, data: dict) -> bool:
+    # Receive config show reply
+    try:
+        # Basic Data
+        cid = glovar.manage_group_id
+        mid = data["message_id"]
+
+        # Send the config text
+        text = receive_file_data(client, message)
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive config show error: {e}", exc_info=True)
+
+    return False
+
+
 def receive_file_data(client: Client, message: Message, decrypt: bool = True) -> Any:
     # Receive file's data from exchange channel
     data = None
@@ -149,10 +167,15 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
         name = data["group_name"]
         link = data["group_link"]
         reason = data["reason"]
+
         key = random_str(8)
+        while glovar.records.get(key):
+            key = random_str(8)
+
         glovar.records[key] = {
             "lock": False,
             "time": get_now(),
+            "mid": 0,
             "project": project,
             "group_id": gid,
             "group_name": name,
@@ -183,7 +206,9 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
                 ]
             ]
         )
-        thread(send_message, (client, glovar.manage_group_id, text, None, markup))
+        result = send_message(client, glovar.manage_group_id, text, None, markup)
+        glovar.records[key]["mid"] = result and result.message_id
+        save("records")
 
         return True
     except Exception as e:
@@ -237,14 +262,16 @@ def receive_status_reply(client: Client, message: Message, sender: str, data: di
         aid = data["admin_id"]
         mid = data["message_id"]
         status = receive_file_data(client, message)
-        if status:
-            text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('status_request'))}\n"
-                    f"{lang('project')}{lang('colon')}{code(sender)}\n")
-            for name in status:
-                text += f"{name}：{code(status[name])}\n"
+        if not status:
+            return True
 
-            thread(send_message, (client, glovar.manage_group_id, text, mid))
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('status_request'))}\n"
+                f"{lang('project')}{lang('colon')}{code(sender)}\n")
+        for name in status:
+            text += f"{name}{lang('colon')}{code(status[name])}\n"
+
+        thread(send_message, (client, glovar.manage_group_id, text, mid))
     except Exception as e:
         logger.warning(f"Receive status reply error: {e}", exc_info=True)
 
