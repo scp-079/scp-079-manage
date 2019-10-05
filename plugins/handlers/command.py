@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
-from ..functions.etc import get_command_type, get_int, get_subject, message_link, thread, user_mention
+from ..functions.etc import get_command_type, get_int, get_subject, lang, message_link, thread, user_mention
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import answer_action, answer_leave
 from ..functions.telegram import edit_message_text, send_message
@@ -39,12 +39,17 @@ logger = logging.getLogger(__name__)
 def action(client: Client, message: Message) -> bool:
     # Deal with report messages
     try:
+        # Basic data
         cid = message.chat.id
         mid = message.message_id
         uid = message.from_user.id
-        text = f"管理：{user_mention(uid)}\n"
-        command_type, reason = get_command_context(message)
-        if command_type and command_type in {"proceed", "delete", "cancel"}:
+
+        # Generate the report message's text
+        text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+
+        # Proceed
+        action_type, reason = get_command_context(message)
+        if action_type and action_type in {"proceed", "delete", "cancel"}:
             if message.reply_to_message:
                 r_message = message.reply_to_message
                 aid = get_admin(r_message)
@@ -53,22 +58,23 @@ def action(client: Client, message: Message) -> bool:
                     if r_message.from_user.is_self and callback_data_list:
                         r_mid = r_message.message_id
                         action_key = callback_data_list[0]["d"]
-                        thread(answer_action, (client, command_type, uid, r_mid, action_key, reason))
-                        text += (f"状态：{code('已操作')}\n"
-                                 f"查看：{general_link(r_mid, message_link(r_message))}\n")
+                        thread(answer_action, (client, action_type, uid, r_mid, action_key, reason))
+                        text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                                 f"{lang('see')}{lang('colon')}{general_link(r_mid, message_link(r_message))}\n")
                     else:
-                        text += (f"状态：{code('未操作')}\n"
-                                 f"原因：{code('来源有误')}\n")
+                        text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                                 f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
                 else:
-                    text += (f"状态：{code('未操作')}\n"
-                             f"原因：{code('权限有误')}\n")
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                             f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
             else:
-                text += (f"状态：{code('未操作')}\n"
-                         f"原因：{code('用法有误')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('command_usage'))}\n")
         else:
-            text += (f"状态：{code('未操作')}\n"
-                     f"原因：{code('格式有误')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code('command_usage')}\n")
 
+        # Send the report message
         thread(send_message, (client, cid, text, mid))
 
         return True
@@ -354,14 +360,14 @@ def status(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group & test_group & from_user
                    & Filters.command(["version"], glovar.prefix))
-def version(client: Client, message: Message):
+def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"管理员：{user_mention(aid)}\n\n"
-                f"版本：{bold(glovar.version)}\n")
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n\n"
+                f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
 
         return True

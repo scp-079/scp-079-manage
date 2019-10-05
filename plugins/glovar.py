@@ -130,9 +130,15 @@ lang: Dict[str, str] = {
     "reset": (zh_cn and "重置数据") or "Reset Data",
     "result": (zh_cn and "结果") or "Result",
     "rollback": (zh_cn and "数据回滚") or "Rollback",
+    "see": (zh_cn and "查看") or "See",
     "status_failed": (zh_cn and "未执行") or "Failed",
     "status_succeed": (zh_cn and "成功执行") or "Succeed",
     "version": (zh_cn and "版本") or "Version",
+    # Command
+    "command_permission": (zh_cn and "权限有误") or "Permission Error",
+    "command_reply": (zh_cn and "来源有误") or "Reply to Message Error",
+    "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
+    "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
     "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
@@ -403,6 +409,12 @@ records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 #         "mid": 123
 #     },
 #     "random_2": {
+#         "lock": False,
+#         "time": 15112345678,
+#         "mid": 123,
+#         "the_id": 12345678
+#     },
+#     "random_3": {
 #         "lock": False,
 #         "time": 15112345679,
 #         "mid": 124,

@@ -32,7 +32,7 @@ from .user import add_channel, remove_bad_user, remove_channel, remove_score, re
 logger = logging.getLogger(__name__)
 
 
-def answer_action(client: Client, action: str, uid: int, mid: int, key: str, reason: str = None) -> bool:
+def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None) -> bool:
     # Answer the error ask
     try:
         # Check the data
@@ -46,15 +46,15 @@ def answer_action(client: Client, action: str, uid: int, mid: int, key: str, rea
             glovar.records[key]["lock"] = True
 
             # Proceed
-            if action == "proceed":
+            if action_type == "proceed":
                 thread(action_proceed, (client, key, reason))
-            elif action in {"delete", "redact", "recall"}:
+            elif action_type in {"delete", "redact", "recall"}:
                 thread(action_delete, (client, key, reason))
 
             # Edit the original report message
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang(f'already_{action}'))}\n")
+                    f"{lang('action')}{lang('colon')}{code(lang(f'action_{action_type}'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang(f'already_{action_type}'))}\n")
             thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
             glovar.records[key]["lock"] = True
@@ -69,7 +69,7 @@ def answer_action(client: Client, action: str, uid: int, mid: int, key: str, rea
     return False
 
 
-def answer_check(client: Client, action: str, uid: int, mid: int, key: str) -> bool:
+def answer_check(client: Client, action_type: str, uid: int, mid: int, key: str) -> bool:
     # Answer the check ask
     try:
         # Check the data
@@ -86,21 +86,21 @@ def answer_check(client: Client, action: str, uid: int, mid: int, key: str) -> b
 
             # Proceed
             text = ""
-            if action == "cancel":
+            if action_type == "cancel":
                 thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
-            elif action == "score":
+            elif action_type == "score":
                 text = remove_score(client, the_id, uid)
-            elif action == "watch":
+            elif action_type == "watch":
                 text = remove_watch_user(client, the_id, True, uid)
             else:
                 # Modify channel lists
                 if the_id < 0:
-                    if the_id not in eval(f"glovar.{action}_ids")["channels"]:
-                        text = add_channel(client, action, the_id, uid)
+                    if the_id not in eval(f"glovar.{action_type}_ids")["channels"]:
+                        text = add_channel(client, action_type, the_id, uid)
                     else:
-                        text = remove_channel(client, action, the_id, uid)
+                        text = remove_channel(client, action_type, the_id, uid)
                 # Remove bad user
-                elif action == "bad":
+                elif action_type == "bad":
                     text = remove_bad_user(client, the_id, uid, True)
 
             if not text:
@@ -119,7 +119,7 @@ def answer_check(client: Client, action: str, uid: int, mid: int, key: str) -> b
     return True
 
 
-def answer_leave(client: Client, action: str, uid: int, mid: int, key: str, reason: str = None):
+def answer_leave(client: Client, action_type: str, uid: int, mid: int, key: str, reason: str = None):
     # Answer leaving request
     try:
         # Check the data
@@ -140,13 +140,13 @@ def answer_leave(client: Client, action: str, uid: int, mid: int, key: str, reas
 
             # Generate the report message's text
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang(f'action_{action_type}'))}\n"
                     f"{lang('project')}{lang('colon')}{code(project)}\n"
                     f"{lang('group_name')}{lang('colon')}{general_link(name, link)}\n"
                     f"{lang('group_id')}{lang('colon')}{code(gid)}\n")
 
             # Proceed
-            if action == "approve":
+            if action_type == "approve":
                 share_data(
                     client=client,
                     receivers=[project],
