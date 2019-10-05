@@ -26,6 +26,7 @@ from ..functions.etc import bold, code, general_link, get_admin, get_callback_da
 from ..functions.etc import get_command_type, get_int, get_subject, lang, message_link, thread, user_mention
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import answer_action, answer_leave
+from ..functions.receive import receive_clear_data
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import add_channel, check_subject
 from ..functions.user import remove_bad_user, remove_channel, remove_score, remove_watch_user
@@ -94,6 +95,89 @@ def check(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Check error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["clear_bad_channels",
+                                      "clear_bad_users",
+                                      "clear_bad_contents",
+                                      "clear_except_channels",
+                                      "clear_except_temp",
+                                      "clear_except_long",
+                                      "clear_user_all",
+                                      "clear_user_new",
+                                      "clear_watch_all",
+                                      "clear_watch_ban",
+                                      "clear_watch_delete"], glovar.prefix))
+def clear(client: Client, message: Message) -> bool:
+    # Clear data
+    try:
+        # Basic data
+        cid = message.chat.id
+        mid = message.message_id
+        aid = message.from_user.id
+        command = message.command[0]
+        data_type = command.split("_")[0]
+        the_type = command.split("_")[1]
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('clear')}\n")
+
+        # Proceed
+        receivers = get_command_type(message)
+        if receivers:
+            available = {
+                "bad_channels": glovar.receivers["bad"],
+                "bad_users": glovar.receivers["ban"],
+                "bad_contents": ["NOSPAM"],
+                "except_channels": glovar.receivers["except"],
+                "except_temp": glovar.receivers["except"],
+                "except_long": glovar.receivers["except"],
+                "user_all": glovar.receivers["score"],
+                "user_new": ["AVATAR", "LANG", "NOSPAM"],
+                "watch_all": glovar.receivers["watch"],
+                "watch_ban": glovar.receivers["watch"],
+                "watch_delete": glovar.receivers["watch"],
+            }
+            receivers = receivers.split()
+            if all(receiver in available[f"{data_type}_{the_type}"] for receiver in receivers):
+                # Create data
+                data = {
+                    "admin_id": aid,
+                    "type": the_type
+                }
+
+                # Check MANAGE itself
+                if glovar.sender in receivers:
+                    receive_clear_data(client, data_type, data)
+
+                # Share clear command
+                share_data(
+                    client=client,
+                    receivers=receivers,
+                    action="clear",
+                    action_type=data_type,
+                    data=data
+                )
+
+                # Text
+                text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+            else:
+                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Clear error: {e}", exc_info=True)
 
     return False
 
@@ -217,8 +301,13 @@ def leave(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["add_bad", "add_except",
-                                      "remove_bad", "remove_except", "remove_score", "remove_watch"], glovar.prefix))
+                   & Filters.command(["add_bad",
+                                      "add_except",
+                                      "remove_bad",
+                                      "remove_except",
+                                      "remove_score",
+                                      "remove_watch"
+                                      ], glovar.prefix))
 def modify_object(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:
