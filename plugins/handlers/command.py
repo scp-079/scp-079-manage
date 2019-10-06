@@ -29,6 +29,7 @@ from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import answer_action, answer_leave, list_page_ids
 from ..functions.receive import receive_clear_data
 from ..functions.telegram import edit_message_text, send_message
+from ..functions.timers import backup_files
 from ..functions.user import add_channel, check_subject
 from ..functions.user import remove_bad_user, remove_channel, remove_score, remove_watch_user
 
@@ -38,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["action"], glovar.prefix))
-def action_command(client: Client, message: Message) -> bool:
+def action(client: Client, message: Message) -> bool:
     # Deal with report messages
     try:
         # Basic data
@@ -81,21 +82,21 @@ def action_command(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Action command error: {e}", exc_info=True)
+        logger.warning(f"Action error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["check"], glovar.prefix))
-def check_command(client: Client, message: Message) -> bool:
+def check(client: Client, message: Message) -> bool:
     # Check a user's status
     try:
         check_subject(client, message)
 
         return True
     except Exception as e:
-        logger.warning(f"Check command error: {e}", exc_info=True)
+        logger.warning(f"Check error: {e}", exc_info=True)
 
     return False
 
@@ -113,7 +114,7 @@ def check_command(client: Client, message: Message) -> bool:
                                       "clear_watch_all",
                                       "clear_watch_ban",
                                       "clear_watch_delete"], glovar.prefix))
-def clear_command(client: Client, message: Message) -> bool:
+def clear(client: Client, message: Message) -> bool:
     # Clear data
     try:
         # Basic data
@@ -123,13 +124,13 @@ def clear_command(client: Client, message: Message) -> bool:
         command = message.command[0]
         data_type = command.split("_")[0]
         the_type = command.split("_")[1]
+        receivers = get_command_type(message)
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
                 f"{lang('action')}{lang('colon')}{lang('clear')}\n")
 
         # Proceed
-        receivers = get_command_type(message)
         if receivers:
             available = {
                 "bad_channels": glovar.receivers["bad"],
@@ -180,14 +181,14 @@ def clear_command(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Clear command error: {e}", exc_info=True)
+        logger.warning(f"Clear error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["config"], glovar.prefix))
-def config_command(client: Client, message: Message) -> bool:
+def config(client: Client, message: Message) -> bool:
     # Let other bots show config of a group
     try:
         # Basic data
@@ -224,14 +225,14 @@ def config_command(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Config command error: {e}", exc_info=True)
+        logger.warning(f"Config error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["hide"], glovar.prefix))
-def hide_command(client: Client, message: Message) -> bool:
+def hide(client: Client, message: Message) -> bool:
     # Let bots hide
     try:
         # Basic data
@@ -279,14 +280,14 @@ def hide_command(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Hide command error: {e}", exc_info=True)
+        logger.warning(f"Hide error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["leave"], glovar.prefix))
-def leave_command(client: Client, message: Message) -> bool:
+def leave(client: Client, message: Message) -> bool:
     # Let other bots leave a group
     try:
         # Basic data
@@ -347,14 +348,14 @@ def leave_command(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Leave command error: {e}", exc_info=True)
+        logger.warning(f"Leave error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["list", "ls"], glovar.prefix))
-def list_command(client: Client, message: Message) -> bool:
+def list_ids(client: Client, message: Message) -> bool:
     # List IDs
     try:
         # Basic data
@@ -371,7 +372,7 @@ def list_command(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"List command error: {e}", exc_info=True)
+        logger.warning(f"List ids error: {e}", exc_info=True)
 
     return False
 
@@ -383,7 +384,7 @@ def list_command(client: Client, message: Message) -> bool:
                                       "remove_except",
                                       "remove_score",
                                       "remove_watch"], glovar.prefix))
-def modify_object(client: Client, message: Message) -> bool:
+def modify_subject(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:
         # Basic data
@@ -461,7 +462,58 @@ def modify_object(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Modify object error: {e}", exc_info=True)
+        logger.warning(f"Modify subject error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["now"], glovar.prefix))
+def now(client: Client, message: Message) -> bool:
+    # Backup now
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        receivers = get_command_type(message)
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('action_now')}\n")
+
+        # Proceed
+        if receivers:
+            receivers = receivers.split()
+            if all(receiver in glovar.receivers["now"] for receiver in receivers):
+                # Check MANAGE itself
+                if glovar.sender in receivers:
+                    backup_files(client)
+
+                # Share now command
+                share_data(
+                    client=client,
+                    receivers=receivers,
+                    action="backup",
+                    action_type="now",
+                    data=None
+                )
+
+                # Text
+                text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+            else:
+                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Now error: {e}", exc_info=True)
 
     return False
 
