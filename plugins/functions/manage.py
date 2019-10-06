@@ -358,11 +358,14 @@ def list_page_ids(aid: int, action_type: str, page: int) -> (str, InlineKeyboard
 
         # Generate
         if action_type in {"bad", "except"}:
+            # Action text
+            text += f"{lang('action')}{lang('colon')}{code(lang(f'list_{action_type}'))}\n"
+
+            # Generate the page
             the_list = eval(f"glovar.{action_type}_ids")["channels"]
             if the_list:
                 page_list, markup = get_list_page(the_list, "list", action_type, page)
-                text += (f"{lang('action')}{lang('colon')}{code(lang(f'list_{action_type}'))}\n"
-                         f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n" +
+                text += (f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n" +
                          f"\n".join("\t" * 4 + code(the_id) for the_id in page_list))
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
