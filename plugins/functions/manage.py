@@ -18,11 +18,11 @@
 
 import logging
 
-from pyrogram import Client
+from pyrogram import Client, InlineKeyboardMarkup
 
 from .. import glovar
 from .channel import edit_evidence, send_debug, send_error, share_data, share_id
-from .etc import code, general_link, get_int, lang, thread, user_mention
+from .etc import code, general_link, get_int, get_list_page, lang, thread, user_mention
 from .file import save
 from .group import delete_message
 from .telegram import edit_message_reply_markup, edit_message_text
@@ -346,3 +346,31 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
         logger.warning(f"Action proceed error: {e}", exc_info=True)
 
     return False
+
+
+def list_page_ids(aid: int, action_type: str, page: int) -> (str, InlineKeyboardMarkup):
+    # Generate a ids list page
+    text = ""
+    markup = None
+    try:
+        # Prefix
+        text = f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+
+        # Generate
+        if action_type in {"bad", "except"}:
+            the_list = eval(f"{action_type}_ids")["channels"]
+            if the_list:
+                page_list, markup = get_list_page(the_list, "list", action_type, page)
+                text += (f"{lang('action')}{lang('colon')}{lang(f'list_{action_type}')}\n"
+                         f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n"
+                         f"\n".join("\t" * 4 + code(the_id) for the_id in page_list))
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+    except Exception as e:
+        logger.warning(f"List page ids error: {e}", exc_info=True)
+
+    return text, markup

@@ -55,6 +55,7 @@ watch_channel_id: int = 0
 
 # [custom]
 backup: Union[str, bool] = ""
+per_page: int = 0
 project_link: str = ""
 project_name: str = ""
 date_reset: str = ""
@@ -84,6 +85,7 @@ try:
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
     date_reset = config["custom"].get("date_reset", date_reset)
+    per_page = int(config["custom"].get("per_page", per_page))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
@@ -109,6 +111,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or watch_channel_id == 0
         or backup not in {False, True}
         or date_reset in {"", "[DATA EXPUNGED]"}
+        or per_page == 0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or zh_cn not in {False, True}
@@ -126,6 +129,7 @@ lang: Dict[str, str] = {
     "action": (zh_cn and "执行操作") or "Action",
     "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
+    "page": (zh_cn and "第 {} 页") or "Page {}",
     "reason": (zh_cn and "原因") or "Reason",
     "reset": (zh_cn and "重置数据") or "Reset Data",
     "result": (zh_cn and "结果") or "Result",
@@ -154,6 +158,7 @@ lang: Dict[str, str] = {
     "group_id": (zh_cn and "群组 ID") or "Group ID",
     "group_name": (zh_cn and "群组名称") or "Group Name",
     "leave_approve": (zh_cn and "已批准退出群组") or "Approved to Leave the Group",
+    "reason_none": (zh_cn and "无数据") or "No Data",
     "reason_permissions": (zh_cn and "权限缺失") or "Missing Permissions",
     "reason_user": (zh_cn and "缺失 USER") or "Missing USER",
     "refresh": (zh_cn and "刷新群管列表") or "Refresh Admin Lists",
@@ -198,6 +203,9 @@ lang: Dict[str, str] = {
     "leave_request": (zh_cn and "请求退出该群组") or "Request to Leave the Group",
     "leave_handle": (zh_cn and "处理退群请求") or "Deal with the Leave Request",
     "leave_manual": (zh_cn and "手动退群") or "Leave Manually",
+
+    "list_bad": (zh_cn and "查询频道黑名单") or "List Channel Blacklist",
+    "list_except": (zh_cn and "查询频道白名单") or "List Channel Whitelist",
 
     "time_content": (zh_cn and "短期") or "Short Term",
     "time_long": (zh_cn and "长期") or "Long Term",
@@ -281,6 +289,7 @@ all_commands: List[str] = [
     "join",
     "leave",
     "list",
+    "ls",
     "now",
     "refresh",
     "remove_bad",

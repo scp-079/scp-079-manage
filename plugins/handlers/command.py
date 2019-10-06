@@ -25,7 +25,7 @@ from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
 from ..functions.etc import get_command_type, get_int, get_subject, lang, message_link, thread, user_mention
 from ..functions.filters import from_user, manage_group, test_group
-from ..functions.manage import answer_action, answer_leave
+from ..functions.manage import answer_action, answer_leave, list_page_ids
 from ..functions.receive import receive_clear_data
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.user import add_channel, check_subject
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["action"], glovar.prefix))
-def action(client: Client, message: Message) -> bool:
+def action_command(client: Client, message: Message) -> bool:
     # Deal with report messages
     try:
         # Basic data
@@ -80,21 +80,21 @@ def action(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Action error: {e}", exc_info=True)
+        logger.warning(f"Action command error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["check"], glovar.prefix))
-def check(client: Client, message: Message) -> bool:
+def check_command(client: Client, message: Message) -> bool:
     # Check a user's status
     try:
         check_subject(client, message)
 
         return True
     except Exception as e:
-        logger.warning(f"Check error: {e}", exc_info=True)
+        logger.warning(f"Check command error: {e}", exc_info=True)
 
     return False
 
@@ -112,7 +112,7 @@ def check(client: Client, message: Message) -> bool:
                                       "clear_watch_all",
                                       "clear_watch_ban",
                                       "clear_watch_delete"], glovar.prefix))
-def clear(client: Client, message: Message) -> bool:
+def clear_command(client: Client, message: Message) -> bool:
     # Clear data
     try:
         # Basic data
@@ -179,14 +179,14 @@ def clear(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Clear error: {e}", exc_info=True)
+        logger.warning(f"Clear command error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["config"], glovar.prefix))
-def config(client: Client, message: Message) -> bool:
+def config_command(client: Client, message: Message) -> bool:
     # Let other bots show config of a group
     try:
         # Basic data
@@ -223,22 +223,27 @@ def config(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Config error: {e}", exc_info=True)
+        logger.warning(f"Config command error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["hide"], glovar.prefix))
-def hide(client: Client, message: Message) -> bool:
+def hide_command(client: Client, message: Message) -> bool:
     # Let bots hide
     try:
+        # Basic data
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
+        command_type = get_command_type(message)
+
+        # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n")
-        command_type = get_command_type(message)
+
+        # Proceed
         if command_type and command_type in {"off", "on"}:
             # Local
             data = (lambda x: True if x == "on" else False)(command_type)
@@ -273,14 +278,14 @@ def hide(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Hide error: {e}", exc_info=True)
+        logger.warning(f"Hide command error: {e}", exc_info=True)
 
     return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["leave"], glovar.prefix))
-def leave(client: Client, message: Message) -> bool:
+def leave_command(client: Client, message: Message) -> bool:
     # Let other bots leave a group
     try:
         # Basic data
@@ -341,7 +346,31 @@ def leave(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Leave error: {e}", exc_info=True)
+        logger.warning(f"Leave command error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["list", "ls"], glovar.prefix))
+def list_command(client: Client, message: Message) -> bool:
+    # List IDs
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        action_type = get_command_type(message)
+
+        # Get the text and markup
+        text, markup = list_page_ids(aid, action_type, 1)
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid, markup))
+
+        return True
+    except Exception as e:
+        logger.warning(f"List command error: {e}", exc_info=True)
 
     return False
 
@@ -352,8 +381,7 @@ def leave(client: Client, message: Message) -> bool:
                                       "remove_bad",
                                       "remove_except",
                                       "remove_score",
-                                      "remove_watch"
-                                      ], glovar.prefix))
+                                      "remove_watch"], glovar.prefix))
 def modify_object(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:

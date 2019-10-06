@@ -23,8 +23,8 @@ from pyrogram import Client, CallbackQuery
 
 from ..functions.etc import get_admin, thread
 from ..functions.filters import manage_group
-from ..functions.manage import answer_action, answer_check, answer_leave
-from ..functions.telegram import answer_callback
+from ..functions.manage import answer_action, answer_check, answer_leave, list_page_ids
+from ..functions.telegram import answer_callback, edit_message_text
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -35,22 +35,30 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
         # Basic callback data
+        cid = callback_query.message.chat.id
         uid = callback_query.from_user.id
         aid = get_admin(callback_query.message)
         mid = callback_query.message.message_id
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
         action_type = callback_data["t"]
-        key = callback_data["d"]
+        data = callback_data["d"]
         # Check permission
         if uid == aid or not aid:
             # Answer
             if action in {"error", "bad", "mole", "innocent", "delete", "redact", "recall"}:
+                key = data
                 thread(answer_action, (client, action_type, uid, mid, key))
             elif action == "check":
+                key = data
                 thread(answer_check, (client, action_type, uid, mid, key))
             elif action == "leave":
+                key = data
                 thread(answer_leave, (client, action_type, uid, mid, key))
+            elif action == "list":
+                page = data
+                text, markup = list_page_ids(aid, action_type, page)
+                edit_message_text(client, cid, mid, text, markup)
 
             thread(answer_callback, (client, callback_query.id, ""))
 
