@@ -39,40 +39,36 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["action"], glovar.prefix))
-def action(client: Client, message: Message) -> bool:
+def action_command(client: Client, message: Message) -> bool:
     # Deal with report messages
     try:
         # Basic data
         cid = message.chat.id
         uid = message.from_user.id
         mid = message.message_id
+        r_message = message.reply_to_message
+        rid = r_message and r_message.message_id
 
         # Generate the report message's text
         text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
 
         # Proceed
         action_type, reason = get_command_context(message)
-        if action_type and action_type in {"proceed", "delete", "cancel"}:
-            if message.reply_to_message:
-                r_message = message.reply_to_message
-                aid = get_admin(r_message)
-                if uid == aid:
-                    callback_data_list = get_callback_data(r_message)
-                    if r_message.from_user.is_self and callback_data_list:
-                        r_mid = r_message.message_id
-                        action_key = callback_data_list[0]["d"]
-                        thread(answer_action, (client, action_type, uid, r_mid, action_key, reason))
-                        text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
-                                 f"{lang('see')}{lang('colon')}{general_link(r_mid, message_link(r_message))}\n")
-                    else:
-                        text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                                 f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
+        if action_type in {"proceed", "delete", "cancel"} and r_message and r_message.from_user.is_self:
+            aid = get_admin(r_message)
+            if uid == aid:
+                callback_data_list = get_callback_data(r_message)
+                if callback_data_list and callback_data_list[0]["t"] in {"proceed", "delete"}:
+                    action_key = callback_data_list[0]["d"]
+                    thread(answer_action, (client, action_type, uid, rid, action_key, reason))
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                             f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                             f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
+                             f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                         f"{lang('status')}{lang('colon')}{code(lang('command_usage'))}\n")
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code('command_usage')}\n")
@@ -82,7 +78,7 @@ def action(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Action error: {e}", exc_info=True)
+        logger.warning(f"Action command error: {e}", exc_info=True)
 
     return False
 
@@ -294,6 +290,8 @@ def leave(client: Client, message: Message) -> bool:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
+        r_message = message.reply_to_message
+        rid = r_message and r_message.message_id
 
         # Generate the report message's text
         text = f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
@@ -302,15 +300,13 @@ def leave(client: Client, message: Message) -> bool:
         if message.reply_to_message:
             text += f"{lang('action')}{lang('colon')}{code(lang('leave_handle'))}\n"
             action_type, reason = get_command_context(message)
-            if action_type and action_type in {"approve", "cancel"}:
-                r_message = message.reply_to_message
+            if action_type in {"approve", "cancel"} and r_message and r_message.from_user.is_self:
                 callback_data_list = get_callback_data(r_message)
-                if r_message.from_user.is_self and callback_data_list:
-                    r_mid = r_message.message_id
+                if callback_data_list and callback_data_list[0]["t"] in {"approve"}:
                     action_key = callback_data_list[0]["d"]
-                    thread(answer_leave, (client, action_type, aid, r_mid, action_key, reason))
+                    thread(answer_leave, (client, action_type, aid, rid, action_key, reason))
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
-                             f"{lang('see')}{lang('colon')}{general_link(r_mid, message_link(r_message))}\n")
+                             f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code('status_failed')}\n"
                              f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
@@ -394,6 +390,7 @@ def modify_subject(client: Client, message: Message) -> bool:
         id_text, reason, from_check = get_subject(message)
         force = False
         r_message = message.reply_to_message
+        rid = r_message and r_message.message_id
 
         # Check force
         if re.search("\bforce$", reason):
@@ -455,7 +452,7 @@ def modify_subject(client: Client, message: Message) -> bool:
             thread(edit_message_text, (client, cid, r_message.message_id, text))
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
-                    f"{lang('see')}{lang('colon')}{general_link(r_message.message_id, message_link(r_message))}\n")
+                    f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
             thread(send_message, (client, cid, text, mid))
         else:
             thread(send_message, (client, cid, text, mid))
@@ -514,6 +511,56 @@ def now(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Now error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["page"], glovar.prefix))
+def page_command(client: Client, message: Message) -> bool:
+    # Change page
+    try:
+        # Basic data
+        cid = message.chat.id
+        uid = message.from_user.id
+        mid = message.message_id
+        action = get_command_type(message)
+        r_message = message.reply_to_message
+        rid = r_message and r_message.message_id
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('action_page')}\n")
+
+        # Proceed
+        if action in {"previous", "next"} and r_message and r_message.from_user.is_self:
+            aid = get_admin(r_message)
+            if uid == aid:
+                callback_data_list = get_callback_data(r_message)
+                i = (lambda x: 0 if x == "previous" else -1)(action)
+                if callback_data_list and callback_data_list[i]["a"] == "list":
+                    action_type = callback_data_list[i]["t"]
+                    page = callback_data_list[i]["d"]
+                    page_text, markup = list_page_ids(aid, action_type, page)
+                    thread(edit_message_text, (client, cid, rid, page_text, markup))
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                             f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
+                else:
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                             f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                     f"{lang('reason')}{lang('colon')}{lang('command_usage')}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Page command error: {e}", exc_info=True)
 
     return False
 

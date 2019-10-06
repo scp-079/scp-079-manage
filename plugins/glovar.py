@@ -187,6 +187,7 @@ lang: Dict[str, str] = {
     "action_forgive": (zh_cn and "清空评分") or "Forgive the User",
     "action_unwatch": (zh_cn and "移除追踪") or "Unwatch the User",
     "action_now": (zh_cn and "立即备份") or "Backup Now",
+    "action_page": (zh_cn and "翻页") or "Change Page",
 
     "already_error": (zh_cn and "已解明") or "Explained",
     "already_bad": (zh_cn and "已收录") or "Contained",
