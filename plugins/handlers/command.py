@@ -204,7 +204,7 @@ def config(client: Client, message: Message) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n")
 
         # Proceed
-        if receiver in glovar.receivers["config"] and id_text < 0:
+        if receiver in glovar.receivers["config"] and gid < 0:
             share_data(
                 client=client,
                 receivers=[receiver],
