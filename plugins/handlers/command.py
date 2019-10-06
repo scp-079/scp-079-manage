@@ -217,7 +217,7 @@ def config(client: Client, message: Message) -> bool:
                     "group_id": gid
                 }
             )
-            text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_requested'))}\n"
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
