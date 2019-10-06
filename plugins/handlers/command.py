@@ -197,6 +197,7 @@ def config(client: Client, message: Message) -> bool:
         aid = message.from_user.id
         mid = message.message_id
         receiver, id_text = get_command_context(message)
+        receiver = receiver.upper()
         gid = get_int(id_text)
 
         # Generate the report message's text
