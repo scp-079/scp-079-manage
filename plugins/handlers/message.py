@@ -26,8 +26,8 @@ from .. import glovar
 from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, lang, random_str
 from ..functions.etc import thread, user_mention
 from ..functions.file import save
-from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_error_channel
-from ..functions.filters import logging_channel, manage_group, watch_channel
+from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_exchange_channel
+from ..functions.filters import is_error_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_config_show, receive_leave_info, receive_leave_request
 from ..functions.receive import receive_remove_bad, receive_status_reply, receive_text_data, receive_user_score
@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
-                   & (error_channel | logging_channel | watch_channel)
+                   & (exchange_channel | error_channel | logging_channel | watch_channel)
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def action_ask(client: Client, message: Message) -> bool:
     # Ask how to deal with the report message
@@ -49,9 +49,9 @@ def action_ask(client: Client, message: Message) -> bool:
         cid = message.chat.id
         mid = message.message_id
         aid = message.from_user.id
-        rid = message.forward_from_message_id
+        fid = message.forward_from_message_id
         channel_id = message.forward_from_chat.id
-        report_message = get_message(client, channel_id, rid)
+        report_message = get_message(client, channel_id, fid)
         r_message = report_message.reply_to_message
         report_text = get_text(report_message)
         record = get_report_record(report_message)
@@ -60,7 +60,15 @@ def action_ask(client: Client, message: Message) -> bool:
         action = ""
 
         # Decide the action
-        if is_error_channel(None, message):
+        if is_exchange_channel(None, message):
+            data = receive_text_data(report_message)
+            if data:
+                data_action = data["action"]
+                data_action_type = data["type"]
+                if data_action == "backup":
+                    if data_action_type == "data":
+                        action = "rollback"
+        elif is_error_channel(None, message):
             action = "recall"
         elif re.search(f"^{lang('project')}{lang('colon')}", report_text):
             if record["status"] == lang("status_redact"):
@@ -104,6 +112,10 @@ def action_ask(client: Client, message: Message) -> bool:
             "message": report_message,
             "record": record
         }
+        if action == "rollback":
+            data = receive_text_data(report_message)
+            glovar.actions["record"] = data["from"]
+            glovar.actions["mid"] = data["data"]
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
@@ -127,22 +139,23 @@ def action_ask(client: Client, message: Message) -> bool:
                 )
             ]
         ]
-        if action not in {"delete", "redact", "recall"} and r_message and not r_message.empty:
-            data_delete = button_data(action, "delete", key)
-            markup_list[0].append(
-                InlineKeyboardButton(
-                    text=lang("delete"),
-                    callback_data=data_delete
+        if action not in {"delete", "redact", "recall", "rollback"}:
+            if r_message and not r_message.empty:
+                data_delete = button_data(action, "delete", key)
+                markup_list[0].append(
+                    InlineKeyboardButton(
+                        text=lang("delete"),
+                        callback_data=data_delete
+                    )
                 )
-            )
-        else:
-            data_delete = button_data("redact", "delete", key)
-            markup_list[0].append(
-                InlineKeyboardButton(
-                    text=lang("redact"),
-                    callback_data=data_delete
+            else:
+                data_delete = button_data("redact", "delete", key)
+                markup_list[0].append(
+                    InlineKeyboardButton(
+                        text=lang("redact"),
+                        callback_data=data_delete
+                    )
                 )
-            )
 
         markup = InlineKeyboardMarkup(markup_list)
 

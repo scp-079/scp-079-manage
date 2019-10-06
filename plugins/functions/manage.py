@@ -21,11 +21,12 @@ import logging
 from pyrogram import Client, InlineKeyboardMarkup
 
 from .. import glovar
-from .channel import edit_evidence, send_debug, send_error, share_data, share_id
+from .channel import edit_evidence, format_data, send_debug, send_error, share_data, share_id
 from .etc import code, general_link, get_int, get_list_page, lang, thread, user_mention
 from .file import save
 from .group import delete_message
-from .telegram import edit_message_reply_markup, edit_message_text
+from .receive import receive_rollback
+from .telegram import edit_message_reply_markup, edit_message_text, send_document
 from .user import add_channel, remove_bad_user, remove_channel, remove_score, remove_watch_user
 
 # Enable logging
@@ -55,6 +56,9 @@ def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action_type}'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang(f'status_{action_type}'))}\n")
+            if reason:
+                text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
             thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
             glovar.records[key]["lock"] = True
@@ -241,6 +245,49 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
     return False
 
 
+def action_rollback(client: Client, key: str) -> bool:
+    # Rollback the data
+    try:
+        # Basic data
+        aid = glovar.actions[key]["aid"]
+        message = glovar.actions[key]["message"]
+        receiver = glovar.actions[key]["record"]
+        the_type = glovar.actions[key]["mid"]
+
+        # Check MANAGE itself
+        if receiver == "MANAGE":
+            receive_rollback(
+                client=client,
+                message=message,
+                data={
+                    "admin_id": aid,
+                    "type": the_type
+                }
+            )
+            return True
+
+        # Proceed
+        file_id = message.document.file_id
+        file_ref = message.document.file_ref
+        text = format_data(
+            sender=glovar.sender,
+            receivers=[receiver],
+            action="backup",
+            action_type="rollback",
+            data={
+                "admin_id": aid,
+                "type": the_type
+            }
+        )
+        thread(send_document, (client, glovar.exchange_channel_id, file_id, file_ref, text))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Action rollback error: {e}", exc_info=True)
+
+    return False
+
+
 def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     # Proceed the action
     try:
@@ -311,6 +358,8 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             the_type = "content"
         elif action in {"delete", "redact", "recall"}:
             return action_delete(client, key, reason)
+        elif action == "rollback":
+            return action_rollback(client, key)
 
         # Share the report message's id
         if action_type:

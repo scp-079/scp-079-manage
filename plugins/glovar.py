@@ -178,6 +178,7 @@ lang: Dict[str, str] = {
     "restricted_channel": (zh_cn and "受限频道") or "Restricted Channel",
     "score_total": (zh_cn and "总分") or "Total Score",
 
+    "action_rollback": (zh_cn and "数据回滚") or "Rollback",
     "action_error": (zh_cn and "解除错误") or "Fix Error",
     "action_bad": (zh_cn and "收录消息") or "Contain",
     "action_mole": (zh_cn and "移除例外") or "Remove from Whitelist",
