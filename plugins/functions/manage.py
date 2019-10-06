@@ -47,14 +47,14 @@ def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str
             glovar.records[key]["lock"] = True
 
             # Proceed
-            action = glovar.actions[key]["action"]
             if action_type == "proceed":
                 thread(action_proceed, (client, key, reason))
             elif action_type in {"delete", "redact", "recall"}:
-                action = action_type
+                glovar.actions[key]["action"] = action_type
                 thread(action_delete, (client, key, reason))
 
             # Edit the original report message
+            action = glovar.actions[key]["action"]
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang(f'status_{action_type}'))}\n")
