@@ -22,6 +22,7 @@ from configparser import RawConfigParser
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
+from threading import Lock
 from typing import Dict, List, Set, Union
 
 from pyrogram import Message
@@ -343,6 +344,10 @@ default_user_status: Dict[str, float] = {
     "nospam": 0.0,
     "recheck": 0.0,
     "warn": 0.0
+}
+
+locks: Dict[str, Lock] = {
+    "callback": Lock()
 }
 
 names: Dict[str, str] = {

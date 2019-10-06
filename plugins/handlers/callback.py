@@ -21,6 +21,7 @@ from json import loads
 
 from pyrogram import Client, CallbackQuery
 
+from .. import glovar
 from ..functions.etc import get_admin, thread
 from ..functions.filters import manage_group
 from ..functions.manage import answer_action, answer_check, answer_leave, list_page_ids
@@ -33,6 +34,7 @@ logger = logging.getLogger(__name__)
 @Client.on_callback_query(manage_group)
 def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
+    glovar.locks["callback"].acquire()
     try:
         # Basic callback data
         cid = callback_query.message.chat.id
@@ -65,5 +67,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
+    finally:
+        glovar.locks["callback"].release()
 
     return False

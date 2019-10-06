@@ -120,7 +120,7 @@ def clear(client: Client, message: Message) -> bool:
         command = message.command[0]
         data_type = command.split("_")[0]
         the_type = command.split("_")[1]
-        receivers = get_command_type(message)
+        receivers = get_command_type(message).upper()
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
@@ -142,7 +142,12 @@ def clear(client: Client, message: Message) -> bool:
                 "watch_ban": glovar.receivers["watch"],
                 "watch_delete": glovar.receivers["watch"],
             }
-            receivers = receivers.split()
+
+            if receivers == "ALL":
+                receivers = available[f"{data_type}_{the_type}"]
+            else:
+                receivers = receivers.split()
+
             if all(receiver in available[f"{data_type}_{the_type}"] for receiver in receivers):
                 # Create data
                 data = {
@@ -164,7 +169,7 @@ def clear(client: Client, message: Message) -> bool:
                 )
 
                 # Text
-                text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+                text += f"{lang('status')}{lang('colon')}{lang('status_commanded')}\n"
             else:
                 text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
                          f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
@@ -473,7 +478,7 @@ def now(client: Client, message: Message) -> bool:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        receivers = get_command_type(message)
+        receivers = get_command_type(message).upper()
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
@@ -481,7 +486,11 @@ def now(client: Client, message: Message) -> bool:
 
         # Proceed
         if receivers:
-            receivers = receivers.split()
+            if receivers == "ALL":
+                receivers = glovar.receivers["now"]
+            else:
+                receivers = receivers.split()
+
             if all(receiver in glovar.receivers["now"] for receiver in receivers):
                 # Check MANAGE itself
                 if glovar.sender in receivers:
@@ -497,7 +506,7 @@ def now(client: Client, message: Message) -> bool:
                 )
 
                 # Text
-                text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+                text += f"{lang('status')}{lang('colon')}{lang('status_commanded')}\n"
             else:
                 text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
                          f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
@@ -570,33 +579,40 @@ def page_command(client: Client, message: Message) -> bool:
 def refresh(client: Client, message: Message) -> bool:
     # Refresh admins
     try:
+        # Basic data
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"管理：{user_mention(aid)}\n"
-                f"操作：{code('刷新群管列表')}\n")
-        command_type = get_command_type(message)
-        project_list = ["all"] + [p.lower() for p in glovar.receivers["refresh"]]
-        if command_type and command_type in project_list:
-            if command_type == "all":
+        receivers = get_command_type(message).upper()
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('refresh')}\n")
+
+        # Proceed
+        if receivers:
+            if receivers == "ALL":
                 receivers = glovar.receivers["refresh"]
             else:
-                receivers = [command_type.upper()]
+                receivers = receivers.split()
 
-            share_data(
-                client=client,
-                receivers=receivers,
-                action="update",
-                action_type="refresh",
-                data=aid
-            )
-            text += (f"项目：{code((lambda t: t.upper() if t != 'all' else '全部')(command_type))}\n"
-                     f"状态：{code('已请求')}\n")
+            if all(receiver in glovar.receivers["refresh"] for receiver in receivers):
+                share_data(
+                    client=client,
+                    receivers=receivers,
+                    action="update",
+                    action_type="refresh",
+                    data=aid
+                )
+                text += f"{lang('status')}{lang('colon')}{lang('status_commanded')}\n"
+            else:
+                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
         else:
-            text += (f"项目：{code(command_type or '未知')}\n"
-                     f"状态：{code('未请求')}\n"
-                     f"原因：{code('格式有误')}\n")
+            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
 
+        # Send the report message
         thread(send_message, (client, cid, text, mid))
 
         return True
