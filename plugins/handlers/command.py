@@ -130,7 +130,7 @@ def clear(client: Client, message: Message) -> bool:
         if receivers:
             available = {
                 "bad_channels": glovar.receivers["bad"],
-                "bad_users": glovar.receivers["ban"],
+                "bad_users": glovar.receivers["bad"],
                 "bad_contents": ["NOSPAM"],
                 "bad_contacts": ["NOSPAM"],
                 "except_channels": glovar.receivers["except"],
