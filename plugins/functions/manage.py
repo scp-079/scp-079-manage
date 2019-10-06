@@ -251,8 +251,8 @@ def action_rollback(client: Client, key: str) -> bool:
         # Basic data
         aid = glovar.actions[key]["aid"]
         message = glovar.actions[key]["message"]
-        receiver = glovar.actions[key]["record"]
-        the_type = glovar.actions[key]["mid"]
+        receiver = glovar.actions[key]["sender"]
+        the_type = glovar.actions[key]["type"]
 
         # Check MANAGE itself
         if receiver == "MANAGE":
