@@ -353,16 +353,6 @@ locks: Dict[str, Lock] = {
     "callback": Lock()
 }
 
-names: Dict[str, str] = {
-    "bad": "收录消息",
-    "delete": "删除存档",
-    "error": "解除错误",
-    "innocent": "取消收录",
-    "mole": "移除例外",
-    "redact": "清除信息",
-    "recall": "撤回判误"
-}
-
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
             "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],

@@ -124,7 +124,7 @@ def clear(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('clear')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n")
 
         # Proceed
         if receivers:
@@ -169,13 +169,13 @@ def clear(client: Client, message: Message) -> bool:
                 )
 
                 # Text
-                text += f"{lang('status')}{lang('colon')}{lang('status_commanded')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n"
             else:
-                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
         else:
-            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -201,7 +201,7 @@ def config(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('config_show')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n")
 
         # Proceed
         if receiver in glovar.receivers["config"] and id_text < 0:
@@ -216,10 +216,10 @@ def config(client: Client, message: Message) -> bool:
                     "group_id": gid
                 }
             )
-            text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
         else:
-            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                     f"{lang('reason')}{lang('colon')}{lang('command_usage')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -482,7 +482,7 @@ def now(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('action_now')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n")
 
         # Proceed
         if receivers:
@@ -494,7 +494,7 @@ def now(client: Client, message: Message) -> bool:
             if all(receiver in glovar.receivers["now"] for receiver in receivers):
                 # Check MANAGE itself
                 if glovar.sender in receivers:
-                    backup_files(client)
+                    thread(backup_files, (client,))
 
                 # Share now command
                 share_data(
@@ -506,13 +506,13 @@ def now(client: Client, message: Message) -> bool:
                 )
 
                 # Text
-                text += f"{lang('status')}{lang('colon')}{lang('status_commanded')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n"
             else:
-                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
         else:
-            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -539,7 +539,7 @@ def page_command(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('action_page')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_page'))}\n")
 
         # Proceed
         if action in {"previous", "next"} and r_message and r_message.from_user.is_self:
@@ -561,8 +561,8 @@ def page_command(client: Client, message: Message) -> bool:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
         else:
-            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                     f"{lang('reason')}{lang('colon')}{lang('command_usage')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -587,7 +587,7 @@ def refresh(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('refresh')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('refresh'))}\n")
 
         # Proceed
         if receivers:
@@ -604,13 +604,13 @@ def refresh(client: Client, message: Message) -> bool:
                     action_type="refresh",
                     data=aid
                 )
-                text += f"{lang('status')}{lang('colon')}{lang('status_commanded')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n"
             else:
-                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
         else:
-            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -635,7 +635,7 @@ def status(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('action_status')}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_status'))}\n")
 
         # Proceed
         if receivers:
@@ -655,13 +655,13 @@ def status(client: Client, message: Message) -> bool:
                         "message_id": mid
                     }
                 )
-                text += f"{lang('status')}{lang('colon')}{lang('status_requested')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_requested'))}\n"
             else:
-                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
         else:
-            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
