@@ -114,8 +114,8 @@ def action_ask(client: Client, message: Message) -> bool:
         }
         if action == "rollback":
             data = receive_text_data(report_message)
-            glovar.actions["sender"] = data["from"]
-            glovar.actions["type"] = data["data"]
+            glovar.actions[key]["sender"] = data["from"]
+            glovar.actions[key]["type"] = data["data"]
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
