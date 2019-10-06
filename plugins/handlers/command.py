@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
 from pyrogram import Client, Filters, Message
 
@@ -385,24 +386,36 @@ def list_command(client: Client, message: Message) -> bool:
 def modify_object(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:
+        # Basic data
         cid = message.chat.id
         uid = message.from_user.id
         mid = message.message_id
-        text = f"管理：{user_mention(uid)}\n"
         id_text, reason, from_check = get_subject(message)
-        if "force" in reason:
-            reason = reason.replace("force", "").strip()
+        force = False
+        r_message = message.reply_to_message
+
+        # Check force
+        if re.search("\bforce$", reason):
             force = True
-        else:
-            force = False
+            reason = re.sub("\bforce$", "", reason).strip()
 
+        # Generate the report message's text
+        text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+
+        # Proceed
         if id_text:
-            aid = uid
+            # Get the admin ID
             if from_check:
-                aid = get_admin(message.reply_to_message)
+                aid = get_admin(r_message)
+            else:
+                aid = uid
 
+            # Check permission
             if aid == uid:
+                # Get the target ID
                 the_id = get_int(id_text)
+
+                # Add or Remove
                 if the_id:
                     if "add_bad" in message.command:
                         result = add_channel(client, "bad", the_id, aid, reason, force)
@@ -417,26 +430,31 @@ def modify_object(client: Client, message: Message) -> bool:
                         result = remove_channel(client, "except", the_id, aid, reason, force)
                     elif "remove_score" in message.command:
                         result = remove_score(client, the_id, aid, reason, force)
-                    else:
+                    elif "remove_watch" in message.command:
                         result = remove_watch_user(client, the_id, True, aid, reason, force)
+                    else:
+                        result = ""
 
+                    # Text
                     text += result
-                    if reason and result and "成功" in result:
-                        text += f"原因：{code(reason)}\n"
+                    if reason and result and lang("status_succeed") in result:
+                        text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
                 else:
-                    text += (f"针对：{code(id_text)}\n"
-                             f"结果：{code('输入有误')}\n")
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                             f"{lang('reason')}{lang('colon')}{code('command_para')}\n")
             else:
-                text += f"结果：{code('权限错误')}\n"
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
         else:
-            text += f"结果：{code('缺少参数')}\n"
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
+        # Send debug message
         if from_check:
-            r_message = message.reply_to_message
             thread(edit_message_text, (client, cid, r_message.message_id, text))
-            text = (f"管理：{user_mention(uid)}\n"
-                    f"状态：{code('已操作')}\n"
-                    f"查看：{general_link(r_message.message_id, message_link(r_message))}\n")
+            text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                    f"{lang('see')}{lang('colon')}{general_link(r_message.message_id, message_link(r_message))}\n")
             thread(send_message, (client, cid, text, mid))
         else:
             thread(send_message, (client, cid, text, mid))
