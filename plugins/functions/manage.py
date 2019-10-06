@@ -47,13 +47,14 @@ def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str
             glovar.records[key]["lock"] = True
 
             # Proceed
+            action = glovar.actions[key]["action"]
             if action_type == "proceed":
                 thread(action_proceed, (client, key, reason))
             elif action_type in {"delete", "redact", "recall"}:
+                action = action_type
                 thread(action_delete, (client, key, reason))
 
             # Edit the original report message
-            action = glovar.actions[key]["action"]
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang(f'status_{action_type}'))}\n")
@@ -202,7 +203,11 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         rid = (r_message and r_message.message_id) or mid
 
         # Proceed
-        if action == "delete":
+        if action == "recall":
+            # Delete the error reports
+            delete_message(client, cid, mid)
+            delete_message(client, cid, rid)
+        elif r_message and not r_message.empty:
             # Delete the evidence
             delete_message(client, cid, rid)
             edit_evidence(
@@ -212,7 +217,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
                 status=lang("status_delete"),
                 reason=reason
             )
-        elif action == "redact":
+        else:
             # Redact the report message
             for r in record:
                 if record[r] and r in {"game", "bio", "name", "from", "more"}:
@@ -225,10 +230,6 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
                 status=lang("status_redact"),
                 reason=reason
             )
-        elif action == "recall":
-            # Delete the error reports
-            delete_message(client, cid, mid)
-            delete_message(client, cid, rid)
 
         # Send debug message
         send_debug(
