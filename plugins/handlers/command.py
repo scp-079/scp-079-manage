@@ -118,8 +118,8 @@ def clear(client: Client, message: Message) -> bool:
         aid = message.from_user.id
         mid = message.message_id
         command = message.command[0]
-        data_type = command.split("_")[0]
-        the_type = command.split("_")[1]
+        data_type = command.split("_")[1]
+        the_type = command.split("_")[2]
         receivers = get_command_type(message).upper()
 
         # Generate the report message's text
