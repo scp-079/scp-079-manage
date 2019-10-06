@@ -45,106 +45,121 @@ logger = logging.getLogger(__name__)
 def action_ask(client: Client, message: Message) -> bool:
     # Ask how to deal with the report message
     try:
+        # Basic data
         cid = message.chat.id
         mid = message.message_id
         aid = message.from_user.id
         rid = message.forward_from_message_id
         channel_id = message.forward_from_chat.id
         report_message = get_message(client, channel_id, rid)
+        r_message = report_message.reply_to_message
         report_text = get_text(report_message)
+        record = get_report_record(report_message)
+
+        # Init
         action = ""
+
+        # Decide the action
+        if is_error_channel(None, message):
+            action = "recall"
+        elif re.search(f"^{lang('project')}{lang('colon')}", report_text):
+            if record["status"] == lang("status_redact"):
+                action = ""
+            elif record["project"] in glovar.receivers["except"]:
+                if r_message or record["type"] in {lang("gam"), lang("ser")}:
+                    action = "error"
+            elif record["project"] == "WARN":
+                if r_message or record["type"] in {lang("gam"), lang("ser")}:
+                    action = "bad"
+            elif record["project"] == "MANAGE" and record["status"] != lang("status_delete"):
+                if record["status"] == lang("status_mole"):
+                    action = "error"
+                elif record["status"] == lang("status_innocent"):
+                    action = "bad"
+                elif record["status"] in {lang("status_error"), lang("status_unban")}:
+                    action = "mole"
+                elif record["status"] == lang("status_bad"):
+                    action = "innocent"
+            elif not r_message or record["status"] == lang("status_delete"):
+                action = "redact"
+            else:
+                action = "delete"
+
+        # Check the action
+        if not action:
+            return True
+
+        # Generate key
         key = random_str(8)
         while glovar.actions.get(key):
             key = random_str(8)
 
-        record = get_report_record(report_message)
-        if is_error_channel(None, message) and report_message.reply_to_message:
-            action = "recall"
-        elif (report_message and report_text
-              and not report_message.forward_date
-              and re.search("^项目编号：", report_text)):
-            if record["project"] in glovar.receivers["except"]:
-                # TODO 解决无具体证据的问题
-                if report_message.reply_to_message or "游戏" in record["type"] or "服务" in record["type"]:
-                    action = "error"
-            elif record["project"] == "WARN":
-                if report_message.reply_to_message or record["type"] == "服务消息":
-                    action = "bad"
-            elif record["project"] == "MANAGE" and not re.search("^状态：已删除$", report_text, re.M):
-                if record["status"] == "已重置":
-                    if record["origin"] in glovar.receivers["except"]:
-                        action = "error"
-                    elif record["origin"] == "WARN":
-                        action = "bad"
-                elif record["status"] == "已解禁" or record["status"] == "已解明":
-                    action = "mole"
-                elif record["status"] == "已收录":
-                    action = "innocent"
-            elif record["status"] != "已清除":
-                if record["status"] == "已删除":
-                    action = "redact"
-                else:
-                    action = "delete"
+        # Log data
+        glovar.actions[key] = {
+            "lock": False,
+            "time": get_now(),
+            "mid": 0,
+            "aid": aid,
+            "action": action,
+            "message": report_message,
+            "record": record
+        }
 
-        if action:
-            action_text = glovar.names[action]
-            glovar.actions[key] = {
-                "lock": False,
-                "time": get_now(),
-                "mid": 0,
-                "aid": aid,
-                "action": action,
-                "message": report_message,
-                "record": record
-            }
-            text = (f"管理员：{user_mention(aid)}\n"
-                    f"执行操作：{code(action_text)}\n"
-                    f"状态：{code('等待操作')}\n")
-            data_proceed = button_data(action, "proceed", key)
-            data_cancel = button_data(action, "cancel", key)
-            markup_list = [
-                [
-                    InlineKeyboardButton(
-                        text="处理",
-                        callback_data=data_proceed
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        text="取消",
-                        callback_data=data_cancel
-                    )
-                ]
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_wait'))}\n")
+
+        # Generate the report message's markup
+        data_proceed = button_data(action, "proceed", key)
+        data_cancel = button_data(action, "cancel", key)
+        markup_list = [
+            [
+                InlineKeyboardButton(
+                    text=lang("proceed"),
+                    callback_data=data_proceed
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=lang("cancel"),
+                    callback_data=data_cancel
+                )
             ]
-            if action not in {"delete", "redact", "recall"}:
-                data_delete = button_data(action, "delete", key)
-                markup_list[0].append(
-                    InlineKeyboardButton(
-                        text="删除",
-                        callback_data=data_delete
-                    )
+        ]
+        if action not in {"delete", "redact", "recall"} and r_message and not r_message.empty:
+            data_delete = button_data(action, "delete", key)
+            markup_list[0].append(
+                InlineKeyboardButton(
+                    text=lang("delete"),
+                    callback_data=data_delete
                 )
-            elif action == "bad" and not report_message.reply_to_message:
-                data_delete = button_data("redact", "delete", key)
-                markup_list[0].append(
-                    InlineKeyboardButton(
-                        text="清除",
-                        callback_data=data_delete
-                    )
+            )
+        else:
+            data_delete = button_data("redact", "delete", key)
+            markup_list[0].append(
+                InlineKeyboardButton(
+                    text=lang("redact"),
+                    callback_data=data_delete
                 )
+            )
 
-            markup = InlineKeyboardMarkup(markup_list)
-            result = send_message(client, cid, text, mid, markup)
-            if result:
-                glovar.actions[key]["mid"] = result.message_id
-                glovar.records[key] = {}
-                for item in glovar.actions[key]:
-                    if item in {"lock", "time", "mid"}:
-                        glovar.records[key][item] = deepcopy(glovar.actions[key][item])
+        markup = InlineKeyboardMarkup(markup_list)
 
-                save("records")
-            else:
-                glovar.actions.pop(key, {})
+        # Send the report message
+        result = send_message(client, cid, text, mid, markup)
+
+        # Save data
+        if result:
+            glovar.actions[key]["mid"] = result.message_id
+            glovar.records[key] = {}
+            for item in glovar.actions[key]:
+                if item in {"lock", "time", "mid"}:
+                    glovar.records[key][item] = deepcopy(glovar.actions[key][item])
+
+            save("records")
+        else:
+            glovar.actions.pop(key, {})
                 
         return True
     except Exception as e:

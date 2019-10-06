@@ -54,7 +54,7 @@ def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str
             # Edit the original report message
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action_type}'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang(f'already_{action_type}'))}\n")
+                    f"{lang('status')}{lang('colon')}{code(lang(f'status_{action_type}'))}\n")
             thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
             glovar.records[key]["lock"] = True
@@ -194,7 +194,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         aid = glovar.actions[key]["aid"]
         cid = message.chat.id
         mid = message.message_id
-        rid = (r_message and r_message.message_id) or 0
+        rid = (r_message and r_message.message_id) or mid
 
         # Proceed
         if action == "delete":
@@ -204,20 +204,20 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
                 client=client,
                 message=message,
                 record=record,
-                status=lang("already_delete"),
+                status=lang("status_delete"),
                 reason=reason
             )
         elif action == "redact":
             # Redact the report message
             for r in record:
-                if record[r] and r in {"bio", "name", "from", "more"}:
+                if record[r] and r in {"game", "bio", "name", "from", "more"}:
                     record[r] = int(len(record[r]) / 2 + 1) * "█"
 
             edit_evidence(
                 client=client,
                 message=message,
                 record=record,
-                status=lang("already_redact"),
+                status=lang("status_redact"),
                 reason=reason
             )
         elif action == "recall":
@@ -258,7 +258,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
         # Init
         action_type = ""
         id_type = ""
-        status = lang(f"already_{action}")
+        status = lang(f"status_{action}")
         result = None
 
         # Define the receiver
@@ -283,7 +283,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             elif cid == glovar.logging_channel_id:
                 # Remove the bad user if possible
                 if lang("ban") in record["level"] and cid:
-                    status = lang("already_unban")
+                    status = lang("status_unban")
                     remove_bad_user(client, get_int(record["uid"]), aid)
 
                 # Send the message to the error channel

@@ -165,6 +165,9 @@ lang: Dict[str, str] = {
     "refresh": (zh_cn and "刷新群管列表") or "Refresh Admin Lists",
     # Manage
     "approve": (zh_cn and "批准") or "Approve",
+    "proceed": (zh_cn and "处理") or "Proceed",
+    "delete": (zh_cn and "删除") or "Delete",
+    "redact": (zh_cn and "清除") or "Redact",
     "cancel": (zh_cn and "取消") or "Cancel",
 
     "ban": (zh_cn and "封禁") or "Ban",
@@ -191,16 +194,19 @@ lang: Dict[str, str] = {
     "action_now": (zh_cn and "立即备份") or "Backup Now",
     "action_page": (zh_cn and "翻页") or "Change Page",
 
-    "already_error": (zh_cn and "已解明") or "Explained",
-    "already_bad": (zh_cn and "已收录") or "Contained",
-    "already_mole": (zh_cn and "已移除例外") or "Reset Whitelist",
-    "already_innocent": (zh_cn and "已移除收录") or "Reset Containment",
-    "already_delete": (zh_cn and "已删除") or "Deleted",
-    "already_redact": (zh_cn and "已清除") or "Redacted",
-    "already_recall": (zh_cn and "已撤回") or "Recalled",
-    "already_proceed": (zh_cn and "已处理") or "Proceeded",
-    "already_cancel": (zh_cn and "已取消") or "Cancelled",
-    "already_unban": (zh_cn and "已解禁") or "Unbanned",
+    "status_error": (zh_cn and "已解明") or "Explained",
+    "status_bad": (zh_cn and "已收录") or "Contained",
+    "status_mole": (zh_cn and "已移除例外") or "Reset Whitelist",
+    "status_innocent": (zh_cn and "已移除收录") or "Reset Containment",
+    "status_delete": (zh_cn and "已删除") or "Deleted",
+    "status_redact": (zh_cn and "已清除") or "Redacted",
+    "status_recall": (zh_cn and "已撤回") or "Recalled",
+    "status_proceed": (zh_cn and "已处理") or "Proceeded",
+    "status_cancel": (zh_cn and "已取消") or "Cancelled",
+    "status_unban": (zh_cn and "已解禁") or "Unbanned",
+    "status_commanded": (zh_cn and "已下达指令") or "Commanded",
+    "status_requested": (zh_cn and "已发出请求") or "Requested",
+    "status_wait": (zh_cn and "等待操作") or "Wait",
 
     "leave_auto": (zh_cn and "已自动退出群组") or "Leave the Group Automatically",
     "leave_reject": (zh_cn and "已拒绝退群请求") or "Rejected to Leave the Group",
@@ -220,9 +226,6 @@ lang: Dict[str, str] = {
 
     "record_error": (zh_cn and "错误存档") or "Error Record",
     "record_origin": (zh_cn and "原始记录") or "Original Record",
-
-    "status_commanded": (zh_cn and "已下达指令") or "Commanded",
-    "status_requested": (zh_cn and "已发出请求") or "Requested",
 
     "add_bad": (zh_cn and "添加频道黑名单") or "Add Bad Channel",
     "add_except": (zh_cn and "添加频道白名单") or "Add Whitelist Channel",

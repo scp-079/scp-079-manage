@@ -168,15 +168,18 @@ def receive_leave_info(client: Client, project: str, data: dict) -> bool:
 def receive_leave_request(client: Client, project: str, data: dict) -> bool:
     # Request leave group
     try:
+        # Basic data
         gid = data["group_id"]
         name = data["group_name"]
         link = data["group_link"]
         reason = data["reason"]
 
+        # Generate the key
         key = random_str(8)
         while glovar.records.get(key):
             key = random_str(8)
 
+        # Log data
         glovar.records[key] = {
             "lock": False,
             "time": get_now(),
@@ -190,11 +193,14 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
         if reason in {"permissions", "user"}:
             reason = lang(f"reason_{reason}")
 
+        # Generate the report message's text
         text = (f"{lang('project')}{lang('colon')}{code(project)}\n"
                 f"{lang('group_name')}{lang('colon')}{general_link(name, link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('leave_request'))}\n"
                 f"{lang('reason')}{lang('colon')}{code(reason)}\n")
+
+        # Generate the report message's markup
         data_approve = button_data("leave", "approve", key)
         data_cancel = button_data("leave", "cancel", key)
         markup = InlineKeyboardMarkup(
@@ -211,7 +217,11 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
                 ]
             ]
         )
+
+        # Send the report message
         result = send_message(client, glovar.manage_group_id, text, None, markup)
+
+        # Save data
         glovar.records[key]["mid"] = result and result.message_id
         save("records")
 

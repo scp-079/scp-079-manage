@@ -61,7 +61,7 @@ def interval_hour_01(client: Client) -> bool:
         for key in list(glovar.records):
             action = glovar.records[key]
             time = action["time"]
-            if now - time < 3600:
+            if now - time < 10800:
                 continue
 
             mid = action["mid"]
