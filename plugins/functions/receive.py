@@ -271,7 +271,7 @@ def receive_status_reply(client: Client, message: Message, sender: str, data: di
             return True
 
         text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('status_request'))}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_status'))}\n"
                 f"{lang('project')}{lang('colon')}{code(sender)}\n")
         for name in status:
             text += f"{name}{lang('colon')}{code(status[name])}\n"

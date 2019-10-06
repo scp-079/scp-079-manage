@@ -187,6 +187,7 @@ lang: Dict[str, str] = {
     "action_unban": (zh_cn and "解禁用户") or "Unban the User",
     "action_forgive": (zh_cn and "清空评分") or "Forgive the User",
     "action_unwatch": (zh_cn and "移除追踪") or "Unwatch the User",
+    "action_status": (zh_cn and "查询状态") or "Request the Status",
     "action_now": (zh_cn and "立即备份") or "Backup Now",
     "action_page": (zh_cn and "翻页") or "Change Page",
 
@@ -220,7 +221,6 @@ lang: Dict[str, str] = {
     "record_error": (zh_cn and "错误存档") or "Error Record",
     "record_origin": (zh_cn and "原始记录") or "Original Record",
 
-    "status_request": (zh_cn and "查询状态") or "Request the Status",
     "status_commanded": (zh_cn and "已下达指令") or "Commanded",
     "status_requested": (zh_cn and "已发出请求") or "Requested",
 

@@ -627,35 +627,43 @@ def refresh(client: Client, message: Message) -> bool:
 def status(client: Client, message: Message) -> bool:
     # Check bots' status
     try:
+        # Basic data
         cid = message.chat.id
+        aid = message.from_user.id
         mid = message.message_id
-        uid = message.from_user.id
-        text = (f"管理：{user_mention(uid)}\n"
-                f"操作：{code('查询状态')}\n")
-        command_type = get_command_type(message)
-        if command_type and command_type.upper() in ["ALL"] + glovar.receivers["status"]:
-            if command_type.upper() == "ALL":
+        receivers = get_command_type(message).upper()
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('action_status')}\n")
+
+        # Proceed
+        if receivers:
+            if receivers == "ALL":
                 receivers = glovar.receivers["status"]
             else:
-                receivers = [command_type.upper()]
+                receivers = receivers.split()
 
-            share_data(
-                client=client,
-                receivers=receivers,
-                action="status",
-                action_type="ask",
-                data={
-                    "admin_id": uid,
-                    "message_id": mid
-                }
-            )
-            text += (f"项目：{code((lambda t: t.upper() if t != 'all' else '全部')(command_type))}\n"
-                     f"状态：{code('已请求')}\n")
+            if all(receiver in glovar.receivers["status"] for receiver in receivers):
+                share_data(
+                    client=client,
+                    receivers=receivers,
+                    action="status",
+                    action_type="ask",
+                    data={
+                        "admin_id": aid,
+                        "message_id": mid
+                    }
+                )
+                text += f"{lang('status')}{lang('colon')}{lang('status_requested')}\n"
+            else:
+                text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                         f"{lang('reason')}{lang('colon')}{lang('command_para')}\n")
         else:
-            text += (f"项目：{code(command_type or '未知')}\n"
-                     f"状态：{code('未请求')}\n"
-                     f"原因：{code('格式有误')}\n")
+            text += (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                     f"{lang('reason')}{lang('colon')}{lang('command_lack')}\n")
 
+        # Send the report message
         thread(send_message, (client, cid, text, mid))
 
         return True
