@@ -130,6 +130,8 @@ lang: Dict[str, str] = {
     "action": (zh_cn and "执行操作") or "Action",
     "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
+    "disabled": (zh_cn and "禁用") or "Disabled",
+    "enabled": (zh_cn and "启用") or "Enabled",
     "page": (zh_cn and "第 {} 页") or "Page {}",
     "reason": (zh_cn and "原因") or "Reason",
     "reset": (zh_cn and "重置数据") or "Reset Data",
