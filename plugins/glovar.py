@@ -55,15 +55,15 @@ test_group_id: int = 0
 watch_channel_id: int = 0
 
 # [custom]
-backup: Union[str, bool] = ""
+backup: Union[bool, str] = ""
 per_page: int = 0
 project_link: str = ""
 project_name: str = ""
 date_reset: str = ""
-zh_cn: Union[str, bool] = ""
+zh_cn: Union[bool, str] = ""
 
 # [encrypt]
-key: Union[str, bytes] = ""
+key: Union[bytes, str] = ""
 password: str = ""
 
 try:
