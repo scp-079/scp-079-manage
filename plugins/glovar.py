@@ -360,7 +360,7 @@ receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
             "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],
     "config": ["CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
-    "except": ["CLEAN", "LANG", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
+    "except": ["CLEAN", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
     "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG",
               "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
     "now": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CLEAN", "CONFIG", "LANG", "LONG",
