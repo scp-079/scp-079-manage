@@ -178,7 +178,7 @@ def send_debug(client: Client, aid: int, action: str, project: str = None, the_t
                 f"{lang('action')}{lang('colon')}{code(action)}\n")
 
         if project:
-            text += f"{lang('project_origin')}{lang('colon')}{code(lang('project'))}\n"
+            text += f"{lang('project_target')}{lang('colon')}{code(project)}\n"
 
         if the_type:
             text += f"{lang(f'type_{the_type}')}{lang('colon')}{code(lang(f'time_{the_type}'))}\n"
