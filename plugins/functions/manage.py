@@ -385,6 +385,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             client=client,
             aid=aid,
             action=lang(f"action_{action}"),
+            project=receiver,
             the_type=the_type,
             the_id=record["uid"],
             em=message,

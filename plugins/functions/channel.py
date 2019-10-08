@@ -169,13 +169,16 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
     return result
 
 
-def send_debug(client: Client, aid: int, action: str, the_type: str = None,
+def send_debug(client: Client, aid: int, action: str, project: str = None, the_type: str = None,
                the_id: int = None, em: Message = None, err_m: Message = None, reason: str = None) -> bool:
     # Send the debug message
     try:
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(action)}\n")
+
+        if project:
+            text += f"{lang('project_origin')}{lang('colon')}{code(lang('project'))}\n"
 
         if the_type:
             text += f"{lang(f'type_{the_type}')}{lang('colon')}{code(lang(f'time_{the_type}'))}\n"
