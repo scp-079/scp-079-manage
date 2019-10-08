@@ -137,7 +137,7 @@ def clear(client: Client, message: Message) -> bool:
                 "except_temp": glovar.receivers["except"],
                 "except_long": glovar.receivers["except"],
                 "user_all": glovar.receivers["score"],
-                "user_new": ["CLEAN", "LANG", "NOSPAM", "WATCH"],
+                "user_new": ["AVATAR", "CLEAN", "LANG", "NOSPAM", "WATCH"],
                 "watch_all": glovar.receivers["watch"],
                 "watch_ban": glovar.receivers["watch"],
                 "watch_delete": glovar.receivers["watch"],
