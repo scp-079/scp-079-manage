@@ -199,8 +199,8 @@ def check_subject(client: Client, message: Message) -> bool:
             bad_data = button_data("check", "bad", key)
             except_data = button_data("check", "except", key)
             cancel_data = button_data("check", "cancel", key)
-            bad_text = lang(f"blacklist_{(lambda x: 'add' if x else 'remove')(is_bad)}")
-            except_text = lang(f"whitelist_{(lambda x : 'add' if x else 'remove')(is_except)}")
+            bad_text = lang(f"blacklist_{(lambda x: 'remove' if x else 'add')(is_bad)}")
+            except_text = lang(f"whitelist_{(lambda x : 'remove' if x else 'add')(is_except)}")
             markup_list = [
                 [
                     InlineKeyboardButton(
