@@ -37,8 +37,11 @@ logger = logging.getLogger(__name__)
 def receive_add_bad(data: dict) -> bool:
     # Receive bad users or channels that other bots shared
     try:
+        # Basic data
         the_id = data["id"]
         the_type = data["type"]
+
+        # Receive bad user
         if the_type == "user":
             glovar.bad_ids["users"].add(the_id)
 
@@ -54,8 +57,11 @@ def receive_add_bad(data: dict) -> bool:
 def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
     # Receive clear data command
     try:
+        # Basic data
         aid = data["admin_id"]
         the_type = data["type"]
+
+        # Clear bad data
         if data_type == "bad":
             if the_type == "channels":
                 glovar.bad_ids["channels"] = set()
@@ -63,16 +69,19 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
                 glovar.bad_ids["users"] = set()
 
             save("bad_ids")
+        # Clear except data
         elif data_type == "except":
             if the_type == "channels":
                 glovar.except_ids["channels"] = set()
 
             save("except_ids")
+        # Clear user data
         elif data_type == "user":
             if the_type == "all":
                 glovar.user_ids = {}
 
             save("user_ids")
+        # Clear watch data
         elif data_type == "watch":
             if the_type == "all":
                 glovar.watch_ids = {
@@ -154,9 +163,12 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
 def receive_leave_info(client: Client, project: str, data: dict) -> bool:
     # Info left group
     try:
+        # Basic data
         gid = data["group_id"]
         name = data["group_name"]
         link = data["group_link"]
+
+        # Send the report message
         text = (f"{lang('project')}{lang('colon')}{code(project)}\n"
                 f"{lang('group_name')}{lang('colon')}{general_link(name, link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
@@ -195,6 +207,7 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
             "group_link": link,
             "reason": reason
         }
+
         if reason in {"permissions", "user"}:
             reason = lang(f"reason_{reason}")
 
@@ -238,18 +251,20 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
 
 
 def receive_remove_bad(data: dict) -> bool:
-    # Receive bad users that shall be removed
+    # Receive removed bad objects
     try:
-        uid = data["id"]
+        # Basic data
+        the_id = data["id"]
         the_type = data["type"]
+
         if the_type == "user":
-            glovar.bad_ids["users"].discard(uid)
+            glovar.bad_ids["users"].discard(the_id)
 
         save("bad_ids")
 
         return True
     except Exception as e:
-        logger.warning(f"Receive remove user error: {e}", exc_info=True)
+        logger.warning(f"Receive remove bad error: {e}", exc_info=True)
 
     return False
 
@@ -257,9 +272,11 @@ def receive_remove_bad(data: dict) -> bool:
 def receive_rollback(client: Client, message: Message, data: dict) -> bool:
     # Receive rollback data
     try:
+        # Basic data
         aid = data["admin_id"]
         the_type = data["type"]
         the_data = receive_file_data(client, message)
+
         if the_data:
             exec(f"glovar.{the_type} = the_data")
             save(the_type)
@@ -314,8 +331,10 @@ def receive_text_data(message: Message) -> dict:
 def receive_user_score(project: str, data: dict) -> bool:
     # Receive and update user's score
     try:
+        # Basic data
         project = project.lower()
         uid = data["id"]
+
         if init_user_id(uid):
             score = data["score"]
             glovar.user_ids[uid][project] = score
@@ -331,6 +350,7 @@ def receive_user_score(project: str, data: dict) -> bool:
 def receive_watch_user(data: dict) -> bool:
     # Receive watch users that other bots shared
     try:
+        # Basic data
         the_type = data["type"]
         uid = data["id"]
         until = data["until"]
