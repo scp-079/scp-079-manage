@@ -384,7 +384,7 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
     result = ""
     try:
         # Generate the report message's text
-        result += (f"{lang('action')}{lang('colon')}{code('action_unwatch')}\n"
+        result += (f"{lang('action')}{lang('colon')}{code(lang('action_unwatch'))}\n"
                    f"{lang('user_id')}{lang('colon')}{code(the_id)}\n")
 
         # Proceed
