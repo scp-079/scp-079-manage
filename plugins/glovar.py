@@ -273,6 +273,20 @@ lang: Dict[str, str] = {
     "user_name": (zh_cn and "用户昵称") or "User Name",
     "from_name": (zh_cn and "来源名称") or "Forward Name",
     "more": (zh_cn and "附加信息") or "Extra Info",
+    # Terminate
+    "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
+    "auto_delete": (zh_cn and "自动删除") or "Auto Delete",
+    "name_ban": (zh_cn and "名称封禁") or "Ban by Name",
+    "name_examine": (zh_cn and "名称检查") or "Name Examination",
+    "op_downgrade": (zh_cn and "操作降级") or "Operation Downgrade",
+    "op_upgrade": (zh_cn and "操作升级") or "Operation Upgrade",
+    "rule_custom": (zh_cn and "群组自定义") or "Custom Rule",
+    "rule_global": (zh_cn and "全局规则") or "Global Rule",
+    "score_ban": (zh_cn and "评分封禁") or "Ban by Score",
+    "score_user": (zh_cn and "用户评分") or "High Score",
+    "watch_ban": (zh_cn and "追踪封禁") or "Watch Ban",
+    "watch_delete": (zh_cn and "追踪删除") or "Watch Delete",
+    "watch_user": (zh_cn and "敏感追踪") or "Watched User"
 }
 
 # Init
