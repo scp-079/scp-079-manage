@@ -336,7 +336,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                     remove_bad_user(client, get_int(record["uid"]), aid)
 
                 # Remove the watch user if possible
-                if record["level"] == lang("watch_delete"):
+                if record["level"] == lang("auto_delete") and record["rule"] == lang("watch_user"):
                     remove_watch_user(client, get_int(record["uid"]))
 
                 # Send the message to the error channel
