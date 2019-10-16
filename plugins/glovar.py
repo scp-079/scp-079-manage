@@ -56,10 +56,10 @@ watch_channel_id: int = 0
 
 # [custom]
 backup: Union[bool, str] = ""
+date_reset: str = ""
 per_page: int = 0
 project_link: str = ""
 project_name: str = ""
-date_reset: str = ""
 zh_cn: Union[bool, str] = ""
 
 # [encrypt]
