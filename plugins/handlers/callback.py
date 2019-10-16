@@ -36,7 +36,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     glovar.locks["callback"].acquire()
     try:
-        # Basic callback data
+        # Basic data
         cid = callback_query.message.chat.id
         uid = callback_query.from_user.id
         aid = get_admin(callback_query.message)
@@ -45,24 +45,33 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         action = callback_data["a"]
         action_type = callback_data["t"]
         data = callback_data["d"]
-        # Check permission
-        if uid == aid or not aid:
-            # Answer
-            if action in {"error", "bad", "mole", "innocent", "delete", "redact", "recall", "rollback"}:
-                key = data
-                thread(answer_action, (client, action_type, uid, mid, key))
-            elif action == "check":
-                key = data
-                thread(answer_check, (client, action_type, uid, mid, key))
-            elif action == "leave":
-                key = data
-                thread(answer_leave, (client, action_type, uid, mid, key))
-            elif action == "list":
-                page = data
-                text, markup = list_page_ids(aid, action_type, page)
-                edit_message_text(client, cid, mid, text, markup)
 
-            thread(answer_callback, (client, callback_query.id, ""))
+        # Check permission
+        if aid and uid != aid:
+            return True
+
+        # Answer actions
+        if action in {"error", "bad", "mole", "innocent", "delete", "redact", "recall", "rollback"}:
+            key = data
+            thread(answer_action, (client, action_type, uid, mid, key))
+
+        # Check subject
+        elif action == "check":
+            key = data
+            thread(answer_check, (client, action_type, uid, mid, key))
+
+        # Leave the group
+        elif action == "leave":
+            key = data
+            thread(answer_leave, (client, action_type, uid, mid, key))
+
+        # List
+        elif action == "list":
+            page = data
+            text, markup = list_page_ids(aid, action_type, page)
+            edit_message_text(client, cid, mid, text, markup)
+
+        thread(answer_callback, (client, callback_query.id, ""))
 
         return True
     except Exception as e:
