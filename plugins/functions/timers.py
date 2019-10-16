@@ -105,7 +105,7 @@ def reset_data(client: Client) -> bool:
         save("watch_ids")
 
         glovar.records = {}
-        save("actions_pure")
+        save("records")
 
         # Send debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
