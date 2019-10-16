@@ -128,6 +128,7 @@ lang: Dict[str, str] = {
     "admin_project": (zh_cn and "项目管理员") or "Project Admin",
     # Basic
     "action": (zh_cn and "执行操作") or "Action",
+    "action_page": (zh_cn and "翻页") or "Change Page",
     "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
     "disabled": (zh_cn and "禁用") or "Disabled",
@@ -196,7 +197,6 @@ lang: Dict[str, str] = {
     "action_unwatch": (zh_cn and "移除追踪") or "Unwatch the User",
     "action_status": (zh_cn and "查询状态") or "Request the Status",
     "action_now": (zh_cn and "立即备份") or "Backup Now",
-    "action_page": (zh_cn and "翻页") or "Change Page",
 
     "status_error": (zh_cn and "已解明") or "Explained",
     "status_bad": (zh_cn and "已收录") or "Contained",
