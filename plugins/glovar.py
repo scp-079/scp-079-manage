@@ -218,8 +218,8 @@ lang: Dict[str, str] = {
     "leave_handle": (zh_cn and "处理退群请求") or "Deal with the Leave Request",
     "leave_manual": (zh_cn and "手动退群") or "Leave Manually",
 
-    "list_bad": (zh_cn and "查询频道黑名单") or "List Channel Blacklist",
-    "list_except": (zh_cn and "查询频道白名单") or "List Channel Whitelist",
+    "list_bad": (zh_cn and "查看频道黑名单") or "List Channel Blacklist",
+    "list_except": (zh_cn and "查看频道白名单") or "List Channel Whitelist",
 
     "time_content": (zh_cn and "短期") or "Short Term",
     "time_long": (zh_cn and "长期") or "Long Term",
