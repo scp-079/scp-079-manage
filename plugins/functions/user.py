@@ -97,7 +97,7 @@ def check_subject(client: Client, message: Message) -> bool:
         if id_text:
             the_id = get_int(id_text)
             if not the_id:
-                _, the_id = resolve_username(client, id_text)
+                _, the_id = resolve_username(client, id_text, False)
         elif message.forward_from:
             the_id = message.forward_from.id
         elif message.forward_from_chat:

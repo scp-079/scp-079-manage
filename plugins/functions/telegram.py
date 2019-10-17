@@ -24,6 +24,7 @@ from pyrogram.api.types import InputPeerUser, InputPeerChannel
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
+from .. import glovar
 from .etc import get_int, wait_flood
 
 # Enable logging
@@ -201,13 +202,18 @@ def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, I
     return result
 
 
-def resolve_username(client: Client, username: str) -> (str, int):
+def resolve_username(client: Client, username: str, cache: bool = True) -> (str, int):
     # Resolve peer by username
     peer_type = ""
     peer_id = 0
     try:
+        username = username.strip("@")
         if not username:
             return "", 0
+
+        result = glovar.usernames.get(username)
+        if result and cache:
+            return result["peer_type"], result["peer_id"]
 
         result = resolve_peer(client, username)
         if result:
@@ -218,6 +224,11 @@ def resolve_username(client: Client, username: str) -> (str, int):
             elif isinstance(result, InputPeerUser):
                 peer_type = "user"
                 peer_id = result.user_id
+
+        glovar.usernames[username] = {
+            "peer_type": peer_type,
+            "peer_id": peer_id
+        }
     except Exception as e:
         logger.warning(f"Resolve username error: {e}", exc_info=True)
 
