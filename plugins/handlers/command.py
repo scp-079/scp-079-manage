@@ -399,9 +399,9 @@ def modify_subject(client: Client, message: Message) -> bool:
         rid = r_message and r_message.message_id
 
         # Check force
-        if re.search("\bforce$", reason):
+        if re.search("force$", reason):
             force = True
-            reason = re.sub("\bforce$", "", reason).strip()
+            reason = re.sub("force$", "", reason).strip()
 
         # Generate the report message's text
         text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
