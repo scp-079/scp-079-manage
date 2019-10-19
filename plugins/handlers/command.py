@@ -624,6 +624,47 @@ def refresh(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
+                   & Filters.command(["remove_contact"], glovar.prefix))
+def remove_contact(client: Client, message: Message) -> bool:
+    # Let NOSPAM remove a contact
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        command_type = get_command_type(message)
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_contact'))}\n")
+
+        # Proceed
+        if command_type:
+            share_data(
+                client=client,
+                receivers=["NOSPAM"],
+                action="remove",
+                action_type="bad",
+                data={
+                    "id": command_type,
+                    "type": "contact"
+                }
+            )
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n"
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+    except Exception as e:
+        logger.warning(f"Remove contact error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
                    & Filters.command(["status"], glovar.prefix))
 def status(client: Client, message: Message) -> bool:
     # Check bots' status

@@ -195,6 +195,7 @@ lang: Dict[str, str] = {
     "action_unban": (zh_cn and "解禁用户") or "Unban the User",
     "action_forgive": (zh_cn and "清空评分") or "Forgive the User",
     "action_unwatch": (zh_cn and "移除追踪") or "Unwatch the User",
+    "action_contact": (zh_cn and "移除联系方式") or "Remove Contact",
     "action_status": (zh_cn and "查询状态") or "Request the Status",
     "action_now": (zh_cn and "立即备份") or "Backup Now",
 
@@ -318,6 +319,7 @@ all_commands: List[str] = [
     "page",
     "refresh",
     "remove_bad",
+    "remove_contact",
     "remove_except",
     "remove_score",
     "remove_watch",
