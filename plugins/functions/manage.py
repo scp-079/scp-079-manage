@@ -58,6 +58,7 @@ def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str
             text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang(f'status_{action_type}'))}\n")
+
             if reason:
                 text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 

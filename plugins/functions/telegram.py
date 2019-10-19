@@ -112,7 +112,7 @@ def edit_message_reply_markup(client: Client, cid: int, mid: int,
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Edit message reply markup error: {e}", exc_info=True)
+        logger.warning(f"Edit message {mid} reply markup in {cid} error: {e}", exc_info=True)
 
     return result
 
