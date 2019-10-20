@@ -190,7 +190,8 @@ def check_subject(client: Client, message: Message) -> bool:
             is_except = the_id in glovar.except_ids["channels"]
             text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
                     f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
-            if id_text != str(the_id):
+
+            if id_text and id_text != str(the_id):
                 chat = get_chat(client, id_text)
                 text += f"{lang('restricted_channel')}{lang('colon')}{code(bool(chat and chat.restrictions))}\n"
 
