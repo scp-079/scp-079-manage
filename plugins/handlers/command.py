@@ -322,6 +322,13 @@ def leave(client: Client, message: Message) -> bool:
         else:
             text += f"{lang('action')}{lang('colon')}{code(lang('leave_manual'))}\n"
             id_text, reason, _ = get_subject(message)
+
+            # Check force
+            force = False
+            if re.search("force$", reason):
+                force = True
+                reason = re.sub("force$", "", reason).strip()
+
             if id_text:
                 the_id = get_int(id_text)
                 if the_id < 0:
@@ -333,7 +340,7 @@ def leave(client: Client, message: Message) -> bool:
                         data={
                             "admin_id": aid,
                             "group_id": the_id,
-                            "force": True,
+                            "force": force,
                             "reason": reason
                         }
                     )
