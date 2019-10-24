@@ -248,49 +248,6 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
     return False
 
 
-def action_rollback(client: Client, key: str) -> bool:
-    # Rollback the data
-    try:
-        # Basic data
-        aid = glovar.actions[key]["aid"]
-        message = glovar.actions[key]["message"]
-        receiver = glovar.actions[key]["sender"]
-        the_type = glovar.actions[key]["type"]
-
-        # Check MANAGE itself
-        if receiver == "MANAGE":
-            receive_rollback(
-                client=client,
-                message=message,
-                data={
-                    "admin_id": aid,
-                    "type": the_type
-                }
-            )
-            return True
-
-        # Proceed
-        file_id = message.document.file_id
-        file_ref = message.document.file_ref
-        text = format_data(
-            sender=glovar.sender,
-            receivers=[receiver],
-            action="backup",
-            action_type="rollback",
-            data={
-                "admin_id": aid,
-                "type": the_type
-            }
-        )
-        thread(send_document, (client, glovar.exchange_channel_id, file_id, file_ref, text))
-
-        return True
-    except Exception as e:
-        logger.warning(f"Action rollback error: {e}", exc_info=True)
-
-    return False
-
-
 def action_proceed(client: Client, key: str, reason: str = None) -> bool:
     # Proceed the action
     try:
@@ -401,6 +358,49 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Action proceed error: {e}", exc_info=True)
+
+    return False
+
+
+def action_rollback(client: Client, key: str) -> bool:
+    # Rollback the data
+    try:
+        # Basic data
+        aid = glovar.actions[key]["aid"]
+        message = glovar.actions[key]["message"]
+        receiver = glovar.actions[key]["sender"]
+        the_type = glovar.actions[key]["type"]
+
+        # Check MANAGE itself
+        if receiver == "MANAGE":
+            receive_rollback(
+                client=client,
+                message=message,
+                data={
+                    "admin_id": aid,
+                    "type": the_type
+                }
+            )
+            return True
+
+        # Proceed
+        file_id = message.document.file_id
+        file_ref = message.document.file_ref
+        text = format_data(
+            sender=glovar.sender,
+            receivers=[receiver],
+            action="backup",
+            action_type="rollback",
+            data={
+                "admin_id": aid,
+                "type": the_type
+            }
+        )
+        thread(send_document, (client, glovar.exchange_channel_id, file_id, file_ref, text))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Action rollback error: {e}", exc_info=True)
 
     return False
 

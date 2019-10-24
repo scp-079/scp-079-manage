@@ -31,7 +31,7 @@ from .etc import get_int, wait_flood
 logger = logging.getLogger(__name__)
 
 
-def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
+def answer_callback(client: Client, callback_query_id: str, text: str, show_alert: bool = False) -> Optional[bool]:
     # Answer the callback
     result = None
     try:
@@ -40,14 +40,15 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
             flood_wait = False
             try:
                 result = client.answer_callback_query(
-                    callback_query_id=query_id,
-                    text=text
+                    callback_query_id=callback_query_id,
+                    text=text,
+                    show_alert=show_alert
                 )
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Answer query to {query_id} error: {e}", exc_info=True)
+        logger.warning(f"Answer query to {callback_query_id} error: {e}", exc_info=True)
 
     return result
 

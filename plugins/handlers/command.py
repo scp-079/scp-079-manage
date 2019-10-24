@@ -333,6 +333,7 @@ def leave(client: Client, message: Message) -> bool:
                         data={
                             "admin_id": aid,
                             "group_id": the_id,
+                            "force": True,
                             "reason": reason
                         }
                     )
