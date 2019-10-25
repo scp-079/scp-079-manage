@@ -162,6 +162,7 @@ def answer_leave(client: Client, action_type: str, uid: int, mid: int, key: str,
                     data={
                         "admin_id": uid,
                         "group_id": gid,
+                        "force": False,
                         "reason": reason
                     }
                 )
