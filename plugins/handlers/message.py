@@ -270,13 +270,19 @@ def process_data(client: Client, message: Message) -> bool:
         if glovar.sender in receivers:
             if sender == "CAPTCHA":
 
+                if action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
+
                 if action == "update":
                     if action_type == "score":
                         receive_user_score(sender, data)
-
-                elif action == "config":
-                    if action_type == "show":
-                        receive_config_show(client, message, data)
 
             elif sender == "CLEAN":
                 if action == "add":
@@ -288,6 +294,12 @@ def process_data(client: Client, message: Message) -> bool:
                 elif action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -305,6 +317,12 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "show":
                         receive_config_show(client, message, data)
 
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
+
                 elif action == "update":
                     if action_type == "score":
                         receive_user_score(sender, data)
@@ -320,6 +338,12 @@ def process_data(client: Client, message: Message) -> bool:
                 elif action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -337,6 +361,12 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "show":
                         receive_config_show(client, message, data)
 
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
+
                 elif action == "update":
                     if action_type == "score":
                         receive_user_score(sender, data)
@@ -353,6 +383,12 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "show":
                         receive_config_show(client, message, data)
 
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
+
                 elif action == "update":
                     if action_type == "score":
                         receive_user_score(sender, data)
@@ -368,6 +404,12 @@ def process_data(client: Client, message: Message) -> bool:
                 elif action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
 
                 elif action == "status":
                     if action_type == "reply":
@@ -388,6 +430,12 @@ def process_data(client: Client, message: Message) -> bool:
                 elif action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
 
                 elif action == "update":
                     if action_type == "score":
@@ -424,6 +472,12 @@ def process_data(client: Client, message: Message) -> bool:
                 if action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
 
                 elif action == "update":
                     if action_type == "score":
