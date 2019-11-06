@@ -24,7 +24,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.channel import share_data
 from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
-from ..functions.etc import get_command_type, get_int, get_subject, lang, message_link, thread, user_mention
+from ..functions.etc import get_command_type, get_int, get_subject, lang, message_link, thread, mention_id
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import answer_action, answer_leave, list_page_ids
 from ..functions.receive import receive_clear_data
@@ -37,8 +37,9 @@ from ..functions.user import remove_bad_user, remove_channel, remove_score, remo
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["action"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["action"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def action_command(client: Client, message: Message) -> bool:
     # Deal with report messages
     try:
@@ -50,7 +51,7 @@ def action_command(client: Client, message: Message) -> bool:
         rid = r_message and r_message.message_id
 
         # Generate the report message's text
-        text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+        text = f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
 
         # Proceed
         action_type, reason = get_command_context(message)
@@ -83,8 +84,9 @@ def action_command(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["check"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["check"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def check(client: Client, message: Message) -> bool:
     # Check a user's status
     try:
@@ -97,19 +99,20 @@ def check(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["clear_bad_channels",
-                                      "clear_bad_users",
-                                      "clear_bad_contents",
-                                      "clear_bad_contacts",
-                                      "clear_except_channels",
-                                      "clear_except_temp",
-                                      "clear_except_long",
-                                      "clear_user_all",
-                                      "clear_user_new",
-                                      "clear_watch_all",
-                                      "clear_watch_ban",
-                                      "clear_watch_delete"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["clear_bad_channels",
+                                                                       "clear_bad_users",
+                                                                       "clear_bad_contents",
+                                                                       "clear_bad_contacts",
+                                                                       "clear_except_channels",
+                                                                       "clear_except_temp",
+                                                                       "clear_except_long",
+                                                                       "clear_user_all",
+                                                                       "clear_user_new",
+                                                                       "clear_watch_all",
+                                                                       "clear_watch_ban",
+                                                                       "clear_watch_delete"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def clear(client: Client, message: Message) -> bool:
     # Clear data
     try:
@@ -123,7 +126,7 @@ def clear(client: Client, message: Message) -> bool:
         receivers = get_command_type(message).upper()
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n")
 
         # Proceed
@@ -187,8 +190,9 @@ def clear(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["config"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def config(client: Client, message: Message) -> bool:
     # Let other bots show config of a group
     try:
@@ -201,7 +205,7 @@ def config(client: Client, message: Message) -> bool:
         gid = get_int(id_text)
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n")
 
         # Proceed
@@ -232,8 +236,9 @@ def config(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["hide"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["hide"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def hide(client: Client, message: Message) -> bool:
     # Let bots hide
     try:
@@ -244,7 +249,7 @@ def hide(client: Client, message: Message) -> bool:
         command_type = get_command_type(message)
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n")
 
         # Proceed
@@ -269,7 +274,7 @@ def hide(client: Client, message: Message) -> bool:
 
             # Send debug message
             debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                          f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
+                          f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                           f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n"
                           f"{lang('emergency_channel')}{lang('colon')}{code(data_text)}\n")
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
@@ -287,8 +292,9 @@ def hide(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["leave"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["leave"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def leave(client: Client, message: Message) -> bool:
     # Let other bots leave a group
     try:
@@ -300,13 +306,13 @@ def leave(client: Client, message: Message) -> bool:
         rid = r_message and r_message.message_id
 
         # Generate the report message's text
-        text = f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Proceed
         if message.reply_to_message:
             text += f"{lang('action')}{lang('colon')}{code(lang('leave_handle'))}\n"
             action_type, reason = get_command_context(message)
-            if action_type in {"approve", "cancel"} and r_message and r_message.from_user.is_self:
+            if action_type in {"approve", "reject"} and r_message and r_message.from_user.is_self:
                 callback_data_list = get_callback_data(r_message)
                 if callback_data_list and callback_data_list[0]["t"] in {"approve"}:
                     action_key = callback_data_list[0]["d"]
@@ -363,8 +369,9 @@ def leave(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["list", "ls"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["list", "ls"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def list_ids(client: Client, message: Message) -> bool:
     # List IDs
     try:
@@ -387,13 +394,13 @@ def list_ids(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["add_bad",
-                                      "add_except",
-                                      "remove_bad",
-                                      "remove_except",
-                                      "remove_score",
-                                      "remove_watch"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["add_bad",
+                                                                       "add_except",
+                                                                       "remove_bad",
+                                                                       "remove_except",
+                                                                       "remove_score",
+                                                                       "remove_watch"], glovar.prefix)
+                   & manage_group & from_user)
 def modify_subject(client: Client, message: Message) -> bool:
     # Add or remove user and channel
     try:
@@ -412,7 +419,7 @@ def modify_subject(client: Client, message: Message) -> bool:
             reason = re.sub("force$", "", reason).strip()
 
         # Generate the report message's text
-        text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+        text = f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
 
         # Proceed
         if id_text:
@@ -464,7 +471,7 @@ def modify_subject(client: Client, message: Message) -> bool:
         # Send debug message
         if from_check:
             thread(edit_message_text, (client, cid, r_message.message_id, text))
-            text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
                     f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
             thread(send_message, (client, cid, text, mid))
@@ -478,8 +485,9 @@ def modify_subject(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["now"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["now"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def now(client: Client, message: Message) -> bool:
     # Backup now
     try:
@@ -490,7 +498,7 @@ def now(client: Client, message: Message) -> bool:
         receivers = get_command_type(message).upper()
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n")
 
         # Proceed
@@ -533,8 +541,9 @@ def now(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["page"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["page"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def page_command(client: Client, message: Message) -> bool:
     # Change page
     try:
@@ -547,7 +556,7 @@ def page_command(client: Client, message: Message) -> bool:
         rid = r_message and r_message.message_id
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_page'))}\n")
 
         # Proceed
@@ -583,8 +592,9 @@ def page_command(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["refresh"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["refresh"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def refresh(client: Client, message: Message) -> bool:
     # Refresh admins
     try:
@@ -595,7 +605,7 @@ def refresh(client: Client, message: Message) -> bool:
         receivers = get_command_type(message).upper()
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('refresh'))}\n")
 
         # Proceed
@@ -631,8 +641,9 @@ def refresh(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["remove_contact"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["remove_contact"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def remove_contact(client: Client, message: Message) -> bool:
     # Let NOSPAM remove a contact
     try:
@@ -643,7 +654,7 @@ def remove_contact(client: Client, message: Message) -> bool:
         command_type = get_command_type(message)
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_contact'))}\n")
 
         # Proceed
@@ -672,8 +683,9 @@ def remove_contact(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user
-                   & Filters.command(["status"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["status"], glovar.prefix)
+                   & manage_group
+                   & from_user)
 def status(client: Client, message: Message) -> bool:
     # Check bots' status
     try:
@@ -684,7 +696,7 @@ def status(client: Client, message: Message) -> bool:
         receivers = get_command_type(message).upper()
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_status'))}\n")
 
         # Proceed
@@ -723,15 +735,16 @@ def status(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & test_group & from_user
-                   & Filters.command(["version"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
+                   & test_group
+                   & from_user)
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
                 f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
 

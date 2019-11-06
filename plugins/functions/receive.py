@@ -18,15 +18,14 @@
 
 import logging
 import pickle
-from copy import deepcopy
 from json import loads
 from typing import Any
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .etc import button_data, code, crypt_str, general_link, get_int, get_now, get_text, lang
-from .etc import random_str, thread, user_mention
+from .etc import button_data, code, crypt_str, general_link, get_int, get_now, get_text, lang, mention_id
+from .etc import random_str, thread
 from .file import crypt_file, delete_file, get_downloaded_path, get_new_path, save
 from .ids import init_user_id
 from .telegram import send_message
@@ -71,20 +70,23 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
                 glovar.bad_ids["users"] = set()
 
             save("bad_ids")
+
         # Clear except data
-        elif data_type == "except":
+        if data_type == "except":
             if the_type == "channels":
                 glovar.except_ids["channels"] = set()
 
             save("except_ids")
+
         # Clear user data
-        elif data_type == "user":
+        if data_type == "user":
             if the_type == "all":
                 glovar.user_ids = {}
 
             save("user_ids")
+
         # Clear watch data
-        elif data_type == "watch":
+        if data_type == "watch":
             if the_type == "all":
                 glovar.watch_ids = {
                     "ban": {},
@@ -99,7 +101,7 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
 
         # Send debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
                 f"{lang('more')}{lang('colon')}{code(f'{data_type} {the_type}')}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
@@ -197,6 +199,7 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
 
         # Generate the key
         key = random_str(8)
+
         while glovar.records.get(key):
             key = random_str(8)
 
@@ -224,7 +227,7 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
 
         # Generate the report message's markup
         data_approve = button_data("leave", "approve", key)
-        data_cancel = button_data("leave", "cancel", key)
+        data_reject = button_data("leave", "reject", key)
         markup = InlineKeyboardMarkup(
             [
                 [
@@ -233,8 +236,8 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
                         callback_data=data_approve
                     ),
                     InlineKeyboardButton(
-                        text=lang("cancel"),
-                        callback_data=data_cancel
+                        text=lang("reject"),
+                        callback_data=data_reject
                     )
                 ]
             ]
@@ -254,30 +257,6 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
     return False
 
 
-def receive_remove_bad(data: dict) -> bool:
-    # Receive removed bad objects
-    try:
-        # Basic data
-        the_id = data["id"]
-        the_type = data["type"]
-
-        if the_type == "user":
-            glovar.bad_ids["users"].discard(the_id)
-            glovar.watch_ids["ban"].pop(the_id, {})
-            glovar.watch_ids["delete"].pop(the_id, {})
-            save("watch_ids")
-            glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
-            save("user_ids")
-
-        save("bad_ids")
-
-        return True
-    except Exception as e:
-        logger.warning(f"Receive remove bad error: {e}", exc_info=True)
-
-    return False
-
-
 def receive_rollback(client: Client, message: Message, data: dict) -> bool:
     # Receive rollback data
     try:
@@ -286,13 +265,15 @@ def receive_rollback(client: Client, message: Message, data: dict) -> bool:
         the_type = data["type"]
         the_data = receive_file_data(client, message)
 
-        if the_data:
-            exec(f"glovar.{the_type} = the_data")
-            save(the_type)
+        if not the_data:
+            return True
+
+        exec(f"glovar.{the_type} = the_data")
+        save(the_type)
 
         # Send debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('rollback'))}\n"
                 f"{lang('more')}{lang('colon')}{code(the_type)}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
@@ -305,15 +286,18 @@ def receive_rollback(client: Client, message: Message, data: dict) -> bool:
 def receive_status_reply(client: Client, message: Message, sender: str, data: dict) -> bool:
     # Receive status reply
     try:
+        # Basic data
         aid = data["admin_id"]
         mid = data["message_id"]
         status = receive_file_data(client, message)
+
         if not status:
             return True
 
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_status'))}\n"
                 f"{lang('project')}{lang('colon')}{code(sender)}\n")
+
         for name in status:
             text += f"{name}{lang('colon')}{code(status[name])}\n"
 
@@ -329,10 +313,13 @@ def receive_text_data(message: Message) -> dict:
     data = {}
     try:
         text = get_text(message)
-        if text:
-            data = loads(text)
+
+        if not text:
+            return {}
+
+        data = loads(text)
     except Exception as e:
-        logger.warning(f"Receive data error: {e}")
+        logger.warning(f"Receive text data error: {e}")
 
     return data
 
@@ -344,10 +331,12 @@ def receive_user_score(project: str, data: dict) -> bool:
         project = project.lower()
         uid = data["id"]
 
-        if init_user_id(uid):
-            score = data["score"]
-            glovar.user_ids[uid][project] = score
-            save("user_ids")
+        if not init_user_id(uid):
+            return True
+
+        score = data["score"]
+        glovar.user_ids[uid][project] = score
+        save("user_ids")
 
         return True
     except Exception as e:

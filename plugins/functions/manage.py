@@ -22,7 +22,7 @@ from pyrogram import Client, InlineKeyboardMarkup
 
 from .. import glovar
 from .channel import edit_evidence, format_data, send_debug, send_error, share_data, share_id
-from .etc import code, general_link, get_int, get_list_page, lang, thread, user_mention
+from .etc import code, general_link, get_int, get_list_page, lang, mention_id, thread
 from .file import save
 from .group import delete_message
 from .receive import receive_rollback
@@ -55,7 +55,7 @@ def answer_action(client: Client, action_type: str, uid: int, mid: int, key: str
 
             # Edit the original report message
             action = glovar.actions[key]["action"]
-            text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang(f'status_{action_type}'))}\n")
 
@@ -113,11 +113,13 @@ def answer_check(client: Client, action_type: str, uid: int, mid: int, key: str)
             if not text:
                 return True
 
-            text = f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n" + text
+            text = f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n" + text
             thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
         else:
             glovar.records[key]["lock"] = True
             thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+
+        save("records")
 
         return False
     except Exception as e:
@@ -146,7 +148,7 @@ def answer_leave(client: Client, action_type: str, uid: int, mid: int, key: str,
             reason = reason or glovar.records[key]["reason"]
 
             # Generate the report message's text
-            text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang(f'action_{action_type}'))}\n"
                     f"{lang('project')}{lang('colon')}{code(project)}\n"
                     f"{lang('group_name')}{lang('colon')}{general_link(name, link)}\n"
@@ -166,6 +168,7 @@ def answer_leave(client: Client, action_type: str, uid: int, mid: int, key: str,
                         "reason": reason
                     }
                 )
+
                 if reason in {"permissions", "user"}:
                     reason = lang(f"reason_{reason}")
 
@@ -173,6 +176,7 @@ def answer_leave(client: Client, action_type: str, uid: int, mid: int, key: str,
                          f"{lang('reason')}{lang('colon')}{code(lang(reason))}\n")
             else:
                 text += f"{lang('status')}{lang('colon')}{code(lang('leave_reject'))}\n"
+
                 if reason not in {"permissions", "user"}:
                     text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
 
@@ -181,6 +185,8 @@ def answer_leave(client: Client, action_type: str, uid: int, mid: int, key: str,
         else:
             glovar.records[key]["lock"] = True
             thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
+
+        save("records")
 
         return True
     except Exception as e:
@@ -222,7 +228,7 @@ def action_delete(client: Client, key: str, reason: str = None) -> bool:
         else:
             # Redact the report message
             for r in record:
-                if record[r] and r in {"game", "bio", "name", "from", "more"}:
+                if record[r] and r in {"game", "bio", "name", "from", "contact", "more"}:
                     record[r] = int(len(record[r]) / 2 + 1) * "█"
 
             edit_evidence(
@@ -412,7 +418,7 @@ def list_page_ids(aid: int, action_type: str, page: int) -> (str, InlineKeyboard
     markup = None
     try:
         # Prefix
-        text = f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Generate
         if action_type in {"bad", "except"}:

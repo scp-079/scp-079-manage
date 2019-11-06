@@ -24,14 +24,13 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, lang, random_str
-from ..functions.etc import thread, user_mention
+from ..functions.etc import thread, mention_id
 from ..functions.file import save
 from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_exchange_channel
 from ..functions.filters import is_error_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_config_show, receive_leave_info, receive_leave_request
-from ..functions.receive import receive_remove_bad, receive_status_reply, receive_text_data, receive_user_score
-from ..functions.receive import receive_watch_user
+from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
 from ..functions.telegram import send_message
 from ..functions.user import check_subject
 
@@ -39,9 +38,11 @@ from ..functions.user import check_subject
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
+@Client.on_message(Filters.incoming & Filters.group & Filters.forwarded
+                   & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & manage_group
                    & (exchange_channel | error_channel | logging_channel | watch_channel)
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+                   & from_user)
 def action_ask(client: Client, message: Message) -> bool:
     # Ask how to deal with the report message
     try:
@@ -59,17 +60,24 @@ def action_ask(client: Client, message: Message) -> bool:
         # Init
         action = ""
 
-        # Decide the action
+        # Rollback
         if is_exchange_channel(None, message):
             data = receive_text_data(report_message)
-            if data:
-                data_action = data["action"]
-                data_action_type = data["type"]
-                if data_action == "backup":
-                    if data_action_type == "data":
-                        action = "rollback"
+
+            if not data:
+                return True
+
+            data_action = data["action"]
+            data_action_type = data["type"]
+            if data_action == "backup":
+                if data_action_type == "data":
+                    action = "rollback"
+
+        # Recall ERROR
         elif is_error_channel(None, message):
             action = "recall"
+
+        # Actions about LOGGING
         elif re.search(f"^{lang('project')}{lang('colon')}", report_text):
             if record["status"] == lang("status_redact"):
                 action = ""
@@ -99,6 +107,7 @@ def action_ask(client: Client, message: Message) -> bool:
 
         # Generate key
         key = random_str(8)
+
         while glovar.actions.get(key):
             key = random_str(8)
 
@@ -112,13 +121,14 @@ def action_ask(client: Client, message: Message) -> bool:
             "message": report_message,
             "record": record
         }
+
         if action == "rollback":
             data = receive_text_data(report_message)
             glovar.actions[key]["sender"] = data["from"]
             glovar.actions[key]["type"] = data["data"]
 
         # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang(f'action_{action}'))}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_wait'))}\n")
 
@@ -139,6 +149,7 @@ def action_ask(client: Client, message: Message) -> bool:
                 )
             ]
         ]
+
         if action not in {"delete", "redact", "recall", "rollback"}:
             if r_message and not r_message.empty:
                 data_delete = button_data(action, "delete", key)
@@ -166,6 +177,7 @@ def action_ask(client: Client, message: Message) -> bool:
         if result:
             glovar.actions[key]["mid"] = result.message_id
             glovar.records[key] = {}
+
             for item in glovar.actions[key]:
                 if item in {"lock", "time", "mid"}:
                     glovar.records[key][item] = deepcopy(glovar.actions[key][item])
@@ -181,9 +193,10 @@ def action_ask(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & manage_group & from_user & Filters.forwarded
-                   & ~error_channel & ~exchange_channel & ~logging_channel & ~watch_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.forwarded
+                   & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & manage_group & ~error_channel & ~exchange_channel & ~logging_channel & ~watch_channel
+                   & from_user)
 def check_forwarded(client: Client, message: Message) -> bool:
     # Check forwarded messages
     try:
@@ -205,8 +218,8 @@ def check_forwarded(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & hide_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
+@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
@@ -249,12 +262,14 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & exchange_channel & ~Filters.forwarded
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.channel & ~Filters.forwarded
+                   & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel
     try:
         data = receive_text_data(message)
+
         if not data:
             return True
 
@@ -263,11 +278,13 @@ def process_data(client: Client, message: Message) -> bool:
         action = data["action"]
         action_type = data["type"]
         data = data["data"]
+
         # This will look awkward,
         # seems like it can be simplified,
         # but this is to ensure that the permissions are clear,
         # so it is intentionally written like this
         if glovar.sender in receivers:
+
             if sender == "CAPTCHA":
 
                 if action == "config":
@@ -285,6 +302,7 @@ def process_data(client: Client, message: Message) -> bool:
                         receive_user_score(sender, data)
 
             elif sender == "CLEAN":
+
                 if action == "add":
                     if action_type == "bad":
                         receive_add_bad(data)
@@ -458,10 +476,6 @@ def process_data(client: Client, message: Message) -> bool:
                         receive_leave_info(client, sender, data)
                     elif action_type == "request":
                         receive_leave_request(client, sender, data)
-
-                elif action == "remove":
-                    if action_type == "bad":
-                        receive_remove_bad(data)
 
                 elif action == "status":
                     if action_type == "reply":

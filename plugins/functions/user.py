@@ -22,7 +22,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import send_debug, share_data
-from .etc import button_data, code, get_int, get_now, get_subject, italic, lang, random_str, thread, user_mention
+from .etc import button_data, code, get_int, get_now, get_subject, italic, lang, mention_id, random_str, thread
 from .file import save
 from .telegram import get_chat, resolve_username, send_message
 
@@ -39,8 +39,10 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
             "bad": "except",
             "except": "bad"
         }
+
         result += (f"{lang('action')}{lang('colon')}{code(lang(f'add_{the_type}'))}\n"
                    f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
+
         if the_id not in eval(f"glovar.{the_type}_ids")["channels"] or force:
             # Local
             eval(f"glovar.{the_type}_ids")["channels"].add(the_id)
@@ -94,6 +96,7 @@ def check_subject(client: Client, message: Message) -> bool:
         # Get the subject's ID
         the_id = 0
         id_text, _, _ = get_subject(message)
+
         if id_text:
             the_id = get_int(id_text)
             if not the_id:
@@ -106,7 +109,7 @@ def check_subject(client: Client, message: Message) -> bool:
         # No Valid ID
         if not the_id:
             if not message.forward_date:
-                text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+                text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                         f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
@@ -115,6 +118,7 @@ def check_subject(client: Client, message: Message) -> bool:
 
         # Check
         key = random_str(8)
+
         while glovar.records.get(key):
             key = random_str(8)
 
@@ -130,21 +134,27 @@ def check_subject(client: Client, message: Message) -> bool:
             is_watch_ban = now < glovar.watch_ids["ban"].get(the_id, 0)
             is_watch_delete = now < glovar.watch_ids["delete"].get(the_id, 0)
             total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
-            text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                     f"{lang('user_id')}{lang('colon')}{code(the_id)}\n"
                     f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
                     f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
                     f"{lang('delete_watch')}{lang('colon')}{code(is_watch_delete)}\n"
                     f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n\n")
+
             for project in glovar.default_user_status:
                 project_score = glovar.user_ids.get(the_id, glovar.default_user_status)[project]
-                if project_score:
-                    text += "\t" * 4
-                    text += (f"{italic(project.upper())}    "
-                             f"{code(f'{project_score:.1f}')}\n")
+
+                if not project_score:
+                    continue
+
+                text += "\t" * 4
+                text += (f"{italic(project.upper())}    "
+                         f"{code(f'{project_score:.1f}')}\n")
 
             if is_bad or total_score or is_watch_ban or is_watch_delete:
                 glovar.records[key]["lock"] = False
+
                 bad_data = button_data("check", "bad", key)
                 score_data = button_data("check", "score", key)
                 watch_data = button_data("check", "watch", key)
@@ -186,9 +196,11 @@ def check_subject(client: Client, message: Message) -> bool:
                 markup = InlineKeyboardMarkup(markup_list)
         else:
             glovar.records[key]["lock"] = False
+
             is_bad = the_id in glovar.bad_ids["channels"]
             is_except = the_id in glovar.except_ids["channels"]
-            text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n"
+
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                     f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
 
             if id_text and id_text != str(the_id):
@@ -197,6 +209,7 @@ def check_subject(client: Client, message: Message) -> bool:
 
             text += (f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
                      f"{lang('whitelist')}{lang('colon')}{code(is_except)}\n")
+
             bad_data = button_data("check", "bad", key)
             except_data = button_data("check", "except", key)
             cancel_data = button_data("check", "cancel", key)

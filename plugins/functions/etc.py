@@ -94,6 +94,7 @@ def crypt_str(operation: str, text: str, key: str) -> str:
     try:
         f = Fernet(key)
         text = text.encode("utf-8")
+
         if operation == "decrypt":
             result = f.decrypt(text)
         else:
@@ -125,6 +126,7 @@ def get_admin(message: Message) -> int:
     result = 0
     try:
         text = get_text(message)
+
         if not text.strip():
             return 0
 
@@ -160,17 +162,21 @@ def get_callback_data(message: Message) -> List[dict]:
     # Get a message's inline button's callback data
     callback_data_list = []
     try:
-        if message.reply_markup and isinstance(message.reply_markup, InlineKeyboardMarkup):
-            reply_markup = message.reply_markup
-            if reply_markup.inline_keyboard:
-                inline_keyboard = reply_markup.inline_keyboard
-                if inline_keyboard:
-                    for button_row in inline_keyboard:
-                        for button in button_row:
-                            if button.callback_data:
-                                callback_data = button.callback_data
-                                callback_data = loads(callback_data)
-                                callback_data_list.append(callback_data)
+        reply_markup = message.reply_markup
+
+        if (not reply_markup
+                or not isinstance(reply_markup, InlineKeyboardMarkup)
+                or not reply_markup.inline_keyboard):
+            return []
+
+        for button_row in reply_markup.inline_keyboard:
+            for button in button_row:
+                if not button.callback_data:
+                    continue
+
+                callback_data = button.callback_data
+                callback_data = loads(callback_data)
+                callback_data_list.append(callback_data)
     except Exception as e:
         logger.warning(f"Get callback data error: {e}", exc_info=True)
 
@@ -184,14 +190,18 @@ def get_command_context(message: Message) -> (str, str):
     try:
         text = get_text(message)
         command_list = text.split(" ")
-        if len(list(filter(None, command_list))) > 1:
-            i = 1
-            command_type = command_list[i]
-            while command_type == "" and i < len(command_list):
-                i += 1
-                command_type = command_list[i]
 
-            command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
+        if len(list(filter(None, command_list))) <= 1:
+            return "", ""
+
+        i = 1
+        command_type = command_list[i]
+
+        while command_type == "" and i < len(command_list):
+            i += 1
+            command_type = command_list[i]
+
+        command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
     except Exception as e:
         logger.warning(f"Get command context error: {e}", exc_info=True)
 
@@ -228,6 +238,7 @@ def get_list_page(the_list: list, action: str, action_type: str, page: int) -> (
     try:
         per_page = glovar.per_page
         quo = int(len(the_list) / per_page)
+
         if quo == 0:
             return the_list, None
 
@@ -328,7 +339,7 @@ def get_report_record(message: Message) -> Dict[str, str]:
         "bio": "",
         "name": "",
         "from": "",
-        "joined": "",
+        "contact": "",
         "more": "",
         "unknown": ""
     }
@@ -368,7 +379,7 @@ def get_report_record(message: Message) -> Dict[str, str]:
                 record_type = "name"
             elif re.search(f"^{lang('from_name')}{lang('colon')}", r):
                 record_type = "from"
-            elif re.search(f"^{lang('joined')}{lang('colon')}", r):
+            elif re.search(f"^{lang('contact')}{lang('colon')}", r):
                 record_type = "joined"
             elif re.search(f"^{lang('more')}{lang('colon')}", r):
                 record_type = "more"
@@ -396,30 +407,37 @@ def get_subject(message: Message) -> (str, str, bool):
         id_text, reason = get_command_context(message)
 
         # Override command result if there is a reply_to_message
-        if message.reply_to_message:
-            # /command reason
-            if not reason:
-                reason = id_text
+        if not message.reply_to_message:
+            return id_text, reason, from_check
 
-            if message.reply_to_message.from_user.is_self:
-                from_check = True
+        # /command reason
+        if not reason:
+            reason = id_text
 
-            text = get_text(message.reply_to_message)
-            # Check if the message includes object ID
-            if re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", text, re.M):
-                text_list = text.split("\n")
-                # Check line by line
-                for t in text_list:
-                    # Check if the line includes object ID
-                    if re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", t):
-                        # Get the right object ID
-                        if (re.search(f"^{lang('group_id')}{lang('colon')}", t)
-                                and (re.search(f"^({lang('user_id')}|{lang('group_id')}){lang('colon')}", text, re.M)
-                                     or message.forward_from_chat)):
-                            continue
-                        else:
-                            id_text = t.split(lang("colon"))[1]
-                            return id_text, reason, from_check
+        if message.reply_to_message.from_user.is_self:
+            from_check = True
+
+        text = get_text(message.reply_to_message)
+
+        # Check if the replied message includes object ID
+        if not re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", text, re.M):
+            return id_text, reason, from_check
+
+        # Check line by line
+        text_list = text.split("\n")
+        for t in text_list:
+            # Check if the line includes object ID
+            if not re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", t):
+                continue
+
+            # Get the right object ID
+            if (re.search(f"^{lang('group_id')}{lang('colon')}", t)
+                    and (re.search(f"^({lang('user_id')}|{lang('group_id')}){lang('colon')}", text, re.M)
+                         or message.forward_from_chat)):
+                continue
+
+            id_text = t.split(lang("colon"))[1]
+            return id_text, reason, from_check
     except Exception as e:
         logger.warning(f"Get subject error: {e}", exc_info=True)
 
@@ -465,6 +483,17 @@ def lang(text: str) -> str:
     return result
 
 
+def mention_id(uid: int) -> str:
+    # Get a ID mention string
+    result = ""
+    try:
+        result = general_link(f"{uid}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Mention id error: {e}", exc_info=True)
+
+    return result
+
+
 def message_link(message: Message) -> str:
     # Get a message link in a channel
     text = ""
@@ -500,17 +529,6 @@ def thread(target: Callable, args: tuple) -> bool:
         logger.warning(f"Thread error: {e}", exc_info=True)
 
     return False
-
-
-def user_mention(uid: int) -> str:
-    # Get a mention text
-    text = ""
-    try:
-        text = general_link(f"{uid}", f"tg://user?id={uid}")
-    except Exception as e:
-        logger.warning(f"User mention error: {e}", exc_info=True)
-
-    return text
 
 
 def wait_flood(e: FloodWait) -> bool:

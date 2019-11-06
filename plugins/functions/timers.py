@@ -60,17 +60,21 @@ def backup_files(client: Client) -> bool:
 def interval_hour_01(client: Client) -> bool:
     # Execute every hour
     try:
-        # Clear old action sessions
+        # Basic data
         now = get_now()
         cid = glovar.manage_group_id
+
+        # Clear old action sessions
         for key in list(glovar.records):
             action = glovar.records[key]
             time = action["time"]
-            if now - time < 10800:
+
+            if now - time < 3600:
                 continue
 
             mid = action["mid"]
             lock = action["lock"]
+
             if not lock:
                 thread(edit_message_reply_markup, (client, cid, mid, None))
 

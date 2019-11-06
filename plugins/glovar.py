@@ -171,6 +171,7 @@ lang: Dict[str, str] = {
     "proceed": (zh_cn and "处理") or "Proceed",
     "delete": (zh_cn and "删除") or "Delete",
     "redact": (zh_cn and "清除") or "Redact",
+    "reject": (zh_cn and "拒绝") or "Reject",
     "cancel": (zh_cn and "取消") or "Cancel",
 
     "ban": (zh_cn and "封禁") or "Ban",
@@ -273,7 +274,7 @@ lang: Dict[str, str] = {
     "user_bio": (zh_cn and "用户简介") or "User Bio",
     "user_name": (zh_cn and "用户昵称") or "User Name",
     "from_name": (zh_cn and "来源名称") or "Forward Name",
-    "joined": (zh_cn and "入群时间") or "Joined Time",
+    "contact": (zh_cn and "联系方式") or "Contact Info",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
@@ -406,7 +407,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.2"
+version: str = "0.1.3"
 
 # Load data from pickle
 

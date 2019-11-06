@@ -39,7 +39,8 @@ def is_exchange_channel(_, message: Message) -> bool:
                 return True
 
         if message.forward_from_chat:
-            if message.forward_from_chat.id == glovar.exchange_channel_id:
+            cid = message.forward_from_chat.id
+            if cid == glovar.exchange_channel_id:
                 return True
     except Exception as e:
         logger.warning(f"Is exchange channel error: {e}", exc_info=True)
@@ -50,9 +51,12 @@ def is_exchange_channel(_, message: Message) -> bool:
 def is_error_channel(_, message: Message) -> bool:
     # Check if the message is forwarded from the error channel
     try:
-        if message.forward_from_chat:
-            if message.forward_from_chat.id == glovar.error_channel_id:
-                return True
+        if not message.forward_from_chat:
+            return False
+
+        cid = message.forward_from_chat.id
+        if cid == glovar.error_channel_id:
+            return True
     except Exception as e:
         logger.warning(f"Is error channel error: {e}", exc_info=True)
 
@@ -73,10 +77,12 @@ def is_from_user(_, message: Message) -> bool:
 def is_hide_channel(_, message: Message) -> bool:
     # Check if the message is sent from the hide channel
     try:
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.hide_channel_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.hide_channel_id:
+            return True
     except Exception as e:
         logger.warning(f"Is hide channel error: {e}", exc_info=True)
 
@@ -86,9 +92,12 @@ def is_hide_channel(_, message: Message) -> bool:
 def is_logging_channel(_, message: Message) -> bool:
     # Check if the message is forwarded from the logging channel
     try:
-        if message.forward_from_chat:
-            if message.forward_from_chat.id == glovar.logging_channel_id:
-                return True
+        if not message.forward_from_chat:
+            return False
+
+        cid = message.forward_from_chat.id
+        if cid == glovar.logging_channel_id:
+            return True
     except Exception as e:
         logger.warning(f"Is logging channel error: {e}", exc_info=True)
 
@@ -103,23 +112,32 @@ def is_manage_group(_, update: Union[CallbackQuery, Message]) -> bool:
         else:
             message = update
 
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.manage_group_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.manage_group_id:
+            return True
     except Exception as e:
         logger.warning(f"Is manage group error: {e}", exc_info=True)
 
     return False
 
 
-def is_test_group(_, message: Message) -> bool:
+def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the test group
     try:
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.test_group_id:
-                return True
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.test_group_id:
+            return True
     except Exception as e:
         logger.warning(f"Is test group error: {e}", exc_info=True)
 
@@ -129,9 +147,12 @@ def is_test_group(_, message: Message) -> bool:
 def is_watch_channel(_, message: Message) -> bool:
     # Check if the message is forwarded from the watch channel
     try:
-        if message.forward_from_chat:
-            if message.forward_from_chat.id == glovar.watch_channel_id:
-                return True
+        if not message.forward_from_chat:
+            return False
+
+        cid = message.forward_from_chat.id
+        if cid == glovar.watch_channel_id:
+            return True
     except Exception as e:
         logger.warning(f"Is watch channel error: {e}", exc_info=True)
 
