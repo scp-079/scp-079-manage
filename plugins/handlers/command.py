@@ -468,7 +468,7 @@ def modify_subject(client: Client, message: Message) -> bool:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_lack'))}\n")
 
-        # Send debug message
+        # Send the report message
         if from_check:
             thread(edit_message_text, (client, cid, r_message.message_id, text))
             text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
@@ -676,6 +676,13 @@ def remove_contact(client: Client, message: Message) -> bool:
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
+
+        # Send debug message
+        debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                      f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
+                      f"{lang('action')}{lang('colon')}{code(lang('action_contact'))}\n"
+                      f"{lang('contact')}{lang('colon')}{code(f'{command_type[1]}███{command_type[-1]}')}\n")
+        thread(send_message, (client, glovar.debug_channel_id, debug_text))
 
     except Exception as e:
         logger.warning(f"Remove contact error: {e}", exc_info=True)
