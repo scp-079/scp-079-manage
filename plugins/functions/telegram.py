@@ -98,7 +98,7 @@ def download_media(client: Client, file_id: str, file_ref: str, file_path: str):
 
 
 def edit_message_reply_markup(client: Client, cid: int, mid: int,
-                              markup: InlineKeyboardMarkup = None) -> Optional[Union[bool, Message]]:
+                              markup: InlineKeyboardMarkup = None) -> Optional[Message]:
     # Edit the message's reply markup
     result = None
     try:
