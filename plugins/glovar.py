@@ -374,7 +374,8 @@ default_user_status: Dict[str, float] = {
 
 locks: Dict[str, Lock] = {
     "callback": Lock(),
-    "message": Lock()
+    "message": Lock(),
+    "receive": Lock()
 }
 
 receivers: Dict[str, List[str]] = {
