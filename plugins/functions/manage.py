@@ -343,13 +343,18 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                 receiver=receiver
             )
 
+        if record.get("contact"):
+            delay_secs = 10
+        else:
+            delay_secs = 0
+
         edit_evidence(
             client=client,
             message=message,
             record=record,
             status=status,
             reason=reason,
-            delay_secs=10
+            delay_secs=delay_secs
         )
         send_debug(
             client=client,

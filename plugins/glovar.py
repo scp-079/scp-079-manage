@@ -354,7 +354,7 @@ actions: Dict[str, Dict[str, Union[bool, int, str, Dict[str, str], Message]]] = 
 #             "bio": "",
 #             "name": "",
 #             "from": "",
-#             "joined": "",
+#             "contact": "",
 #             "more": ""
 #         }
 #     }
