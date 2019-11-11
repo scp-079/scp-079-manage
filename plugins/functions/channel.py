@@ -24,7 +24,7 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, general_link, lang, mention_id, message_link, thread, wait_flood
+from .etc import code, code_block, delay, general_link, lang, mention_id, message_link, thread, wait_flood
 from .file import crypt_file, delete_file, get_new_path
 from .telegram import edit_message_text, send_document, send_message
 
@@ -33,9 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 def edit_evidence(client: Client, message: Message, record: dict, status: str,
-                  reason: str = None) -> Optional[Union[bool, Message]]:
+                  reason: str = None, delay_secs: int = 0) -> bool:
     # Edit the evidence's report message
-    result = None
     try:
         # Basic data
         cid = message.chat.id
@@ -85,11 +84,16 @@ def edit_evidence(client: Client, message: Message, record: dict, status: str,
         if record["more"]:
             text += f"{lang('more')}{lang('colon')}{code(record['more'])}\n"
 
-        result = edit_message_text(client, cid, mid, text)
+        if delay_secs:
+            delay(delay_secs, edit_message_text, [client, cid, mid, text])
+        else:
+            thread(edit_message_text, (client, cid, mid, text))
+
+        return True
     except Exception as e:
         logger.warning(f"Edit evidence error: {e}", exc_info=True)
 
-    return result
+    return False
 
 
 def exchange_to_hide(client: Client) -> bool:

@@ -348,7 +348,8 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
             message=message,
             record=record,
             status=status,
-            reason=reason
+            reason=reason,
+            delay_secs=10
         )
         send_debug(
             client=client,
