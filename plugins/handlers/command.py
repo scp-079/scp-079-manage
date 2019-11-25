@@ -60,8 +60,8 @@ def action_command(client: Client, message: Message) -> bool:
             if uid == aid:
                 callback_data_list = get_callback_data(r_message)
                 if callback_data_list and callback_data_list[0]["t"] in {"proceed", "delete"}:
-                    action_key = callback_data_list[0]["d"]
-                    thread(answer_action, (client, action_type, uid, rid, action_key, reason))
+                    key = callback_data_list[0]["d"]
+                    thread(answer_action, (client, action_type, uid, rid, key, reason))
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
                              f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
