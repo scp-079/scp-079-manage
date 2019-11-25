@@ -54,14 +54,14 @@ def action_command(client: Client, message: Message) -> bool:
         text = f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
 
         # Proceed
-        action_type, reason = get_command_context(message)
-        if action_type in {"proceed", "delete", "cancel"} and r_message and r_message.from_user.is_self:
+        the_type, reason = get_command_context(message)
+        if the_type in {"proceed", "delete", "cancel"} and r_message and r_message.from_user.is_self:
             aid = get_admin(r_message)
             if uid == aid:
                 callback_data_list = get_callback_data(r_message)
                 if callback_data_list and callback_data_list[0]["t"] in {"proceed", "delete"}:
                     key = callback_data_list[0]["d"]
-                    thread(answer_action, (client, action_type, uid, rid, key, reason))
+                    thread(answer_action, (client, the_type, uid, rid, key, reason))
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
                              f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
