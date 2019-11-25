@@ -140,7 +140,7 @@ lang: Dict[str, str] = {
     "rollback": (zh_cn and "数据回滚") or "Rollback",
     "see": (zh_cn and "查看") or "See",
     "status_failed": (zh_cn and "未执行") or "Failed",
-    "status_succeed": (zh_cn and "成功执行") or "Succeed",
+    "status_succeeded": (zh_cn and "成功执行") or "Succeeded",
     "version": (zh_cn and "版本") or "Version",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",

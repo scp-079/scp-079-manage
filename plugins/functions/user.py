@@ -63,7 +63,7 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
             )
 
             # Send debug message
-            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
             send_debug(
                 client=client,
                 aid=aid,
@@ -281,7 +281,7 @@ def remove_bad_user(client: Client, the_id: int, aid: int, debug: bool = False, 
             )
 
             # Text
-            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
 
             # Send debug message
             if debug:
@@ -329,7 +329,7 @@ def remove_channel(client: Client, the_type: str, the_id: int, aid: int, reason:
             )
 
             # Text
-            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
 
             # Send debug message
             send_debug(
@@ -373,7 +373,7 @@ def remove_score(client: Client, the_id: int, aid: int = None, reason: str = Non
             )
 
             # Text
-            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
 
             # Send debug message
             send_debug(
@@ -421,7 +421,7 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
             )
 
             # Text
-            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
 
             # Send debug message
             if debug:

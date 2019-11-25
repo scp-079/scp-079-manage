@@ -62,7 +62,7 @@ def action_command(client: Client, message: Message) -> bool:
                 if callback_data_list and callback_data_list[0]["t"] in {"proceed", "delete"}:
                     key = callback_data_list[0]["d"]
                     thread(answer_action, (client, the_type, uid, rid, key, reason))
-                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
                              f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
@@ -270,7 +270,7 @@ def hide(client: Client, message: Message) -> bool:
             # Generate the report message's text
             data_text = (lambda x: lang("enabled") if x else lang("disabled"))(data)
             text += (f"{lang('emergency_channel')}{lang('colon')}{code(data_text)}\n"
-                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
 
             # Send debug message
             debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
@@ -317,7 +317,7 @@ def leave(client: Client, message: Message) -> bool:
                 if callback_data_list and callback_data_list[0]["t"] in {"approve"}:
                     action_key = callback_data_list[0]["d"]
                     thread(answer_leave, (client, action_type, aid, rid, action_key, reason))
-                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
                              f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code('status_failed')}\n"
@@ -456,7 +456,7 @@ def modify_subject(client: Client, message: Message) -> bool:
 
                     # Text
                     text += result
-                    if reason and result and lang("status_succeed") in result:
+                    if reason and result and lang("status_succeeded") in result:
                         text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
@@ -472,7 +472,7 @@ def modify_subject(client: Client, message: Message) -> bool:
         if from_check:
             thread(edit_message_text, (client, cid, r_message.message_id, text))
             text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
                     f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
             thread(send_message, (client, cid, text, mid))
         else:
@@ -570,7 +570,7 @@ def page_command(client: Client, message: Message) -> bool:
                     page = callback_data_list[i]["d"]
                     page_text, markup = list_page_ids(aid, action_type, page)
                     thread(edit_message_text, (client, cid, rid, page_text, markup))
-                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
                              f"{lang('see')}{lang('colon')}{general_link(rid, message_link(r_message))}\n")
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
