@@ -434,20 +434,23 @@ def get_subject(message: Message) -> (str, str, bool):
         text = get_text(message.reply_to_message)
 
         # Check if the replied message includes object ID
-        if not re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", text, re.M):
+        pattern = (f"^({lang('user_id')}|{lang('chat_id')}|{lang('to_id')}|"
+                   f"{lang('channel_id')}|"
+                   f"{lang('group_id')})"
+                   f"{lang('colon')}")
+        if not re.search(pattern, text, re.M):
             return id_text, reason, from_check
 
         # Check line by line
         text_list = text.split("\n")
         for t in text_list:
             # Check if the line includes object ID
-            if not re.search(f"^({lang('user_id')}|{lang('channel_id')}|{lang('group_id')}){lang('colon')}", t):
+            if not re.search(pattern, t):
                 continue
 
             # Get the right object ID
             if (re.search(f"^{lang('group_id')}{lang('colon')}", t)
-                    and (re.search(f"^({lang('user_id')}|{lang('group_id')}){lang('colon')}", text, re.M)
-                         or message.forward_from_chat)):
+                    and re.search(f"^{lang('user_id')}{lang('colon')}", text, re.M)):
                 continue
 
             id_text = t.split(lang("colon"))[1]

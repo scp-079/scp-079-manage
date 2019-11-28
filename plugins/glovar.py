@@ -261,6 +261,9 @@ lang: Dict[str, str] = {
     "whitelist_add": (zh_cn and "添加白名单") or "Add to Whitelist",
     "whitelist_remove": (zh_cn and "移除白名单") or "Remove from Whitelist",
 
+    "chat_id": (zh_cn and "对话 ID") or "Chat ID",
+    "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
+
     # Message Types
     "gam": (zh_cn and "游戏") or "Game",
     "ser": (zh_cn and "服务消息") or "Service",
