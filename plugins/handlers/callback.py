@@ -22,10 +22,10 @@ from json import loads
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.etc import get_admin, thread
+from ..functions.etc import get_admin, get_now, thread
 from ..functions.filters import manage_group
 from ..functions.manage import answer_action, answer_check, answer_leave, list_page_ids
-from ..functions.telegram import answer_callback, edit_message_text
+from ..functions.telegram import answer_callback, edit_message_reply_markup, edit_message_text
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -50,20 +50,27 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         if aid and uid != aid:
             return True
 
+        # Check the date
+        date = callback_query.message.date
+        now = get_now()
+        if now - date > 86400:
+            thread(edit_message_reply_markup, (client, cid, mid, None))
+            return True
+
         # Answer actions
         if action in {"error", "bad", "mole", "innocent", "delete", "redact", "recall", "rollback"}:
             key = data
-            thread(answer_action, (client, action_type, uid, mid, key))
+            answer_action(client, action_type, uid, mid, key)
 
         # Check subject
         elif action == "check":
             key = data
-            thread(answer_check, (client, action_type, uid, mid, key))
+            answer_check(client, action_type, uid, mid, key)
 
         # Leave the group
         elif action == "leave":
             key = data
-            thread(answer_leave, (client, action_type, uid, mid, key))
+            answer_leave(client, action_type, uid, mid, key)
 
         # List
         elif action == "list":
