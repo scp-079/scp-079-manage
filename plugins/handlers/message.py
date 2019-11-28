@@ -204,8 +204,11 @@ def check_forwarded(client: Client, message: Message) -> bool:
         if message.forward_sender_name:
             return True
 
-        # Check debug message automatically without using "/check" reply to that message
+        # Check TICKET message automatically without using "/check" reply to that message
         if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:
+            message.reply_to_message = message
+        # Check TICKET message automatically without using "/check" reply to that message
+        elif message.forward_from and message.forward_from.id == glovar.ticket_id:
             message.reply_to_message = message
 
         # Check subject

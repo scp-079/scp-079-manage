@@ -43,6 +43,9 @@ bot_token: str = ""
 prefix: List[str] = []
 prefix_str: str = "/!"
 
+# [bots]
+ticket_id: int = 0
+
 # [channels]
 critical_channel_id: int = 0
 debug_channel_id: int = 0
@@ -72,6 +75,8 @@ try:
     # [basic]
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
+    # [bots]
+    ticket_id = int(config["bots"].get("ticket_id", ticket_id))
     # [channels]
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
@@ -101,6 +106,7 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
+        or ticket_id == 0
         or critical_channel_id == 0
         or debug_channel_id == 0
         or error_channel_id == 0
@@ -408,7 +414,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.3"
+version: str = "0.1.4"
 
 # Load data from pickle
 

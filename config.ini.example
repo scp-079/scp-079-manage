@@ -18,6 +18,9 @@ port = 1080
 bot_token = [DATA EXPUNGED]
 prefix = /!
 
+[bots]
+ticket_id = [DATA EXPUNGED]
+
 [channels]
 critical_channel_id = [DATA EXPUNGED]
 debug_channel_id = [DATA EXPUNGED]
