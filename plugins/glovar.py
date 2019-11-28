@@ -379,14 +379,14 @@ locks: Dict[str, Lock] = {
 }
 
 receivers: Dict[str, List[str]] = {
-    "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
-            "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],
+    "bad": ["ANALYZE", "APPLY", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
+            "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TICKET", "TIP", "USER", "WATCH"],
     "config": ["CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
     "except": ["CLEAN", "LANG", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"],
     "leave": ["CAPTCHA", "CLEAN", "LANG", "LONG",
               "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
-    "now": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CLEAN", "CONFIG", "LANG", "LONG",
-            "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "PM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
+    "now": ["ANALYZE", "APPLY", "AVATAR", "CLEAN", "CONFIG", "LANG", "LONG", "MANAGE",
+            "NOFLOOD", "NOPORN", "NOSPAM", "PM", "RECHECK", "TICKET", "TIP", "USER", "WARN", "WATCH"],
     "refresh": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
                 "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG",
