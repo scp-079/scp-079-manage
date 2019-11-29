@@ -450,7 +450,7 @@ def get_subject(message: Message) -> (str, str, bool):
 
             # Get the right object ID
             if (re.search(f"^{lang('group_id')}{lang('colon')}", t)
-                    and re.search(f"^{lang('user_id')}{lang('colon')}", text, re.M)):
+                    and re.search(f"^({lang('user_id')}|{lang('channel_id')}){lang('colon')}", text, re.M)):
                 continue
 
             id_text = t.split(lang("colon"))[1]
