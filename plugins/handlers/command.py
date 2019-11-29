@@ -681,7 +681,7 @@ def remove_contact(client: Client, message: Message) -> bool:
         debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
                       f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                       f"{lang('action')}{lang('colon')}{code(lang('action_contact'))}\n"
-                      f"{lang('contact')}{lang('colon')}{code(f'{command_type[1]}███{command_type[-1]}')}\n")
+                      f"{lang('contact')}{lang('colon')}{code(f'{command_type[0]}███{command_type[-1]}')}\n")
         thread(send_message, (client, glovar.debug_channel_id, debug_text))
 
     except Exception as e:
