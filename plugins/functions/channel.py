@@ -193,7 +193,7 @@ def send_debug(client: Client, aid: int, action: str, project: str = None, the_t
             text += f"{lang(f'type_{the_type}')}{lang('colon')}{code(lang(f'time_{the_type}'))}\n"
 
         if the_id:
-            text += f"{lang((lambda x: 'user_id' if x else 'channel_id')(the_id))}{lang('colon')}{code(the_id)}\n"
+            text += f"{lang((lambda x: 'user_id' if x else 'channel_id')(the_id > 0))}{lang('colon')}{code(the_id)}\n"
 
         if em:
             text += f"{lang('record_origin')}{lang('colon')}{general_link(em.message_id, message_link(em))}\n"
