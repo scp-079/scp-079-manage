@@ -399,10 +399,10 @@ receivers: Dict[str, List[str]] = {
     "refresh": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
                 "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WARN"],
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
     "status": ["NOSPAM", "REGEX", "USER", "WATCH"],
     "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WARN", "WATCH"]
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"]
 }
 
 sender: str = "MANAGE"
