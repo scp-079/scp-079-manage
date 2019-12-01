@@ -470,6 +470,17 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "reply":
                         receive_status_reply(client, message, sender, data)
 
+            elif sender == "TIP":
+                if action == "config":
+                    if action_type == "show":
+                        receive_config_show(client, message, data)
+
+                elif action == "leave":
+                    if action_type == "info":
+                        receive_leave_info(client, sender, data)
+                    elif action_type == "request":
+                        receive_leave_request(client, sender, data)
+
             elif sender == "USER":
 
                 if action == "config":
