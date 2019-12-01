@@ -140,7 +140,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
     return text
 
 
-def send_error(client: Client, message: Message, project: str, aid: int, action: str, level: str,
+def send_error(client: Client, message: Message, project: str, aid: int, action: str, level: str, rule: str,
                reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
@@ -149,7 +149,8 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
         text = (f"{lang('project_origin')}{lang('colon')}{code(project)}\n"
                 f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(action)}\n"
-                f"{lang('level_error')}{lang('colon')}{code(level)}\n")
+                f"{lang('error_level')}{lang('colon')}{code(level)}\n"
+                f"{lang('error_rule')}{lang('colon')}{code(rule)}\n")
 
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"

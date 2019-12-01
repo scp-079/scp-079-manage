@@ -182,9 +182,10 @@ lang: Dict[str, str] = {
 
     "ban": (zh_cn and "封禁") or "Ban",
     "channel_id": (zh_cn and "频道 ID") or "Channel ID",
-    "level_error": (zh_cn and "错误等级") or "Error Level",
     "ban_watch": (zh_cn and "封禁追踪") or "Ban Watch",
     "delete_watch": (zh_cn and "删除追踪") or "Delete Watch",
+    "error_level": (zh_cn and "错误等级") or "Error Level",
+    "error_rule": (zh_cn and "错误规则") or "Error Rule",
     "project_target": (zh_cn and "针对项目") or "Target Project",
     "restricted_channel": (zh_cn and "受限频道") or "Restricted Channel",
     "score_total": (zh_cn and "总分") or "Total Score",

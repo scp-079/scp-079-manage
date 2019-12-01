@@ -314,6 +314,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
                     aid=aid,
                     action=lang("action_error"),
                     level=record["level"],
+                    rule=record["rule"],
                     reason=reason
                 )
         elif action == "bad":
