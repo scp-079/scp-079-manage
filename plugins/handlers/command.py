@@ -72,7 +72,7 @@ def action_command(client: Client, message: Message) -> bool:
                          f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                     f"{lang('reason')}{lang('colon')}{code('command_usage')}\n")
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -460,7 +460,7 @@ def modify_subject(client: Client, message: Message) -> bool:
                         text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                             f"{lang('reason')}{lang('colon')}{code('command_para')}\n")
+                             f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('command_permission'))}\n")
