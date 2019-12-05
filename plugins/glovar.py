@@ -402,7 +402,7 @@ receivers: Dict[str, List[str]] = {
     "now": ["ANALYZE", "APPLY", "AVATAR", "CLEAN", "CONFIG", "LANG", "LONG", "MANAGE",
             "NOFLOOD", "NOPORN", "NOSPAM", "PM", "RECHECK", "TICKET", "TIP", "USER", "WARN", "WATCH"],
     "refresh": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
-                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN"],
+                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
               "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
     "status": ["NOSPAM", "REGEX", "USER", "WATCH"],
