@@ -266,7 +266,7 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & ~Filters.forwarded
+@Client.on_message((Filters.incoming or glovar.aio) & Filters.channel & ~Filters.forwarded
                    & ~Filters.command(glovar.all_commands, glovar.prefix)
                    & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
