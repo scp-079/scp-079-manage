@@ -4,7 +4,7 @@ This bot is used to manage other bots.
 
 ## How to use
 
-See [this article](https://scp-079.org/manage/).
+- See [this article](https://scp-079.org/manage/) to build a bot by yourself
 
 ## To Do List
 

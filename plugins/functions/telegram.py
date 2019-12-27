@@ -19,7 +19,7 @@
 import logging
 from typing import Iterable, List, Optional, Union
 
-from pyrogram import Chat, Client, InlineKeyboardMarkup, Message
+from pyrogram import Chat, ChatPreview, Client, InlineKeyboardMarkup, Message
 from pyrogram.api.types import InputPeerUser, InputPeerChannel
 from pyrogram.errors import ChatAdminRequired, ButtonDataInvalid, ChannelInvalid, ChannelPrivate, FloodWait
 from pyrogram.errors import PeerIdInvalid, QueryIdInvalid, UsernameInvalid, UsernameNotOccupied
@@ -157,7 +157,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     return result
 
 
-def get_chat(client: Client, cid: Union[int, str]) -> Optional[Chat]:
+def get_chat(client: Client, cid: Union[int, str]) -> Union[Chat, ChatPreview, None]:
     # Get a chat
     result = None
     try:
@@ -169,6 +169,8 @@ def get_chat(client: Client, cid: Union[int, str]) -> Optional[Chat]:
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return None
     except Exception as e:
         logger.warning(f"Get chat {cid} error: {e}", exc_info=True)
 

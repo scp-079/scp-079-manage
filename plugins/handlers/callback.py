@@ -53,6 +53,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         # Check the date
         date = callback_query.message.date
         now = get_now()
+
         if now - date > 86400:
             thread(edit_message_reply_markup, (client, cid, mid, None))
             return True
