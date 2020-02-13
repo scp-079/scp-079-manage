@@ -146,7 +146,7 @@ def forward_evidence(client: Client, message: Message) -> Optional[Union[bool, M
     try:
         # Basic information
         uid = message.from_user.id
-        text = (f"{lang('admin')}{lang('colon')}{code(uid)}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('time_send')}{lang('colon')}{code(message.date)}\n")
 
         if message.contact or message.location or message.venue or message.video_note or message.voice:
