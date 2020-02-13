@@ -92,6 +92,7 @@ def answer_check(client: Client, action_type: str, uid: int, mid: int, key: str)
 
         # Lock the session
         glovar.records[key]["lock"] = True
+        save("records")
 
         # Basic data
         the_id = glovar.records[key]["the_id"]
@@ -121,8 +122,6 @@ def answer_check(client: Client, action_type: str, uid: int, mid: int, key: str)
 
         text = f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n" + text
         thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
-
-        save("records")
 
         return True
     except Exception as e:
