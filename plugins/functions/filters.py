@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -32,6 +32,7 @@ def is_exchange_channel(_, message: Message) -> bool:
     try:
         if message.chat:
             cid = message.chat.id
+
             if glovar.should_hide:
                 if cid == glovar.hide_channel_id:
                     return True
@@ -40,6 +41,7 @@ def is_exchange_channel(_, message: Message) -> bool:
 
         if message.forward_from_chat:
             cid = message.forward_from_chat.id
+
             if cid == glovar.exchange_channel_id:
                 return True
     except Exception as e:
@@ -55,6 +57,7 @@ def is_error_channel(_, message: Message) -> bool:
             return False
 
         cid = message.forward_from_chat.id
+
         if cid == glovar.error_channel_id:
             return True
     except Exception as e:
@@ -81,6 +84,7 @@ def is_hide_channel(_, message: Message) -> bool:
             return False
 
         cid = message.chat.id
+
         if cid == glovar.hide_channel_id:
             return True
     except Exception as e:
@@ -96,6 +100,7 @@ def is_logging_channel(_, message: Message) -> bool:
             return False
 
         cid = message.forward_from_chat.id
+
         if cid == glovar.logging_channel_id:
             return True
     except Exception as e:
@@ -116,6 +121,7 @@ def is_manage_group(_, update: Union[CallbackQuery, Message]) -> bool:
             return False
 
         cid = message.chat.id
+
         if cid == glovar.manage_group_id:
             return True
     except Exception as e:
@@ -136,6 +142,7 @@ def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
             return False
 
         cid = message.chat.id
+
         if cid == glovar.test_group_id:
             return True
     except Exception as e:
@@ -151,6 +158,7 @@ def is_watch_channel(_, message: Message) -> bool:
             return False
 
         cid = message.forward_from_chat.id
+
         if cid == glovar.watch_channel_id:
             return True
     except Exception as e:

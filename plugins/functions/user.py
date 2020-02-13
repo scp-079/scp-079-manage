@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -99,6 +99,7 @@ def check_subject(client: Client, message: Message) -> bool:
 
         if id_text:
             the_id = get_int(id_text)
+
             if not the_id:
                 _, the_id = resolve_username(client, id_text, False)
         elif message.forward_from:

@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -50,6 +50,7 @@ def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
     try:
         mids = [mid]
         result = get_messages(client, gid, mids)
+
         if result:
             result = result[0]
     except Exception as e:

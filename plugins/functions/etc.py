@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -40,6 +40,7 @@ def bold(text: Any) -> str:
     # Get a bold text
     try:
         text = str(text).strip()
+
         if text:
             return f"<b>{escape(text)}</b>"
     except Exception as e:
@@ -68,6 +69,7 @@ def code(text: Any) -> str:
     # Get a code text
     try:
         text = str(text).strip()
+
         if text:
             return f"<code>{escape(text)}</code>"
     except Exception as e:
@@ -80,6 +82,7 @@ def code_block(text: Any) -> str:
     # Get a code block text
     try:
         text = str(text).rstrip()
+
         if text:
             return f"<pre>{escape(text)}</pre>"
     except Exception as e:
@@ -127,6 +130,7 @@ def general_link(text: Union[int, str], link: str) -> str:
     try:
         text = str(text).strip()
         link = link.strip()
+
         if text and link:
             result = f'<a href="{link}">{escape(text)}</a>'
     except Exception as e:
@@ -145,6 +149,7 @@ def get_admin(message: Message) -> int:
             return 0
 
         first_line_list = text.split("\n")[0].split(lang("colon"))
+
         if lang("admin") in first_line_list[0]:
             result = get_int(first_line_list[-1])
     except Exception as e:
@@ -158,6 +163,7 @@ def get_channel_link(message: Union[int, Message]) -> str:
     text = ""
     try:
         text = "https://t.me/"
+
         if isinstance(message, int):
             text += f"c/{str(message)[4:]}"
         else:
@@ -438,11 +444,13 @@ def get_subject(message: Message) -> (str, str, bool):
                    f"{lang('channel_id')}|"
                    f"{lang('group_id')})"
                    f"{lang('colon')}")
+
         if not re.search(pattern, text, re.M):
             return id_text, reason, from_check
 
         # Check line by line
         text_list = text.split("\n")
+
         for t in text_list:
             # Check if the line includes object ID
             if not re.search(pattern, t):
@@ -455,6 +463,7 @@ def get_subject(message: Message) -> (str, str, bool):
                 continue
 
             id_text = t.split(lang("colon"))[1]
+
             return id_text, reason, from_check
     except Exception as e:
         logger.warning(f"Get subject error: {e}", exc_info=True)
@@ -470,6 +479,7 @@ def get_text(message: Message) -> str:
             return ""
 
         the_text = message.text or message.caption
+
         if the_text:
             text += the_text
     except Exception as e:
@@ -482,6 +492,7 @@ def italic(text: Any) -> str:
     # Get italic text
     try:
         text = str(text).strip()
+
         if text:
             return f"<i>{escape(text)}</i>"
     except Exception as e:

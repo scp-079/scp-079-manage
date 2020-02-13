@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -53,6 +53,7 @@ error_channel_id: int = 0
 exchange_channel_id: int = 0
 hide_channel_id: int = 0
 logging_channel_id: int = 0
+manage_channel_id: int = 0
 manage_group_id: int = 0
 test_group_id: int = 0
 watch_channel_id: int = 0
@@ -73,11 +74,14 @@ password: str = ""
 try:
     config = RawConfigParser()
     config.read("config.ini")
+
     # [basic]
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
+
     # [bots]
     ticket_id = int(config["bots"].get("ticket_id", ticket_id))
+
     # [channels]
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
@@ -85,9 +89,11 @@ try:
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
+    manage_channel_id = int(config["channels"].get("manage_channel_id", manage_channel_id))
     manage_group_id = int(config["channels"].get("manage_group_id", manage_group_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     watch_channel_id = int(config["channels"].get("watch_channel_id", watch_channel_id))
+
     # [custom]
     aio = config["custom"].get("aio", aio)
     aio = eval(aio)
@@ -99,6 +105,7 @@ try:
     project_name = config["custom"].get("project_name", project_name)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
+
     # [encrypt]
     key = config["encrypt"].get("key", key)
     key = key.encode("utf-8")
@@ -116,6 +123,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or exchange_channel_id == 0
         or hide_channel_id == 0
         or logging_channel_id == 0
+        or manage_channel_id == 0
         or manage_group_id == 0
         or test_group_id == 0
         or watch_channel_id == 0
@@ -233,6 +241,8 @@ lang: Dict[str, str] = {
 
     "list_bad": (zh_cn and "查看频道黑名单") or "List Channel Blacklist",
     "list_except": (zh_cn and "查看频道白名单") or "List Channel Whitelist",
+
+    "time_send": (zh_cn and "发送时间") or "Send Time",
 
     "time_content": (zh_cn and "短期") or "Short Term",
     "time_long": (zh_cn and "长期") or "Long Term",
@@ -422,7 +432,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.7"
+version: str = "0.1.8"
 
 # Load data from pickle
 
@@ -511,6 +521,7 @@ records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 
 # Load data
 file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "records"]
+
 for file in file_list:
     try:
         try:
@@ -522,6 +533,7 @@ for file in file_list:
                     pickle.dump(eval(f"{file}"), f)
         except Exception as e:
             logger.error(f"Load data {file} error: {e}", exc_info=True)
+
             with open(f"data/.{file}", 'rb') as f:
                 locals()[f"{file}"] = pickle.load(f)
     except Exception as e:
@@ -529,6 +541,6 @@ for file in file_list:
         raise SystemExit("[DATA CORRUPTION]")
 
 # Start program
-copyright_text = (f"SCP-079-{sender} v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"
+copyright_text = (f"SCP-079-{sender} v{version}, Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>\n"
                   "Licensed under the terms of the GNU General Public License v3 or later (GPLv3+)\n")
 print(copyright_text)

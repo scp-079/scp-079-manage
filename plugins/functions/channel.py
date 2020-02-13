@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -138,6 +138,56 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
         logger.warning(f"Format data error: {e}", exc_info=True)
 
     return text
+
+
+def forward_evidence(client: Client, message: Message) -> Optional[Union[bool, Message]]:
+    # Forward the message to the channel as evidence
+    result = None
+    try:
+        # Basic information
+        uid = message.from_user.id
+        text = (f"{lang('admin_id')}{lang('colon')}{code(uid)}\n"
+                f"{lang('time_send')}{lang('colon')}{code(message.date)}\n")
+
+        if message.contact or message.location or message.venue or message.video_note or message.voice:
+            text += f"{lang('more')}{lang('colon')}{code(lang('privacy'))}\n"
+        elif message.game or message.service:
+            text += f"{lang('more')}{lang('colon')}{code(lang('cannot_forward'))}\n"
+
+        # DO NOT try to forward these types of message
+        if (message.contact
+                or message.location
+                or message.venue
+                or message.video_note
+                or message.voice
+                or message.game
+                or message.service):
+            result = send_message(client, glovar.manage_channel_id, text)
+            return result
+
+        # Try to forward the evidence
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = message.forward(
+                    chat_id=glovar.manage_channel_id,
+                    disable_notification=True
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except Exception as e:
+                logger.warning(f"Forward evidence message error: {e}", exc_info=True)
+                return False
+
+        # Attach report message
+        result = result.message_id
+        result = send_message(client, glovar.manage_channel_id, text, result)
+    except Exception as e:
+        logger.warning(f"Forward evidence error: {e}", exc_info=True)
+
+    return result
 
 
 def send_error(client: Client, message: Message, project: str, aid: int, action: str, level: str, rule: str,

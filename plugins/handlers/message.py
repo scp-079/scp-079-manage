@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -23,6 +23,7 @@ from copy import deepcopy
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
+from ..functions.channel import forward_evidence
 from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, lang, random_str
 from ..functions.etc import thread, mention_id
 from ..functions.file import save
@@ -69,6 +70,7 @@ def action_ask(client: Client, message: Message) -> bool:
 
             data_action = data["action"]
             data_action_type = data["type"]
+
             if data_action == "backup":
                 if data_action_type == "data":
                     action = "rollback"
@@ -203,6 +205,9 @@ def check_forwarded(client: Client, message: Message) -> bool:
         # Do not check hidden forwarder
         if message.forward_sender_name:
             return True
+
+        # Forward evidence
+        thread(forward_evidence, (client, message))
 
         # Check TICKET message automatically without using "/check" reply to that message
         if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:

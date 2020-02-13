@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -55,10 +55,13 @@ def action_command(client: Client, message: Message) -> bool:
 
         # Proceed
         the_type, reason = get_command_context(message)
+
         if the_type in {"proceed", "delete", "cancel"} and r_message and r_message.from_user.is_self:
             aid = get_admin(r_message)
+
             if uid == aid:
                 callback_data_list = get_callback_data(r_message)
+
                 if callback_data_list and callback_data_list[0]["t"] in {"proceed", "delete"}:
                     key = callback_data_list[0]["d"]
                     thread(answer_action, (client, the_type, uid, rid, key, reason))
@@ -312,8 +315,10 @@ def leave(client: Client, message: Message) -> bool:
         if message.reply_to_message:
             text += f"{lang('action')}{lang('colon')}{code(lang('leave_handle'))}\n"
             action_type, reason = get_command_context(message)
+
             if action_type in {"approve", "reject"} and r_message and r_message.from_user.is_self:
                 callback_data_list = get_callback_data(r_message)
+
                 if callback_data_list and callback_data_list[0]["t"] in {"approve"}:
                     action_key = callback_data_list[0]["d"]
                     thread(answer_leave, (client, action_type, aid, rid, action_key, reason))
@@ -331,12 +336,14 @@ def leave(client: Client, message: Message) -> bool:
 
             # Check force
             force = False
+
             if re.search("force$", reason):
                 force = True
                 reason = re.sub("force$", "", reason).strip()
 
             if id_text:
                 the_id = get_int(id_text)
+
                 if the_id < 0:
                     share_data(
                         client=client,
@@ -456,6 +463,7 @@ def modify_subject(client: Client, message: Message) -> bool:
 
                     # Text
                     text += result
+
                     if reason and result and lang("status_succeeded") in result:
                         text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
                 else:
@@ -562,9 +570,11 @@ def page_command(client: Client, message: Message) -> bool:
         # Proceed
         if the_type in {"previous", "next"} and r_message and r_message.from_user.is_self:
             aid = get_admin(r_message)
+
             if uid == aid:
                 callback_data_list = get_callback_data(r_message)
                 i = (lambda x: 0 if x == "previous" else -1)(the_type)
+
                 if callback_data_list and callback_data_list[i]["a"] == "list":
                     action_type = callback_data_list[i]["t"]
                     page = callback_data_list[i]["d"]

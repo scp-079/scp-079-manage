@@ -1,5 +1,5 @@
 # SCP-079-MANAGE - One ring to rule them all
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-MANAGE.
 #
@@ -98,6 +98,7 @@ def answer_check(client: Client, action_type: str, uid: int, mid: int, key: str)
 
         # Proceed
         text = ""
+
         if action_type == "cancel":
             thread(edit_message_reply_markup, (client, glovar.manage_group_id, mid, None))
         elif action_type == "score":
@@ -294,6 +295,7 @@ def action_proceed(client: Client, key: str, reason: str = None) -> bool:
         if action == "error":
             action_type = "add"
             id_type = "except"
+
             if cid == glovar.watch_channel_id:
                 remove_watch_user(client, get_int(record["uid"]))
             elif cid == glovar.logging_channel_id:
@@ -436,6 +438,7 @@ def list_page_ids(aid: int, action_type: str, page: int) -> (str, InlineKeyboard
 
             # Generate the page
             the_list = eval(f"glovar.{action_type}_ids")["channels"]
+
             if the_list:
                 page_list, markup = get_list_page(the_list, "list", action_type, page)
                 text += (f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n" +
