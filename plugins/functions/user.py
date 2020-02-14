@@ -22,7 +22,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import forward_evidence, send_debug, share_data
-from .etc import button_data, code, get_int, get_now, get_subject, italic, lang, mention_id, message_link
+from .etc import button_data, code, general_link, get_int, get_now, get_subject, italic, lang, mention_id, message_link
 from .etc import random_str, thread
 from .file import save
 from .telegram import get_chat, resolve_username, send_message
@@ -108,7 +108,7 @@ def check_subject(client: Client, message: Message, m: str = "") -> bool:
                 m = forward_evidence(client, message)
 
             if m:
-                m = message_link(m)
+                m = general_link(m.message_id, message_link(m))
         elif message.forward_from:
             the_id = message.forward_from.id
         elif message.forward_from_chat:
