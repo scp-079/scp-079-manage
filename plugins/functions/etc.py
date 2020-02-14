@@ -368,6 +368,7 @@ def get_report_record(message: Message) -> Dict[str, str]:
             return record
 
         record_list = message.text.split("\n")
+
         for r in record_list:
             if re.search(f"^{lang('project')}{lang('colon')}", r):
                 record_type = "project"
