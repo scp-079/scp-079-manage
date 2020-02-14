@@ -25,7 +25,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 from .. import glovar
 from ..functions.channel import forward_evidence
 from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, lang, random_str
-from ..functions.etc import thread, mention_id
+from ..functions.etc import thread, mention_id, message_link
 from ..functions.file import save
 from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_exchange_channel
 from ..functions.filters import is_error_channel, logging_channel, manage_group, watch_channel
@@ -207,7 +207,12 @@ def check_forwarded(client: Client, message: Message) -> bool:
             return True
 
         # Forward evidence
-        thread(forward_evidence, (client, message))
+        m = forward_evidence(client, message)
+
+        if not m:
+            return True
+
+        m = message_link(m)
 
         # Check TICKET message automatically without using "/check" reply to that message
         if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:
@@ -217,7 +222,7 @@ def check_forwarded(client: Client, message: Message) -> bool:
             message.reply_to_message = message
 
         # Check subject
-        check_subject(client, message)
+        check_subject(client, message, m)
 
         return True
     except Exception as e:

@@ -21,8 +21,9 @@ import logging
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .channel import send_debug, share_data
-from .etc import button_data, code, get_int, get_now, get_subject, italic, lang, mention_id, random_str, thread
+from .channel import forward_evidence, send_debug, share_data
+from .etc import button_data, code, get_int, get_now, get_subject, italic, lang, mention_id, message_link
+from .etc import random_str, thread
 from .file import save
 from .telegram import get_chat, resolve_username, send_message
 
@@ -80,7 +81,7 @@ def add_channel(client: Client, the_type: str, the_id: int, aid: int, reason: st
     return result
 
 
-def check_subject(client: Client, message: Message) -> bool:
+def check_subject(client: Client, message: Message, m: str = "") -> bool:
     # Check the subject's status
     try:
         # Init
@@ -97,11 +98,17 @@ def check_subject(client: Client, message: Message) -> bool:
         the_id = 0
         id_text, _, _ = get_subject(message)
 
-        if id_text:
+        if id_text and not m:
             the_id = get_int(id_text)
 
             if not the_id:
                 _, the_id = resolve_username(client, id_text, False)
+
+            if the_id:
+                m = forward_evidence(client, message)
+
+            if m:
+                m = message_link(m)
         elif message.forward_from:
             the_id = message.forward_from.id
         elif message.forward_from_chat:
@@ -126,9 +133,15 @@ def check_subject(client: Client, message: Message) -> bool:
         glovar.records[key] = {
             "lock": True,
             "time": now,
+            "m": m,
             "mid": 0,
             "the_id": the_id
         }
+
+        text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        if m:
+            text += f"{lang('triggered_by')}{lang('colon')}{m}\n"
 
         if the_id > 0:
             is_bad = the_id in glovar.bad_ids["users"]
@@ -136,12 +149,11 @@ def check_subject(client: Client, message: Message) -> bool:
             is_watch_delete = now < glovar.watch_ids["delete"].get(the_id, 0)
             total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
 
-            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                    f"{lang('user_id')}{lang('colon')}{code(the_id)}\n"
-                    f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
-                    f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
-                    f"{lang('delete_watch')}{lang('colon')}{code(is_watch_delete)}\n"
-                    f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n\n")
+            text += (f"{lang('user_id')}{lang('colon')}{code(the_id)}\n"
+                     f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
+                     f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
+                     f"{lang('delete_watch')}{lang('colon')}{code(is_watch_delete)}\n"
+                     f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n\n")
 
             for project in glovar.default_user_status:
                 project_score = glovar.user_ids.get(the_id, glovar.default_user_status)[project]
@@ -201,8 +213,7 @@ def check_subject(client: Client, message: Message) -> bool:
             is_bad = the_id in glovar.bad_ids["channels"]
             is_except = the_id in glovar.except_ids["channels"]
 
-            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                    f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n")
+            text += f"{lang('channel_id')}{lang('colon')}{code(the_id)}\n"
 
             if id_text and id_text != str(the_id):
                 chat = get_chat(client, id_text)

@@ -169,6 +169,8 @@ lang: Dict[str, str] = {
     "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
     # Config
     "config_show": (zh_cn and "查看设置") or "Show Config",
+    # Debug
+    "triggered_by": (zh_cn and "触发消息") or "Triggered By",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
     "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
@@ -504,6 +506,7 @@ records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 #     "random_2": {
 #         "lock": False,
 #         "time": 15112345678,
+#         "m": "https://t.me/c/12345678/123",
 #         "mid": 123,
 #         "the_id": 12345678
 #     },
