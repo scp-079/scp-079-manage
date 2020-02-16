@@ -207,12 +207,15 @@ def check_forwarded(client: Client, message: Message) -> bool:
             return True
 
         # Forward evidence
-        m = forward_evidence(client, message)
+        if message.forward_from:
+            m = ""
+        else:
+            m = forward_evidence(client, message)
 
-        if not m:
-            return True
+            if not m:
+                return True
 
-        m = general_link(m.message_id, message_link(m))
+            m = general_link(m.message_id, message_link(m))
 
         # Check TICKET message automatically without using "/check" reply to that message
         if message.forward_from_chat and message.forward_from_chat.id == glovar.debug_channel_id:

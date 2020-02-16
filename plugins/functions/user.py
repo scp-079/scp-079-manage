@@ -102,10 +102,10 @@ def check_subject(client: Client, message: Message, m: str = "") -> bool:
             the_id = get_int(id_text)
 
             if not the_id:
-                _, the_id = resolve_username(client, id_text, False)
+                the_type, the_id = resolve_username(client, id_text, False)
 
-            if the_id:
-                m = forward_evidence(client, message)
+                if the_type == "user" and the_id:
+                    m = forward_evidence(client, message)
 
             if m:
                 m = general_link(m.message_id, message_link(m))
