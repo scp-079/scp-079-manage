@@ -496,7 +496,11 @@ def process_data(client: Client, message: Message) -> bool:
 
             elif sender == "USER":
 
-                if action == "config":
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+                elif action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
 
