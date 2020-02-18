@@ -104,7 +104,7 @@ def check_subject(client: Client, message: Message, m: str = "") -> bool:
             if not the_id:
                 the_type, the_id = resolve_username(client, id_text, False)
 
-                if the_type == "user" and the_id:
+                if the_type == "channel" and the_id:
                     m = forward_evidence(client, message)
 
             if m:
