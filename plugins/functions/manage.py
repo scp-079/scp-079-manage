@@ -120,8 +120,12 @@ def answer_check(client: Client, action_type: str, uid: int, mid: int, key: str)
         if not text:
             return True
 
-        text = (f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
-                f"{lang('triggered_by')}{lang('colon')}{m}\n") + text
+        prefix_text = f"{lang('admin')}{lang('colon')}{mention_id(uid)}\n"
+
+        if m:
+            prefix_text += f"{lang('triggered_by')}{lang('colon')}{m}\n"
+        
+        text = prefix_text + text
         thread(edit_message_text, (client, glovar.manage_group_id, mid, text))
 
         return True

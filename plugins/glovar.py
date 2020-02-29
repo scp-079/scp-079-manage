@@ -404,6 +404,10 @@ locks: Dict[str, Lock] = {
     "receive": Lock()
 }
 
+# TODO
+media_group_ids: Set[int] = set()
+# media_group_ids = {12556677123456789}
+
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPLY", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
             "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TICKET", "TIP", "USER", "WARN", "WATCH"],
