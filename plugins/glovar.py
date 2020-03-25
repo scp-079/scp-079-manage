@@ -65,6 +65,7 @@ date_reset: str = ""
 per_page: int = 0
 project_link: str = ""
 project_name: str = ""
+query: str = ""
 zh_cn: Union[bool, str] = ""
 
 # [encrypt]
@@ -103,6 +104,7 @@ try:
     per_page = int(config["custom"].get("per_page", per_page))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
+    query = config["custom"].get("query", query)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
 

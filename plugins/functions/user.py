@@ -150,8 +150,12 @@ def check_subject(client: Client, message: Message, m: str = "") -> bool:
             total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
 
             text += (f"{lang('user_id')}{lang('colon')}{code(the_id)}\n"
-                     f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
-                     f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
+                     f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n")
+
+            if glovar.query and glovar.query != "[DATA EXPUNGED]":
+                text += f"{glovar.query.format(the_id)}\n"
+
+            text += (f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
                      f"{lang('delete_watch')}{lang('colon')}{code(is_watch_delete)}\n"
                      f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n\n")
 
