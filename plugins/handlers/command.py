@@ -107,6 +107,7 @@ def check(client: Client, message: Message) -> bool:
                                                                        "clear_bad_contents",
                                                                        "clear_bad_contacts",
                                                                        "clear_except_channels",
+                                                                       "clear_except_contacts",
                                                                        "clear_except_temp",
                                                                        "clear_except_long",
                                                                        "clear_user_all",
@@ -140,6 +141,7 @@ def clear(client: Client, message: Message) -> bool:
                 "bad_contents": ["NOSPAM"],
                 "bad_contacts": ["NOSPAM"],
                 "except_channels": glovar.receivers["except"],
+                "except_contacts": ["NOSPAM"],
                 "except_temp": glovar.receivers["except"],
                 "except_long": glovar.receivers["except"],
                 "user_all": glovar.receivers["score"],
@@ -661,7 +663,7 @@ def remove_contact(client: Client, message: Message) -> bool:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        command_type = get_command_type(message)
+        command_type = get_command_type(message).lower()
 
         # Generate the report message's text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
