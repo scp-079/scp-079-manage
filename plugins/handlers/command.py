@@ -361,6 +361,9 @@ def leave(client: Client, message: Message) -> bool:
                     )
                     text += (f"{lang('group_id')}{lang('colon')}{code(the_id)}\n"
                              f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n")
+
+                    if reason:
+                        text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                              f"{lang('reason')}{lang('colon')}{code(lang('command_para'))}\n")
