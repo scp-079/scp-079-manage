@@ -31,7 +31,8 @@ from ..functions.filters import exchange_channel, error_channel, from_user, hide
 from ..functions.filters import is_error_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_config_show, receive_leave_info, receive_leave_request
-from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
+from ..functions.receive import receive_remove_white, receive_status_reply, receive_text_data, receive_user_score
+from ..functions.receive import receive_watch_user, receive_white_users
 from ..functions.telegram import send_message
 from ..functions.user import check_subject
 
@@ -305,7 +306,15 @@ def process_data(client: Client, message: Message) -> bool:
 
             if sender == "AVATAR":
 
-                if action == "status":
+                if action == "add":
+                    if action_type == "white":
+                        receive_white_users(client, message)
+
+                elif action == "remove":
+                    if action_type == "white":
+                        receive_remove_white(data)
+
+                elif action == "status":
                     if action_type == "reply":
                         receive_status_reply(client, message, sender, data)
 
