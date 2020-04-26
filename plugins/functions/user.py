@@ -145,12 +145,14 @@ def check_subject(client: Client, message: Message, m: str = "") -> bool:
 
         if the_id > 0:
             is_bad = the_id in glovar.bad_ids["users"]
+            is_white = the_id in glovar.white_ids
             is_watch_ban = now < glovar.watch_ids["ban"].get(the_id, 0)
             is_watch_delete = now < glovar.watch_ids["delete"].get(the_id, 0)
             total_score = sum(glovar.user_ids.get(the_id, glovar.default_user_status).values())
 
             text += (f"{lang('user_id')}{lang('colon')}{code(the_id)}\n"
-                     f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n")
+                     f"{lang('blacklist')}{lang('colon')}{code(is_bad)}\n"
+                     f"{lang('whitelist')}{lang('colon')}{code(is_white)}\n")
 
             if glovar.query and glovar.query != "[DATA EXPUNGED]":
                 text += f"{glovar.query.format(the_id)}\n"
@@ -430,10 +432,7 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
                 receivers=glovar.receivers["watch"],
                 action="remove",
                 action_type="watch",
-                data={
-                    "id": the_id,
-                    "type": "all"
-                }
+                data=the_id
             )
 
             # Text
@@ -453,5 +452,50 @@ def remove_watch_user(client: Client, the_id: int, debug: bool = False, aid: int
                        f"{lang('reason')}{lang('colon')}{code(lang('no_watch'))}\n")
     except Exception as e:
         logger.warning(f"Remove watch user error: {e}", exc_info=True)
+
+    return result
+
+
+def remove_white_user(client: Client, the_id: int, debug: bool = False, aid: int = None, reason: str = None,
+                      force: bool = False) -> str:
+    # Remove user from whitelist
+    result = ""
+    try:
+        # Generate the report message's text
+        result += (f"{lang('action')}{lang('colon')}{code(lang('action_unwhite'))}\n"
+                   f"{lang('user_id')}{lang('colon')}{code(the_id)}\n")
+
+        # Proceed
+        if the_id in glovar.white_ids or force:
+            # Local
+            glovar.white_ids.discard(the_id)
+            save("white_ids")
+
+            # Share
+            share_data(
+                client=client,
+                receivers=glovar.receivers["white"],
+                action="remove",
+                action_type="white",
+                data=the_id
+            )
+
+            # Text
+            result += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
+
+            # Send debug message
+            if debug:
+                send_debug(
+                    client=client,
+                    aid=aid,
+                    action=lang("action_unwhite"),
+                    the_id=the_id,
+                    reason=reason
+                )
+        else:
+            result += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                       f"{lang('reason')}{lang('colon')}{code(lang('no_white'))}\n")
+    except Exception as e:
+        logger.warning(f"Remove white user error: {e}", exc_info=True)
 
     return result

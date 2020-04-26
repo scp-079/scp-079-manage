@@ -81,19 +81,19 @@ try:
     prefix = list(config["basic"].get("prefix", prefix_str))
 
     # [bots]
-    ticket_id = int(config["bots"].get("ticket_id", ticket_id))
+    ticket_id = int(config["bots"].get("ticket_id", str(ticket_id)))
 
     # [channels]
-    critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
-    debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
-    error_channel_id = int(config["channels"].get("error_channel_id", error_channel_id))
-    exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
-    hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
-    logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
-    manage_channel_id = int(config["channels"].get("manage_channel_id", manage_channel_id))
-    manage_group_id = int(config["channels"].get("manage_group_id", manage_group_id))
-    test_group_id = int(config["channels"].get("test_group_id", test_group_id))
-    watch_channel_id = int(config["channels"].get("watch_channel_id", watch_channel_id))
+    critical_channel_id = int(config["channels"].get("critical_channel_id", str(critical_channel_id)))
+    debug_channel_id = int(config["channels"].get("debug_channel_id", str(debug_channel_id)))
+    error_channel_id = int(config["channels"].get("error_channel_id", str(error_channel_id)))
+    exchange_channel_id = int(config["channels"].get("exchange_channel_id", str(exchange_channel_id)))
+    hide_channel_id = int(config["channels"].get("hide_channel_id", str(hide_channel_id)))
+    logging_channel_id = int(config["channels"].get("logging_channel_id", str(logging_channel_id)))
+    manage_channel_id = int(config["channels"].get("manage_channel_id", str(manage_channel_id)))
+    manage_group_id = int(config["channels"].get("manage_group_id", str(manage_group_id)))
+    test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
+    watch_channel_id = int(config["channels"].get("watch_channel_id", str(watch_channel_id)))
 
     # [custom]
     aio = config["custom"].get("aio", aio)
@@ -101,7 +101,7 @@ try:
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
     date_reset = config["custom"].get("date_reset", date_reset)
-    per_page = int(config["custom"].get("per_page", per_page))
+    per_page = int(config["custom"].get("per_page", str(per_page)))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     query = config["custom"].get("query", query)
@@ -219,6 +219,7 @@ lang: Dict[str, str] = {
     "action_unban": (zh_cn and "解禁用户") or "Unban the User",
     "action_forgive": (zh_cn and "清空评分") or "Forgive the User",
     "action_unwatch": (zh_cn and "移除追踪") or "Unwatch the User",
+    "action_unwhite": (zh_cn and "移除白名单") or "Unwhite the User",
     "action_contact": (zh_cn and "移除联系方式") or "Remove Contact",
     "action_status": (zh_cn and "查询状态") or "Request the Status",
     "action_now": (zh_cn and "立即备份") or "Backup Now",
@@ -268,6 +269,7 @@ lang: Dict[str, str] = {
     "no_except": (zh_cn and "未在白名单中") or "Not in the Whitelist",
     "no_score": (zh_cn and "用户未获得评分") or "User Does Not Have Score",
     "no_watch": (zh_cn and "用户未被追踪") or "Not Watched",
+    "no_white": (zh_cn and "用户未在白名单中") or "Not Whitelisted",
 
     "user_unban": (zh_cn and "解禁用户") or "Unban",
     "user_forgive": (zh_cn and "清空评分") or "Forgive",
@@ -423,9 +425,11 @@ receivers: Dict[str, List[str]] = {
                 "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
               "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
-    "status": ["NOSPAM", "REGEX", "USER", "WATCH"],
+    "status": ["AVATAR", "NOSPAM", "REGEX", "USER", "WATCH"],
     "watch": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"]
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
+    "white": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
+              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "USER", "WATCH"]
 }
 
 sender: str = "MANAGE"
@@ -528,8 +532,12 @@ records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 #     }
 # }
 
+white_ids: Set[int] = set()
+# white_ids = {12345678}
+
 # Load data
-file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "records"]
+file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "white_ids",
+                        "records"]
 
 for file in file_list:
     try:

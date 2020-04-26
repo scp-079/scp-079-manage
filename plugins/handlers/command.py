@@ -31,7 +31,7 @@ from ..functions.receive import receive_clear_data
 from ..functions.telegram import edit_message_text, send_message
 from ..functions.timers import backup_files
 from ..functions.user import add_channel, check_subject
-from ..functions.user import remove_bad_user, remove_channel, remove_score, remove_watch_user
+from ..functions.user import remove_bad_user, remove_channel, remove_score, remove_watch_user, remove_white_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -411,7 +411,8 @@ def list_ids(client: Client, message: Message) -> bool:
                                                                        "remove_bad",
                                                                        "remove_except",
                                                                        "remove_score",
-                                                                       "remove_watch"], glovar.prefix)
+                                                                       "remove_watch",
+                                                                       "remove_white"], glovar.prefix)
                    & manage_group & from_user)
 def modify_subject(client: Client, message: Message) -> bool:
     # Add or remove user and channel
@@ -463,6 +464,8 @@ def modify_subject(client: Client, message: Message) -> bool:
                         result = remove_score(client, the_id, aid, reason, force)
                     elif "remove_watch" in message.command:
                         result = remove_watch_user(client, the_id, True, aid, reason, force)
+                    elif "remove_white" in message.command:
+                        result = remove_white_user(client, the_id, True, aid, reason, force)
                     else:
                         result = ""
 
