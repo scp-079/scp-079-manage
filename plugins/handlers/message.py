@@ -303,7 +303,13 @@ def process_data(client: Client, message: Message) -> bool:
         # so it is intentionally written like this
         if glovar.sender in receivers:
 
-            if sender == "CAPTCHA":
+            if sender == "AVATAR":
+
+                if action == "status":
+                    if action_type == "reply":
+                        receive_status_reply(client, message, sender, data)
+
+            elif sender == "CAPTCHA":
 
                 if action == "config":
                     if action_type == "show":
@@ -450,28 +456,6 @@ def process_data(client: Client, message: Message) -> bool:
                 elif action == "status":
                     if action_type == "reply":
                         receive_status_reply(client, message, sender, data)
-
-                elif action == "update":
-                    if action_type == "score":
-                        receive_user_score(sender, data)
-
-            elif sender == "RECHECK":
-
-                if action == "add":
-                    if action_type == "bad":
-                        receive_add_bad(data)
-                    elif action_type == "watch":
-                        receive_watch_user(data)
-
-                elif action == "config":
-                    if action_type == "show":
-                        receive_config_show(client, message, data)
-
-                elif action == "leave":
-                    if action_type == "info":
-                        receive_leave_info(client, sender, data)
-                    elif action_type == "request":
-                        receive_leave_request(client, sender, data)
 
                 elif action == "update":
                     if action_type == "score":
