@@ -245,7 +245,7 @@ def config(client: Client, message: Message) -> bool:
                    & manage_group
                    & from_user)
 def flood(client: Client, message: Message) -> bool:
-    # Manual kick flood users
+    # Manually kick flood users
     result = False
 
     try:
