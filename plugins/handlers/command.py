@@ -241,6 +241,62 @@ def config(client: Client, message: Message) -> bool:
     return False
 
 
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["flood"], glovar.prefix)
+                   & manage_group
+                   & from_user)
+def flood(client: Client, message: Message) -> bool:
+    # Manual kick flood users
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+
+        # Get the command
+        command_type, command_context = get_command_context(message)
+        gid = get_int(command_type)
+        begin = get_int(command_context.split()[0])
+        end = get_int(command_context.split()[1])
+
+        # Generate the text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code('手动清除炸群成员')}\n")
+
+        # Check the command
+        if not gid or not begin or not end or begin >= end:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+            return thread(send_message, (client, cid, text, mid))
+        else:
+            text += (f"群组：{code(gid)}\n"
+                     f"开始时间：{code(begin)}\n"
+                     f"结束时间：{code(end)}\n")
+
+        # Share the data
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="help",
+            action_type="log",
+            data={
+                "group_id": gid,
+                "begin": begin,
+                "end": end
+            }
+        )
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Flood error: {e}", exc_info=True)
+
+    return result
+
+
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["hide"], glovar.prefix)
                    & manage_group
                    & from_user)

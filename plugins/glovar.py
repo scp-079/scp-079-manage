@@ -504,6 +504,9 @@ watch_ids: Dict[str, Dict[int, int]] = {
 #     }
 # }
 
+white_ids: Set[int] = set()
+# white_ids = {12345678}
+
 # Init data variables
 
 records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
@@ -531,9 +534,6 @@ records: Dict[str, Dict[str, Union[bool, int, str]]] = {}
 #         "reason": ""
 #     }
 # }
-
-white_ids: Set[int] = set()
-# white_ids = {12345678}
 
 # Load data
 file_list: List[str] = ["bad_ids", "except_ids", "user_ids", "watch_ids", "white_ids",
