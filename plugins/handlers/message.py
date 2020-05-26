@@ -27,7 +27,7 @@ from ..functions.channel import forward_evidence
 from ..functions.etc import code, button_data, general_link, get_now, get_report_record, get_text, lang, random_str
 from ..functions.etc import thread, mention_id, message_link
 from ..functions.file import save
-from ..functions.filters import exchange_channel, error_channel, from_user, hide_channel, is_exchange_channel
+from ..functions.filters import aio, exchange_channel, error_channel, from_user, hide_channel, is_exchange_channel
 from ..functions.filters import is_error_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
 from ..functions.receive import receive_add_bad, receive_config_show, receive_leave_info, receive_leave_request
@@ -280,7 +280,7 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message((Filters.incoming or glovar.aio) & Filters.channel & ~Filters.forwarded
+@Client.on_message((Filters.incoming | aio) & Filters.channel & ~Filters.forwarded
                    & ~Filters.command(glovar.all_commands, glovar.prefix)
                    & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:

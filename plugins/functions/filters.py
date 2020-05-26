@@ -27,6 +27,18 @@ from .. import glovar
 logger = logging.getLogger(__name__)
 
 
+def is_aio(_, __) -> bool:
+    # Check if the program is under all-in-one mode
+    result = False
+
+    try:
+        result = glovar.aio
+    except Exception as e:
+        logger.warning(f"Is aio error: {e}", exc_info=True)
+
+    return result
+
+
 def is_exchange_channel(_, message: Message) -> bool:
     # Check if the message is sent from the exchange channel
     try:
@@ -166,6 +178,11 @@ def is_watch_channel(_, message: Message) -> bool:
 
     return False
 
+
+aio = Filters.create(
+    func=is_aio,
+    name="AIO"
+)
 
 exchange_channel = Filters.create(
     func=is_exchange_channel,
