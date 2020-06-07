@@ -25,7 +25,8 @@ from pyrogram.errors import ChatAdminRequired, ButtonDataInvalid, ChannelInvalid
 from pyrogram.errors import PeerIdInvalid, QueryIdInvalid, UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
-from .etc import get_int, wait_flood
+from .decorators import retry
+from .etc import delay, get_int, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -312,5 +313,42 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                 return False
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+@retry
+def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int = None,
+                        markup: InlineKeyboardMarkup = None) -> Optional[bool]:
+    # Send a message that will be auto deleted to a chat
+    result = None
+
+    try:
+        if not text.strip():
+            return None
+
+        result = client.send_message(
+            chat_id=cid,
+            text=text,
+            parse_mode="html",
+            disable_web_page_preview=True,
+            reply_to_message_id=mid,
+            reply_markup=markup
+        )
+
+        if not result:
+            return None
+
+        mid = result.message_id
+        mids = [mid]
+        result = delay(secs, delete_messages, [client, cid, mids])
+    except FloodWait as e:
+        raise e
+    except ButtonDataInvalid:
+        logger.warning(f"Send report message to {cid} - invalid markup: {markup}")
+    except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
+        return None
+    except Exception as e:
+        logger.warning(f"Send report message to {cid} error: {e}", exc_info=True)
 
     return result

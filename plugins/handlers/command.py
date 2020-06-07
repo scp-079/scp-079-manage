@@ -23,8 +23,9 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import share_data
-from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_command_context
-from ..functions.etc import get_command_type, get_int, get_subject, lang, message_link, thread, mention_id
+from ..functions.command import command_error, get_command_context, get_command_type
+from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_int, get_subject, italic, lang
+from ..functions.etc import message_link, thread, mention_id
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import answer_action, answer_leave, list_page_ids
 from ..functions.receive import receive_clear_data
@@ -839,3 +840,91 @@ def version(client: Client, message: Message) -> bool:
         logger.warning(f"Version error: {e}", exc_info=True)
 
     return False
+
+
+# @Client.on_message(Filters.incoming & Filters.group & Filters.command(["join"], glovar.prefix)
+#                    & manage_group
+#                    & from_user)
+# def join(client: Client, message: Message) -> bool:
+#     # Check bots' status
+#     result = False
+#
+#     try:
+#         result = True
+#     except Exception as e:
+#         logger.warning(f"Join error: {e}", exc_info=True)
+#
+#     return result
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["invite"], glovar.prefix)
+                   & manage_group
+                   & from_user)
+def invite(client: Client, message: Message) -> bool:
+    # Check bots' status
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+
+        # Get gid and bots
+        gid, bots = get_command_context(message)
+        gid = get_int(gid)
+        bots = bots.upper()
+
+        # Check the command
+        if not gid or gid >= 0 or not bots:
+            return command_error(client, message, lang("邀请机器人"), lang("command_usage"), report=False)
+
+        # Get valid bot
+        valid_list = {"CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN", "NOSPAM", "TIP", "WARN"}
+        bots = {b for b in bots.split() if b in valid_list}
+        bots = list(bots)
+        bots.sort()
+
+        # Check the bots again
+        if not bots:
+            return command_error(client, message, lang("邀请机器人"), lang("command_para"),
+                                 lang("命令未指定任何有效的机器人"), False)
+
+        # Share the data
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="invite",
+            action_type="try",
+            data={
+                "admin_id": aid,
+                "message_id": mid,
+                "group_id": gid,
+                "bots": bots
+            }
+        )
+
+        # Generate the report text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('邀请机器人'))}\n"
+                f"{lang('status')}{lang('colon')}{code('status_commanded')}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('机器人')}{lang('colon')}" + code("-") * 16 + "\n\n")
+        text += "".join("\t" * 4 + italic(b) + "\n" for b in bots)
+
+        # Send the report text
+        thread(send_message, (client, cid, text, mid))
+
+        # Send debug message
+        debug_text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                      f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
+                      f"{lang('action')}{lang('colon')}{code(lang('邀请机器人'))}\n"
+                      f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                      f"{lang('机器人')}{lang('colon')}{code(' - '.join(bots))}\n")
+        thread(send_message, (client, glovar.debug_channel_id, debug_text))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Invite error: {e}", exc_info=True)
+
+    return result

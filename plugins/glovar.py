@@ -151,6 +151,7 @@ lang: Dict[str, str] = {
     "action_page": (zh_cn and "翻页") or "Change Page",
     "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
+    "detail": (zh_cn and "详情") or "Detail",
     "disabled": (zh_cn and "禁用") or "Disabled",
     "enabled": (zh_cn and "启用") or "Enabled",
     "page": (zh_cn and "第 {} 页") or "Page {}",
@@ -408,7 +409,9 @@ locks: Dict[str, Lock] = {
     "receive": Lock()
 }
 
-# TODO
+joined_ids: Set[int] = set()
+# joined_ids = {-10012345678}
+
 media_group_ids: Set[int] = set()
 # media_group_ids = {12556677123456789}
 
@@ -444,7 +447,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.8"
+version: str = "0.1.8.temp"
 
 # Load data from pickle
 

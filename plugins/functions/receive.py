@@ -166,6 +166,37 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
     return data
 
 
+def receive_invite_result(client: Client, data: dict) -> bool:
+    # Receive invite result
+    result = False
+
+    try:
+        # Basic data
+        aid = data["admin_id"]
+        mid = data["message_id"]
+        gid = data["group_id"]
+        the_result = data["result"]
+        reason = data.get("reason")
+
+        # Generate the report text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('邀请机器人'))}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('status')}{lang('colon')}{code(the_result)}\n")
+
+        if reason:
+            text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+        # Send the report message
+        thread(send_message, (client, glovar.manage_group_id, text, mid))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Receive invite result error: {e}", exc_info=True)
+
+    return result
+
+
 def receive_leave_info(client: Client, project: str, data: dict) -> bool:
     # Info left group
     try:
@@ -255,6 +286,54 @@ def receive_leave_request(client: Client, project: str, data: dict) -> bool:
         logger.warning(f"Receive leave request error: {e}", exc_info=True)
 
     return False
+
+
+def receive_join_info(client: Client, data: dict) -> bool:
+    # Info joined group
+    result = False
+
+    try:
+        # Basic data
+        gid = data["group_id"]
+        name = data["group_name"]
+        link = data["group_link"]
+
+        # Add to joined group ids
+        glovar.joined_ids.add(gid)
+
+        # Generate the text
+        text = (f"{lang('project')}{lang('colon')}{code('USER')}\n"
+                f"{lang('group_name')}{lang('colon')}{general_link(name, link)}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('已加入该群组'))}\n")
+
+        # Generate the markup
+        # data_approve = button_data("joined", "leave", gid)
+        # data_cancel = button_data("joined", "cancel")
+        # markup = InlineKeyboardMarkup(
+        #     [
+        #         [
+        #             InlineKeyboardButton(
+        #                 text=lang("退出群组"),
+        #                 callback_data=data_approve
+        #             ),
+        #             InlineKeyboardButton(
+        #                 text=lang("cancel"),
+        #                 callback_data=data_cancel
+        #             )
+        #         ]
+        #     ]
+        # )
+        markup = None
+
+        # Send the message
+        thread(send_message, (client, glovar.manage_group_id, text, None, markup))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Receive join info error: {e}", exc_info=True)
+
+    return result
 
 
 def receive_remove_white(data: int) -> bool:
