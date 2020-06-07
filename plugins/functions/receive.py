@@ -175,14 +175,14 @@ def receive_invite_result(client: Client, data: dict) -> bool:
         aid = data["admin_id"]
         mid = data["message_id"]
         gid = data["group_id"]
-        the_result = data["result"]
+        status = lang("status_succeeded") if data["status"] else lang("status_failed")
         reason = data.get("reason")
 
         # Generate the report text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('邀请机器人'))}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
-                f"{lang('status')}{lang('colon')}{code(the_result)}\n")
+                f"{lang('status')}{lang('colon')}{code(status)}\n")
 
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
