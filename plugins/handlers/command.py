@@ -907,7 +907,7 @@ def invite(client: Client, message: Message) -> bool:
         # Generate the report text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('邀请机器人'))}\n"
-                f"{lang('status')}{lang('colon')}{code('status_commanded')}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_commanded'))}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
                 f"{lang('机器人')}{lang('colon')}" + code("-") * 16 + "\n\n")
         text += "".join("\t" * 4 + italic(b) + "\n" for b in bots)
