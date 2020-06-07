@@ -24,6 +24,7 @@ from typing import Any
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
+from .channel import share_data
 from .etc import button_data, code, crypt_str, general_link, get_int, get_now, get_text, lang, mention_id
 from .etc import random_str, thread
 from .file import crypt_file, delete_file, get_downloaded_path, get_new_path, save
@@ -186,6 +187,15 @@ def receive_invite_result(client: Client, data: dict) -> bool:
 
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+        # Refresh admin lists
+        status and share_data(
+            client=client,
+            receivers=glovar.receivers["refresh"],
+            action="update",
+            action_type="refresh",
+            data=aid
+        )
 
         # Send the report message
         thread(send_message, (client, glovar.manage_group_id, text, mid))
