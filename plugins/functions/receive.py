@@ -180,12 +180,20 @@ def receive_flood_reply(client: Client, data: dict) -> bool:
         end = data["end"]
         force = data["force"]
         alert = data["alert"]
+        invalid = data["invalid"]
 
         # Generate the report text
-        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('手动清理炸群成员'))}\n"
-                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
-                f"{lang('group_id')}{lang('colon')}{code(gid)}\n")
+        if not invalid:
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('手动清理炸群成员'))}\n"
+                    f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        else:
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('手动清理炸群成员'))}\n"
+                    f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('无效的群组'))}\n")
 
         if not force and alert:
             text += (f"{lang('开始时间')}{lang('colon')}{code(begin)}\n"
