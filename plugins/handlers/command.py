@@ -847,7 +847,8 @@ def time(client: Client, message: Message) -> bool:
 
         # Check the command usage
         if not r_message or not r_message.date:
-            return command_error(client, message, lang("查看消息时间"), lang("command_usage"), report=False)
+            return command_error(client, message, lang("查看消息时间"), lang("command_usage"),
+                                 lang("请用命令回复一条有效的消息"), False)
 
         # Generate the report text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
