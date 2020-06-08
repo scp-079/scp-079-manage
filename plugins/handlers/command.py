@@ -825,6 +825,42 @@ def status(client: Client, message: Message) -> bool:
     return False
 
 
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["time"], glovar.prefix)
+                   & manage_group
+                   & from_user)
+def time(client: Client, message: Message) -> bool:
+    # Show the message's timestamp
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+        r_message = message.reply_to_message
+
+        # Check the command usage
+        if not r_message or not r_message.date:
+            return command_error(client, message, lang("查看消息时间"), lang("command_usage"), report=False)
+
+        # Generate the report text
+        text = (f"{lang('admin_id')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{lang('查看消息时间')}\n"
+                f"{lang('消息发送时间')}{lang('colon')}{code(r_message.date)}\n")
+
+        if r_message.forward_date:
+            text += f"{lang('转发源消息时间')}{lang('colon')}{code(r_message.forward_date)}\n"
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Time error: {e}", exc_info=True)
+
+    return result
+
+
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
                    & test_group
                    & from_user)
