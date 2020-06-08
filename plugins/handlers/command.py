@@ -844,8 +844,8 @@ def time(client: Client, message: Message) -> bool:
             return command_error(client, message, lang("查看消息时间"), lang("command_usage"), report=False)
 
         # Generate the report text
-        text = (f"{lang('admin_id')}{lang('colon')}{mention_id(aid)}\n"
-                f"{lang('action')}{lang('colon')}{lang('查看消息时间')}\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('查看消息时间'))}\n"
                 f"{lang('消息发送时间')}{lang('colon')}{code(r_message.date)}\n")
 
         if r_message.forward_date:
