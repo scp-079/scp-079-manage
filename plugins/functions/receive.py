@@ -167,6 +167,41 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
     return data
 
 
+def receive_flood_reply(client: Client, data: dict) -> bool:
+    # Receive flood reply
+    result = False
+
+    try:
+        # Basic data
+        aid = data["admin_id"]
+        mid = data["message_id"]
+        gid = data["group_id"]
+        begin = data["begin"]
+        end = data["end"]
+        force = data["force"]
+        alert = data["alert"]
+
+        # Generate the report text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('手动清理炸群成员'))}\n"
+                f"{lang('status')}{lang('colon')}{code('status_succeeded')}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n")
+
+        if not force and alert:
+            text += (f"{lang('开始时间')}{lang('colon')}{code(begin)}\n"
+                     f"{lang('结束时间')}{lang('colon')}{code(end)}\n"
+                     f"{lang('警告')}{lang('colon')}{code(lang('此时间段内进行了数据重置操作，因此开始时间被自动修改'))}\n")
+
+        # Send the report message
+        thread(send_message, (client, glovar.manage_group_id, text, mid))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Receive flood reply error: {e}", exc_info=True)
+
+    return result
+
+
 def receive_invite_result(client: Client, data: dict) -> bool:
     # Receive invite result
     result = False

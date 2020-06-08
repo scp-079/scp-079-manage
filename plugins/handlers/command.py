@@ -23,9 +23,9 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import share_data
-from ..functions.command import command_error, get_command_context, get_command_type
-from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_int, get_subject, italic, lang
-from ..functions.etc import message_link, thread, mention_id
+from ..functions.command import command_error, get_command, get_command_context, get_command_type
+from ..functions.etc import bold, code, general_link, get_admin, get_callback_data, get_int, get_now, get_subject
+from ..functions.etc import italic, lang, message_link, thread, mention_id
 from ..functions.filters import from_user, manage_group, test_group
 from ..functions.manage import answer_action, answer_leave, list_page_ids
 from ..functions.receive import receive_clear_data
@@ -242,7 +242,7 @@ def config(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["flood"], glovar.prefix)
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["flood", "flood_force"], glovar.prefix)
                    & manage_group
                    & from_user)
 def flood(client: Client, message: Message) -> bool:
@@ -254,39 +254,47 @@ def flood(client: Client, message: Message) -> bool:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
+        now = get_now()
 
         # Get the command
         command_type, command_context = get_command_context(message)
         gid = get_int(command_type)
         begin = get_int(command_context.split()[0])
-        end = get_int(command_context.split()[1])
-
-        # Generate the text
-        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code('手动清除炸群成员')}\n")
+        end = get_int(command_context.split()[1]) or (command_context.split()[1] == "now" and now)
+        force = get_command(message).endswith("_force")
 
         # Check the command
         if not gid or not begin or not end or begin >= end:
-            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-            return thread(send_message, (client, cid, text, mid))
-        else:
-            text += (f"群组：{code(gid)}\n"
-                     f"开始时间：{code(begin)}\n"
-                     f"结束时间：{code(end)}\n")
+            return command_error(client, message, lang("手动清除炸群成员"), lang("command_usage"), report=False)
+        elif begin + 48 * 3600 < now:
+            return command_error(client, message, lang("手动清除炸群成员"), lang("command_para"),
+                                 lang("开始时间超过 48 小时以前"), False)
+        elif end > now:
+            return command_error(client, message, lang("手动清除炸群成员"), lang("command_para"),
+                                 lang("结束时间超过当前时间"), False)
 
         # Share the data
         share_data(
             client=client,
-            receivers=["USER"],
-            action="help",
-            action_type="log",
+            receivers=["CAPTCHA"],
+            action="flood",
+            action_type="check",
             data={
+                "admin_id": aid,
+                "message_id": mid,
                 "group_id": gid,
                 "begin": begin,
-                "end": end
+                "end": end,
+                "force": force
             }
         )
+
+        # Generate the report text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('手动清除炸群成员'))}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('开始时间')}{lang('colon')}{code(begin)}\n"
+                f"{lang('结束时间')}{lang('colon')}{code(end)}\n")
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
@@ -561,7 +569,7 @@ def modify_subject(client: Client, message: Message) -> bool:
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["now"], glovar.prefix)
                    & manage_group
                    & from_user)
-def now(client: Client, message: Message) -> bool:
+def backup_now(client: Client, message: Message) -> bool:
     # Backup now
     try:
         # Basic data
@@ -609,7 +617,7 @@ def now(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Now error: {e}", exc_info=True)
+        logger.warning(f"Backup now error: {e}", exc_info=True)
 
     return False
 

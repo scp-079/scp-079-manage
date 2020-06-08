@@ -30,9 +30,10 @@ from ..functions.file import save
 from ..functions.filters import aio, exchange_channel, error_channel, from_user, hide_channel, is_exchange_channel
 from ..functions.filters import is_error_channel, logging_channel, manage_group, watch_channel
 from ..functions.group import get_message
-from ..functions.receive import receive_add_bad, receive_config_show, receive_invite_result, receive_leave_info
-from ..functions.receive import receive_leave_request, receive_join_info, receive_remove_white, receive_status_reply
-from ..functions.receive import receive_text_data, receive_user_score, receive_watch_user, receive_white_users
+from ..functions.receive import receive_add_bad, receive_config_show, receive_flood_reply, receive_invite_result
+from ..functions.receive import receive_leave_info, receive_leave_request, receive_join_info, receive_remove_white
+from ..functions.receive import receive_status_reply, receive_text_data, receive_user_score, receive_watch_user
+from ..functions.receive import receive_white_users
 from ..functions.telegram import send_message
 from ..functions.user import check_subject
 
@@ -326,6 +327,10 @@ def process_data(client: Client, message: Message) -> bool:
                 if action == "config":
                     if action_type == "show":
                         receive_config_show(client, message, data)
+
+                elif action == "flood":
+                    if action_type == "reply":
+                        receive_flood_reply(client, data)
 
                 elif action == "leave":
                     if action_type == "info":

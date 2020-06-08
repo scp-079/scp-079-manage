@@ -78,6 +78,24 @@ def command_error(client: Client, message: Message, action: str, error: str,
     return result
 
 
+def get_command(message: Message) -> str:
+    # Get the command "command" in "/command@username"
+    result = ""
+
+    try:
+        text = message.command
+
+        if not text:
+            return ""
+
+        result = text[0]
+        result = result.split("@")[0]
+    except Exception as e:
+        logger.warning(f"Get command error: {e}", exc_info=True)
+
+    return result
+
+
 def get_command_context(message: Message) -> (str, str):
     # Get the type "a" and the context "b" in "/command a b"
     command_type = ""
