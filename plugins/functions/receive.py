@@ -184,7 +184,7 @@ def receive_flood_reply(client: Client, data: dict) -> bool:
         # Generate the report text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('手动清理炸群成员'))}\n"
-                f"{lang('status')}{lang('colon')}{code('status_succeeded')}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n")
 
         if not force and alert:
