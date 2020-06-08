@@ -159,7 +159,7 @@ def check_subject(client: Client, message: Message, m: str = "") -> bool:
 
             text += (f"{lang('ban_watch')}{lang('colon')}{code(is_watch_ban)}\n"
                      f"{lang('delete_watch')}{lang('colon')}{code(is_watch_delete)}\n"
-                     f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n\n")
+                     f"{lang('score_total')}{lang('colon')}{code(f'{total_score:.1f}')}\n")
 
             for project in glovar.default_user_status:
                 project_score = glovar.user_ids.get(the_id, glovar.default_user_status)[project]
