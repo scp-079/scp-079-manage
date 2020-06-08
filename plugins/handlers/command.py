@@ -258,6 +258,12 @@ def flood(client: Client, message: Message) -> bool:
 
         # Get the command
         command_type, command_context = get_command_context(message)
+
+        # Check the command
+        if not command_type or len(command_context.split()) != 2:
+            return command_error(client, message, lang("手动清除炸群成员"), lang("command_usage"), report=False)
+
+        # Get data
         gid = get_int(command_type)
         begin = get_int(command_context.split()[0])
         end = get_int(command_context.split()[1]) or (command_context.split()[1] == "now" and now)
