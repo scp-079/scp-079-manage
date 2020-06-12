@@ -219,7 +219,6 @@ def receive_invite_result(client: Client, data: dict) -> bool:
         aid = data["admin_id"]
         mid = data["message_id"]
         gid = data["group_id"]
-        bots = data["bots"]
         status = data["status"]
         status_text = lang("status_succeeded") if data["status"] else lang("status_failed")
         reason = data.get("reason")
@@ -236,7 +235,7 @@ def receive_invite_result(client: Client, data: dict) -> bool:
         # Refresh admin lists
         status and share_data(
             client=client,
-            receivers=bots,
+            receivers=glovar.receivers["refresh"],
             action="update",
             action_type="refresh",
             data=aid
