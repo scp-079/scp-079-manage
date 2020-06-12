@@ -922,12 +922,12 @@ def invite(client: Client, message: Message) -> bool:
         mid = message.message_id
 
         # Get gid and bots
-        gid, bots = get_command_context(message)
-        gid = get_int(gid)
-        bots = bots.upper()
+        command_type, command_context = get_command_context(message)
+        gid = get_int(command_type)
+        bots = command_context.upper()
 
         # Check the command
-        if not gid or gid >= 0 or not bots:
+        if not gid or gid >= 0 or (not bots and not glovar.aio):
             return command_error(client, message, lang("邀请机器人"), lang("command_usage"), report=False)
 
         # Get valid bot
@@ -935,6 +935,10 @@ def invite(client: Client, message: Message) -> bool:
         bots = {b for b in bots.split() if b in valid_list}
         bots = list(bots)
         bots.sort()
+
+        # AIO mode
+        if glovar.aio and not bots:
+            bots = ["AIO"]
 
         # Check the bots again
         if not bots:
