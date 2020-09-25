@@ -23,7 +23,7 @@ from subprocess import run, PIPE
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.channel import share_data
+from ..functions.channel import format_data, share_data
 from ..functions.command import command_error, get_command, get_command_context, get_command_type
 from ..functions.etc import code, general_link, get_admin, get_callback_data, get_int, get_now, get_readable_time
 from ..functions.etc import get_subject, italic, lang, message_link, thread, mention_id
@@ -333,16 +333,23 @@ def hide(client: Client, message: Message) -> bool:
         if command_type and command_type in {"off", "on"}:
             # Local
             data = (lambda x: True if x == "on" else False)(command_type)
+
+            if glovar.should_hide:
+                channel_id = glovar.hide_channel_id
+            else:
+                channel_id = glovar.exchange_channel_id
+
             glovar.should_hide = data
 
             # Share the command
-            share_data(
-                client=client,
+            text = format_data(
+                sender=glovar.sender,
                 receivers=["EMERGENCY"],
                 action="backup",
                 action_type="hide",
                 data=data
             )
+            thread(send_message, (client, channel_id, text))
 
             # Generate the report message's text
             data_text = (lambda x: lang("enabled") if x else lang("disabled"))(data)
