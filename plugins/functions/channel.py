@@ -218,6 +218,9 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
                 elif key == "name" and record.get(key):
                     text += f"{lang('from_name')}{lang('colon')}{code(record[key])}\n"
             return send_message(client, glovar.error_channel_id, text)
+        elif lang("bio") in rule:
+            text += f"{lang('user_bio')}{lang('colon')}{code(record['bio'])}\n"
+            return send_message(client, glovar.error_channel_id, text)
 
         # Get the evidence message
         message = message.reply_to_message or message
