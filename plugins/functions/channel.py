@@ -211,7 +211,7 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
         record = get_report_record(message)
 
         # Report text
-        if lang("name") in rule:
+        if lang("name") in rule or lang("nick") in rule:
             for key in record:
                 if key == "name" and record.get(key):
                     text += f"{lang('user_name')}{lang('colon')}{code(record[key])}\n"
