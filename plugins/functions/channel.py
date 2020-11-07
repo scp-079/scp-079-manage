@@ -24,7 +24,8 @@ from pyrogram import Client, Message
 from pyrogram.errors import FloodWait
 
 from .. import glovar
-from .etc import code, code_block, delay, general_link, lang, mention_id, message_link, thread, wait_flood
+from .etc import (code, code_block, delay, general_link, get_report_record, lang, mention_id, message_link,
+                  thread, wait_flood)
 from .file import crypt_file, delete_file, get_new_path
 from .telegram import edit_message_text, send_document, send_message
 
@@ -194,8 +195,9 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
                reason: str = None) -> Optional[Union[bool, Message]]:
     # Send the error record message
     result = None
+
     try:
-        # Report text
+        # Text prefix
         text = (f"{lang('project_origin')}{lang('colon')}{code(project)}\n"
                 f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(action)}\n"
@@ -204,6 +206,18 @@ def send_error(client: Client, message: Message, project: str, aid: int, action:
 
         if reason:
             text += f"{lang('reason')}{lang('colon')}{code(reason)}\n"
+
+        # Get record
+        record = get_report_record(message)
+
+        # Report text
+        if lang("name") in rule:
+            for key in record:
+                if key == "name" and record.get(key):
+                    text += f"{lang('user_name')}{lang('colon')}{code(record[key])}\n"
+                elif key == "name" and record.get(key):
+                    text += f"{lang('from_name')}{lang('colon')}{code(record[key])}\n"
+            return send_message(client, glovar.error_channel_id, text)
 
         # Get the evidence message
         message = message.reply_to_message or message
